@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Co-Occurrence Filter</string>
+    <string name="about_button_text">About</string>
+    <string name="setting_button_text">Settings</string>
+    <string name="capture_new_photo_button_text">Capture New Photo</string>
+    <string name="browse_gallery_button_text">Browse Device Gallery</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_filter_photo">Filtering</string>
+    <string name="share_button_text">Share</string>
+    <string name="apply_button_text">Apply</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
