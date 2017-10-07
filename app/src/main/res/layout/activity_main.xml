@@ -7,107 +7,232 @@
     android:layout_height="match_parent"
     tools:context="cofproject.tau.android.cof.MainActivity">
 
-    <RelativeLayout
-        android:layout_width="368dp"
-        android:layout_height="495dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <!--<Button-->
+    <!--android:id="@+id/button18"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:onClick="onNewPhotoClick"-->
+    <!--android:text="@string/capture_new_photo_button_text"-->
+    <!--tools:layout_editor_absoluteX="74dp"-->
+    <!--tools:layout_editor_absoluteY="45dp"-->
+    <!--android:drawableLeft="@drawable/ic_menu_camera"-->
+    <!--tools:textAllCaps="false"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/button20"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:onClick="startGallery"-->
+    <!--android:text="@string/browse_gallery_button_text"-->
+    <!--tools:layout_editor_absoluteX="97dp"-->
+    <!--tools:layout_editor_absoluteY="118dp"-->
+    <!--tools:textAllCaps="false"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/button14"-->
+    <!--android:layout_width="172dp"-->
+    <!--android:layout_height="49dp"-->
+    <!--android:layout_below="@+id/capture_lin_layout"-->
+    <!--android:layout_centerHorizontal="true"-->
+    <!--android:text="@string/about_button_text"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--tools:layout_editor_absoluteY="408dp"-->
+    <!--tools:textAllCaps="false"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/button15"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="@string/action_settings"-->
+    <!--tools:textAllCaps="false"-->
+    <!--tools:layout_editor_absoluteY="345dp"-->
+    <!--tools:layout_editor_absoluteX="43dp"/>-->
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/linearLayout2"-->
+    <!--android:layout_width="160dp"-->
+    <!--android:layout_height="160dp"-->
+    <!--android:layout_marginLeft="16dp"-->
+    <!--android:layout_marginStart="16dp"-->
+    <!--android:layout_marginTop="64dp"-->
+    <!--android:background="@android:drawable/btn_default"-->
+    <!--android:clickable="true"-->
+    <!--android:onClick="onNewPhotoClick"-->
+    <!--android:orientation="vertical"-->
+    <!--android:weightSum="1"-->
+    <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--&gt;-->
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/img_btn_capture_photo"-->
+    <!--android:layout_width="120dp"-->
+    <!--android:layout_height="120dp"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_weight="0.18"-->
+    <!--android:background="@null"-->
+    <!--android:scaleType="fitXY"-->
+    <!--android:src="@drawable/ic_menu_camera">-->
+    <!--</ImageButton>-->
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:clickable="false"-->
+    <!--android:text="@string/capture_new_photo_button_text"-->
+    <!--android:textSize="11sp">-->
+    <!--</TextView>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/linearLayout"-->
+    <!--android:layout_width="160dp"-->
+    <!--android:layout_height="160dp"-->
+    <!--android:layout_marginTop="64dp"-->
+    <!--android:background="@android:drawable/btn_default"-->
+    <!--android:clickable="true"-->
+    <!--android:onClick="startGallery"-->
+    <!--android:orientation="vertical"-->
+    <!--android:weightSum="1"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--android:layout_marginRight="16dp"-->
+    <!--android:layout_marginEnd="16dp">-->
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/img_btn_browse_gallery"-->
+    <!--android:layout_width="120dp"-->
+    <!--android:layout_height="120dp"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:background="@null"-->
+    <!--android:scaleType="fitXY"-->
+    <!--android:src="@drawable/ic_menu_gallery">-->
+    <!--</ImageButton>-->
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:clickable="false"-->
+    <!--android:text="@string/browse_gallery_button_text"-->
+    <!--android:textSize="11sp">-->
+    <!--</TextView>-->
+    <!--</LinearLayout>-->
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="64dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
-
-        <Button
-            android:id="@+id/button14"
-            android:layout_width="172dp"
-            android:layout_height="49dp"
-            android:layout_below="@+id/capture_lin_layout"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="179dp"
-            android:text="@string/about_button_text"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:layout_editor_absoluteX="64dp"
-            tools:layout_editor_absoluteY="221dp"
-            tools:textAllCaps="false"/>
-
-        <Button
-            android:id="@+id/button15"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="60dp"
-            android:layout_marginEnd="127dp"
-            android:layout_marginRight="127dp"
-            android:text="@string/action_settings"
-            app:layout_constraintLeft_toLeftOf="@+id/button13"
-            app:layout_constraintRight_toRightOf="@+id/button13"
-            tools:layout_editor_absoluteY="126dp"
-            tools:textAllCaps="false"/>
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/capture_lin_layout"
+            android:id="@+id/linearLayout2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_margin="10dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="64dp"
+            android:background="@android:drawable/btn_default"
+            android:clickable="true"
+            android:onClick="onNewPhotoClick"
+            android:orientation="vertical"
             android:weightSum="1"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="27dp">
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
 
-            <ImageView
-                android:id="@+id/imageView6"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/capture_new_photo_button"
-                android:layout_toStartOf="@+id/capture_new_photo_button"
-                app:layout_constraintBottom_toBottomOf="@+id/button10"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/button10"
-                app:layout_constraintTop_toTopOf="@+id/button10"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/ic_menu_camera"/>
+            <ImageButton
+                android:id="@+id/img_btn_capture_photo"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_menu_camera"
+                android:onClick="onNewPhotoClick">
+            </ImageButton>
 
-            <Button
-                android:id="@+id/button18"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/browse_gallery_button"
-                android:layout_alignLeft="@+id/browse_gallery_button"
-                android:layout_alignRight="@+id/browse_gallery_button"
-                android:layout_alignStart="@+id/browse_gallery_button"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginRight="8dp"
-                android:onClick="onNewPhotoClick"
-                android:text="@string/capture_new_photo_button_text"
-                app:layout_constraintBottom_toTopOf="@+id/button11"
-                app:layout_constraintHorizontal_bias="0.504"
-                app:layout_constraintLeft_toLeftOf="@+id/button11"
-                app:layout_constraintRight_toRightOf="@+id/button11"
-                tools:textAllCaps="false"/>
-
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="@string/capture_new_photo_button_text">
+            </TextView>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/button20"
+        <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/capture_lin_layout"
-            android:layout_alignRight="@+id/capture_lin_layout"
-            android:layout_below="@+id/capture_lin_layout"
-            android:layout_marginTop="35dp"
-            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="64dp"
+            android:background="@android:drawable/btn_default"
+            android:clickable="true"
             android:onClick="startGallery"
-            android:text="@string/browse_gallery_button_text"
-            app:layout_constraintBottom_toTopOf="@+id/button12"
-            app:layout_constraintHorizontal_bias="0.502"
-            app:layout_constraintLeft_toLeftOf="@+id/button12"
-            app:layout_constraintRight_toRightOf="@+id/button12"
-            tools:textAllCaps="false"/>
+            android:orientation="vertical"
+            android:weightSum="1"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </RelativeLayout>
+            <ImageButton
+                android:id="@+id/img_btn_browse_gallery"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_menu_gallery"
+                android:onClick="startGallery">
+            </ImageButton>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="@string/browse_gallery_button_text">
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_menu_manage"
+            android:text="@string/setting_button_text"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:drawableTop="@drawable/ic_menu_help"
+            android:text="@string/about_button_text"/>
+    </LinearLayout>
+
+
 </android.support.constraint.ConstraintLayout>
