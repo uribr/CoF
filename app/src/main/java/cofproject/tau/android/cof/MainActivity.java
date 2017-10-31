@@ -18,7 +18,11 @@ public class MainActivity extends AppCompatActivity
 {
     // Private members and methods
     private static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
+    private static final int APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
+    /**
+     *
+     */
     private void startCameraActivity()
     {
         Intent intent = new Intent(this, PhotoFiltering.class);
@@ -32,18 +36,17 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Intent intent = new Intent();
-//        intent.setType("image/*");
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        if(!isIntentAvailable(getBaseContext(), intent))
-//        {
-//
-//        }
     }
 
 
     // Public members and methods
+
+    /**
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
     {
@@ -60,10 +63,18 @@ public class MainActivity extends AppCompatActivity
                 break;
                 // Permission denied, do nothing.
             }
+            case APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+
             // TODO - add cases to handle storage managment (not sure if we really need that permissions, will leave it be for now.
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param intent
+     * @return
+     */
     public static boolean isIntentAvailable(Context ctx, Intent intent)
     {
         final PackageManager mgr = ctx.getPackageManager();
@@ -71,13 +82,22 @@ public class MainActivity extends AppCompatActivity
         return list.size() > 0;
     }
 
+    /**
+     *
+     * @param view
+     */
     public void onNewPhotoClick(View view)
     {
-        boolean permissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if(!permissionCheck)
+        boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
+        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
+        if(!cameraPermissionCheck)
         {
             // Request permission to access the camera, this is done ASYNCHRONOUSLY!
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, APP_PERMISSIONS_REQUEST_CAMERA);
+        }
+        if(!readExternalStoragePermissionCheck)
+        {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         }
         else
         {
@@ -85,12 +105,17 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
+    /**
+     *
+     * @param view
+     */
     public void startGallery(View view)
     {
         Intent intent = new Intent(this, PhotoFiltering.class);
         intent.putExtra("capture", false);
         startActivity(intent);
     }
+
+
 
 }

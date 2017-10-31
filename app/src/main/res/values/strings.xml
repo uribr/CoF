@@ -9,6 +9,10 @@
     <string name="share_button_text">Share</string>
     <string name="apply_button_text">Apply</string>
 
+    <string name="filter_parameter_name">Spatial \u03C3</string>
+    <string name="window_width_text">Window Width</string>
+    <string name="window_height_text">Window Height</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
