@@ -1,5 +1,6 @@
 package cofproject.tau.android.cof;
 
+import android.graphics.Bitmap;
 import android.view.View;
 
 /**
@@ -24,13 +25,13 @@ public class CoFilter
 
     /**
      * Apply the CoF to the image.
-     * @param view
+     * @param bitmap
      * @return
      */
-    public Object Apply(View view)
+    public Bitmap Apply(Bitmap bitmap)
     {
-        //TODO - change the type so that it can hold a BMP data.
-        return new Object();
+        //TODO - implement the filter XD
+        return bitmap;
     }
 
 

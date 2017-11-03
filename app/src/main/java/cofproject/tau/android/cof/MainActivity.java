@@ -1,6 +1,7 @@
 package cofproject.tau.android.cof;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,15 +20,25 @@ public class MainActivity extends AppCompatActivity
     // Private members and methods
     private static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
     private static final int APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private static final int FILTERING_RETURN_CODE = 2;
+
+    // A counter for stored results, needs to be read from configuration file.
+    private static int counter = 0;
+
+    private Intent genBasicImageProcIntent(boolean capture)
+    {
+        Intent intent = new Intent(this, PhotoFiltering.class);
+        intent.putExtra("capture", capture);
+        intent.putExtra("count", counter);
+        return intent;
+    }
 
     /**
      *
      */
     private void startCameraActivity()
     {
-        Intent intent = new Intent(this, PhotoFiltering.class);
-        intent.putExtra("capture", true);
-        startActivity(intent);
+        startActivityForResult(genBasicImageProcIntent(true), FILTERING_RETURN_CODE);
     }
 
     // Protected members and methods
@@ -36,6 +47,14 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //TODO - read counter from configuration file
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        //TODO - write new counter to configuarion file.
     }
 
 
@@ -90,6 +109,7 @@ public class MainActivity extends AppCompatActivity
     {
         boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
         boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
+
         if(!cameraPermissionCheck)
         {
             // Request permission to access the camera, this is done ASYNCHRONOUSLY!
@@ -111,9 +131,16 @@ public class MainActivity extends AppCompatActivity
      */
     public void startGallery(View view)
     {
-        Intent intent = new Intent(this, PhotoFiltering.class);
-        intent.putExtra("capture", false);
-        startActivity(intent);
+        startActivityForResult(genBasicImageProcIntent(false), FILTERING_RETURN_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == FILTERING_RETURN_CODE && resultCode == Activity.RESULT_OK)
+        {
+            counter =  data.getBooleanExtra("filteringDone", false) ?  counter++ : counter;
+        }
     }
 
 
