@@ -17,6 +17,14 @@
     <string name="Scribble">Scribble</string>
     <string name="Preset">Preset</string>
 
+    <string name="paramters_input">Change Parameters</string>
+    <string name="help_button_text">Help</string>
+    <string name="save_preset_text">Save Preset</string>
+    <string name="load_preset_text">Load Preset</string>
+    <string name="apply_filter_text">Apply Filter</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

@@ -46,7 +46,7 @@ public class IntegerParameterWatcher implements TextWatcher
         {
             Integer num = Integer.parseInt(s.toString());
             if (num < 0) { stringBuilder.append(mNegativeMessage); }
-            else if (num > mLimiter)
+            else if (num >= mLimiter)
             {
                 stringBuilder.append(mAboveLimiterMessage);
             }

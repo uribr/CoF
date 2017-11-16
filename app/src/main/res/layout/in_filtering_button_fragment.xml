@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/load_preset_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:onClick="onSavePresetClick"
+        android:text="@string/load_preset_text"
+        android:textAllCaps="false"
+        android:layout_weight="1"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
+    <Button
+        android:id="@+id/apply_filter_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:onClick="onApplyFilterClick"
+        android:text="@string/apply_filter_text"
+        android:textAllCaps="false"
+        android:layout_weight="1"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
+    <Button
+        android:id="@+id/save_preset_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:onClick="onSavePresetClick"
+        android:text="@string/save_preset_text"
+        android:textAllCaps="false"
+        android:layout_weight="1"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
+</LinearLayout>

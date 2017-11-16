@@ -47,7 +47,7 @@ public class DoubleParameterWatcher implements TextWatcher
         {
             Double num = Double.parseDouble(s.toString());
             if (num < 0) { stringBuilder.append(mNegativeMessage); }
-            else if (num > mLimiter)
+            else if (num >= mLimiter)
             {
                 stringBuilder.append(mAboveLimiterMessage);
             }

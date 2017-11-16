@@ -10,12 +10,12 @@ import android.view.ViewGroup;
  * Created by Uri on 31/10/2017.
  */
 
-public class FilteringButtonsFragment extends Fragment
+public class PreFilteringButtonsFragment extends Fragment
 {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.filtering_buttons_fragment, container, false);
+        View view = inflater.inflate(R.layout.pre_filtering_buttons_fragment, container, false);
         return view;
     }
 

@@ -22,14 +22,10 @@ public class MainActivity extends AppCompatActivity
     private static final int APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private static final int FILTERING_RETURN_CODE = 2;
 
-    // A counter for stored results, needs to be read from configuration file.
-    private static int counter = 0;
-
     private Intent genBasicImageProcIntent(boolean capture)
     {
         Intent intent = new Intent(this, PhotoFiltering.class);
         intent.putExtra("capture", capture);
-        intent.putExtra("count", counter);
         return intent;
     }
 
@@ -137,10 +133,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if (requestCode == FILTERING_RETURN_CODE && resultCode == Activity.RESULT_OK)
-        {
-            counter =  data.getBooleanExtra("filteringDone", false) ?  counter++ : counter;
-        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 

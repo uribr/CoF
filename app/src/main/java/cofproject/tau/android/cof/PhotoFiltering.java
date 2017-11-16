@@ -4,19 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 
 
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,24 +29,19 @@ import java.io.InputStream;
 
 public class PhotoFiltering extends AppCompatActivity {
     private static final String TAG = "PhotoFiltering";
-    private static final double SIGMA_LIMIT = 10;
-    private static final int ITER_LIMIT = 10;
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     private static final int GALLERY_REQUEST_CODE = 1;
-
-    private int counter;
     private int imgHeight, imgWidth;
     private boolean filteringDone;
     private Bitmap originalBitmap;
     private Bitmap filteredBitmap;
     private ImageView newPhotoView;
-    private File tempImageFile;
-    private Fragment mPreFilterButtonFragment;
-    private Fragment mPostFilterButtonFragment;
-    private EditText mSigmaET;
-    private EditText mIterET;
-    private EditText mHeighET;
-    private EditText mWidthET;
+    private PreFilteringButtonsFragment mPreFilterButtonFragment;
+    private ImageViewFragment mImageViewFragment;
+    private InFilterButtonsFragment mInFilterButtonFragment;
+    private ParametersFragment mFilteringParametersFragment;
+    private PostFilteringButtonsFragment mPostFilterButtonFragment;
+
 
     public String mCurrentPhotoPath;
 
@@ -75,31 +70,22 @@ public class PhotoFiltering extends AppCompatActivity {
         catch (Exception e) { e.printStackTrace(); }
     }
 
-    private boolean verifyValues()
+
+
+    private void waitForFragmentToResume(Fragment frag)
     {
-        boolean bool_sigma = mSigmaET.getError() == null && !mSigmaET.getText().toString().isEmpty();
-        boolean bool_iter = mIterET.getError() == null && !mIterET.getText().toString().isEmpty();
-        boolean bool_height = mHeighET.getError() == null && !mHeighET.getText().toString().isEmpty();
-        boolean bool_width = mWidthET.getError() == null && !mWidthET.getText().toString().isEmpty();
-
-        return bool_height && bool_width && bool_iter && bool_sigma;
-    }
-
-    private void addOnTextChangeListeners()
-    {
-        String negMsg = "must be non-negative.";
-        String posMsg = "must be positive.";
-        String aboveLimMsg = "must be less then ";
-        String natMsg = "must be a natural number";
-
-        mSigmaET.addTextChangedListener(new DoubleParameterWatcher(SIGMA_LIMIT, negMsg, aboveLimMsg + Double.toString(SIGMA_LIMIT), " ", "\u03C3 ", mSigmaET));
-        mIterET.addTextChangedListener(new IntegerParameterWatcher(ITER_LIMIT, posMsg, aboveLimMsg + Integer.toString(ITER_LIMIT), natMsg,"The number of iterations ", mIterET));
-
-        Integer height = originalBitmap.getHeight();
-        mHeighET.addTextChangedListener(new IntegerParameterWatcher(height, negMsg, aboveLimMsg + height.toString(), natMsg, "The height ", mHeighET));
-
-        Integer width = originalBitmap.getWidth();
-        mWidthET.addTextChangedListener(new IntegerParameterWatcher(width, negMsg, aboveLimMsg + width.toString(), natMsg, "The width ", mWidthET));
+        // TODO - make this into a multi-threaded thingy
+        while(!frag.isResumed())
+        {
+            try
+            {
+                wait(200);
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
 
@@ -112,14 +98,8 @@ public class PhotoFiltering extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_filtering);
 
-        mSigmaET = (EditText)findViewById(R.id.spatial_sigma_input);
-        mHeighET = (EditText)findViewById(R.id.window_height_input);
-        mWidthET = (EditText)findViewById(R.id.window_width_input);
-        mIterET = (EditText)findViewById(R.id.number_of_iterations);
-
         // Create filtering related buttons fragment and
-        mPreFilterButtonFragment = new FilteringButtonsFragment();
-        mPreFilterButtonFragment.setArguments(getIntent().getExtras());
+        mPreFilterButtonFragment = new PreFilteringButtonsFragment();
 
         //TODO - add proper back support for fragments on the back stack
         // Add proper back behaviour for fragments
@@ -143,12 +123,10 @@ public class PhotoFiltering extends AppCompatActivity {
         //tempImageFile = new File(getFilesDir().getAbsolutePath() + "/Android/data/cofproject.tau.android.cof/temp.jpg");
 
         // Create and send a camera/gallery intent
-        newPhotoView = (ImageView) findViewById(R.id.new_photo_view);
         Bundle extras = getIntent().getExtras();
         if (extras == null) { return; }
 
         // Get counter from intent. The counter is used for naming files
-        counter = extras.getInt("counter");
 
         Intent intent = new Intent();
 
@@ -164,6 +142,7 @@ public class PhotoFiltering extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(intent, GALLERY_REQUEST_CODE);
         }
+
     }
 
     /**
@@ -175,6 +154,7 @@ public class PhotoFiltering extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        //TODO - add setting/loading default parameters
         // super.onActivityResult(requestCode, resultCode, data);
         InputStream stream = null;
         if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE) && resultCode == Activity.RESULT_OK)
@@ -184,15 +164,21 @@ public class PhotoFiltering extends AppCompatActivity {
                 if (originalBitmap != null) { originalBitmap.recycle(); }
                 if(data.getData() != null)
                 {
+                    // Store image
                     stream = getContentResolver().openInputStream(data.getData());
                     originalBitmap = BitmapFactory.decodeStream(stream);
                     imgHeight = originalBitmap.getHeight();
                     imgWidth = originalBitmap.getWidth();
-                    newPhotoView.setImageBitmap(originalBitmap);
 
-                    // Add listeners to the EditText widgets to
-                    // detect changes in the text.
-                    addOnTextChangeListeners();
+                    // Initialize image view fragment that will hold the image.
+                    if(mImageViewFragment == null)
+                    {
+                        mImageViewFragment = new ImageViewFragment();
+                    }
+                    // Add the image fragment to the container.
+                    getFragmentManager().beginTransaction().add(R.id.main_view_container, mImageViewFragment).commit();
+                    mImageViewFragment.setImage(originalBitmap.copy(originalBitmap.getConfig(), false));
+                    // mImageViewFragment.setImage(data.getData());
                 }
             }
             catch (FileNotFoundException e) { e.printStackTrace(); }
@@ -210,7 +196,26 @@ public class PhotoFiltering extends AppCompatActivity {
         else { finish(); }
     }
 
+
     public boolean getFilteringDone() { return this.filteringDone; }
+
+    public void onChangeParameters(View view)
+    {
+        //TODO - store parameters
+        // Add listeners to the EditText widgets to
+        // detect changes in the text.
+        if(mFilteringParametersFragment == null)
+        {
+            mFilteringParametersFragment = new ParametersFragment();
+            mFilteringParametersFragment.setDimensions(imgHeight, imgWidth);
+        }
+        getFragmentManager().beginTransaction().replace(R.id.main_view_container, mFilteringParametersFragment).commit();
+
+
+        if(mInFilterButtonFragment == null) { mInFilterButtonFragment = new InFilterButtonsFragment(); }
+        getFragmentManager().beginTransaction().replace(R.id.filtering_activity_button_container,mInFilterButtonFragment).commit();
+
+    }
 
     /**
      *
@@ -218,7 +223,30 @@ public class PhotoFiltering extends AppCompatActivity {
      */
     public void onScribbleOn(View view)
     {
+        Switch sw = view.findViewById(R.id.scribble_switch);
+        if(!sw.isChecked())
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Error");
+            builder.setMessage("This action will delete all scribble points created so far.\nAre you sure you want to continue?\n");
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    //TODO Remove all scribble
+                }
+            });
+            builder.setNegativeButton("no", new DialogInterface.OnClickListener()
+            { @Override public void onClick(DialogInterface dialog, int which)
+            {
+                Switch scribble = (Switch)findViewById(R.id.scribble_switch);
+                scribble.setChecked(true);
+            }});
 
+            builder.create().show();
+
+        }
     }
 
     /**
@@ -229,7 +257,7 @@ public class PhotoFiltering extends AppCompatActivity {
     {
         // Based on code from: https://stackoverflow.com/questions/43513919/android-alert-dialog-with-one-two-and-three-buttons/43513920#43513920
         // Verify that all of the parameters are within the proper ranges.
-        if (!verifyValues())
+        if (!mFilteringParametersFragment.verifyValues())
         {
             // setup the alert builder
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -248,29 +276,22 @@ public class PhotoFiltering extends AppCompatActivity {
         if (originalBitmap != null)
         {
             // Create a CoF object with the specified parameters and apply it.
-            double sigma = Double.parseDouble(mSigmaET.getText().toString());
-            int height = Integer.parseInt(mHeighET.getText().toString());
-            int width = Integer.parseInt(mWidthET.getText().toString());
-            int iter = Integer.parseInt(mIterET.getText().toString());
+            double sigma = mFilteringParametersFragment.getSigma();
+            int height = mFilteringParametersFragment.getHeight();
+            int width = mFilteringParametersFragment.getWidth();
+            int iter = mFilteringParametersFragment.getIter();
             CoFilter coFilter = new CoFilter(sigma, height, width);
             filteredBitmap = coFilter.Apply(originalBitmap, iter);
 
-            newPhotoView.setImageBitmap(filteredBitmap);
-
             // Create the post filtering fragment of buttons if it is the first time
-            if (mPostFilterButtonFragment == null)
-            {
-                mPostFilterButtonFragment = new ResultButtonsFragment();
-                mPostFilterButtonFragment.setArguments(getIntent().getExtras());
-            }
+            if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
 
             // Removing the pre-filtering fragment of buttons and adding the post-filtering fragment of buttons
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
+            transaction.replace(R.id.main_view_container, mImageViewFragment);
+            mImageViewFragment.setImage(filteredBitmap);
 
-            // Store the replaced fragment in the back stack for
-            // fast retrieval in case the user navigates back to it.
-            // transaction.addToBackStack(null);
             transaction.commit();
             filteringDone = true;
         }
@@ -300,9 +321,7 @@ public class PhotoFiltering extends AppCompatActivity {
      */
     public void onSaveResultClick(View view)
     {
-        saveImage(filteredBitmap, "FLTRD_IMG_" + Integer.toString(++counter));
-        setResult(Activity.RESULT_OK, new Intent().putExtra("filteringDone", filteringDone));
-        finish();
+        //todo
     }
 
 
@@ -313,17 +332,6 @@ public class PhotoFiltering extends AppCompatActivity {
     public void onShareClick(View view)
     {
         //TODO - implement this
-//        Intent intent = new Intent();
-//        intent.setAction(Intent.ACTION_SEND);
-//
-//        saveImage(filteredBitmap, "TMP_SHARABLE_IMG");
-//
-//
-//        intent.setType("image/*");
-//        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse());
-//        startActivity(Intent.createChooser(intent, "Share"));
-
-
     }
 
     /**
@@ -335,12 +343,17 @@ public class PhotoFiltering extends AppCompatActivity {
         filteringDone = false;
 
         // Bring back the original image.
-        newPhotoView.setImageBitmap(originalBitmap);
+
+
 
         // Swap between the fragments again.
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.filtering_activity_button_container ,mPreFilterButtonFragment);
+        transaction.replace(R.id.main_view_container, mImageViewFragment);
         transaction.commit();
+        mImageViewFragment.setImage(originalBitmap);
+
+
     }
 
 
