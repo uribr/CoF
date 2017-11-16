@@ -291,7 +291,6 @@ public class PhotoFiltering extends AppCompatActivity {
             transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
             transaction.replace(R.id.main_view_container, mImageViewFragment);
             mImageViewFragment.setImage(filteredBitmap);
-
             transaction.commit();
             filteringDone = true;
         }
@@ -341,14 +340,10 @@ public class PhotoFiltering extends AppCompatActivity {
     public void onDiscardClick(View view)
     {
         filteringDone = false;
-
-        // Bring back the original image.
-
-
-
         // Swap between the fragments again.
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.filtering_activity_button_container ,mPreFilterButtonFragment);
+        // Bring back the original image.
         transaction.replace(R.id.main_view_container, mImageViewFragment);
         transaction.commit();
         mImageViewFragment.setImage(originalBitmap);
