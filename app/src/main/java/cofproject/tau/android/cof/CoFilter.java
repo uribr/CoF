@@ -1,6 +1,7 @@
 package cofproject.tau.android.cof;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.view.View;
 
 /**
@@ -28,10 +29,13 @@ public class CoFilter
      * @param bitmap
      * @return
      */
-    public Bitmap Apply(Bitmap bitmap)
+    public Bitmap Apply(Bitmap bitmap, int iterations)
     {
         //TODO - implement the filter XD
-        return bitmap;
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
     }
 
 

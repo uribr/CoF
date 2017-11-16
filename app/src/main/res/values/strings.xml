@@ -13,6 +13,10 @@
     <string name="window_width_text">Window Width</string>
     <string name="window_height_text">Window Height</string>
 
+    <string name="Iterations">Iterations</string>
+    <string name="Scribble">Scribble</string>
+    <string name="Preset">Preset</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
