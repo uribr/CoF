@@ -1,18 +1,23 @@
 package cofproject.tau.android.cof;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.Toast;
 
 
 import java.io.File;
@@ -20,6 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
@@ -33,8 +40,8 @@ public class PhotoFiltering extends AppCompatActivity {
     private static final int GALLERY_REQUEST_CODE = 1;
     private int imgHeight, imgWidth;
     private boolean filteringDone;
-    private Bitmap originalBitmap;
-    private Bitmap filteredBitmap;
+    private Bitmap mOriginalBitmap;
+    private Bitmap mFilteredBitmap;
     private PreFilteringButtonsFragment mPreFilterButtonFragment;
     private ImageViewFragment mOriginalImageViewFragment;
     private ImageViewFragment mFilteredImageViewFragment;
@@ -70,22 +77,15 @@ public class PhotoFiltering extends AppCompatActivity {
         catch (Exception e) { e.printStackTrace(); }
     }
 
+    private static void addImageToGallery(final String filePath, final Context context) {
 
+        ContentValues values = new ContentValues();
 
-    private void waitForFragmentToResume(Fragment frag)
-    {
-        // TODO - make this into a multi-threaded thingy
-        while(!frag.isResumed())
-        {
-            try
-            {
-                wait(200);
-            }
-            catch (Exception ex)
-            {
-                ex.printStackTrace();
-            }
-        }
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.MediaColumns.DATA, filePath);
+
+        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 
 
@@ -161,20 +161,20 @@ public class PhotoFiltering extends AppCompatActivity {
         {
             try
             {
-                if (originalBitmap != null) { originalBitmap.recycle(); }
+                if (mOriginalBitmap != null) { mOriginalBitmap.recycle(); }
                 if(data.getData() != null)
                 {
                     // Store image
                     stream = getContentResolver().openInputStream(data.getData());
-                    originalBitmap = BitmapFactory.decodeStream(stream);
-                    imgHeight = originalBitmap.getHeight();
-                    imgWidth = originalBitmap.getWidth();
+                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
+                    imgHeight = mOriginalBitmap.getHeight();
+                    imgWidth = mOriginalBitmap.getWidth();
 
                     // Initialize image view fragment that will hold the image.
                     if(mOriginalImageViewFragment == null) {mOriginalImageViewFragment = new ImageViewFragment();}
                     // Add the image fragment to the container.
                     getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
-                    mOriginalImageViewFragment.setImage(originalBitmap.copy(originalBitmap.getConfig(), false));
+                    mOriginalImageViewFragment.setImage(mOriginalBitmap.copy(mOriginalBitmap.getConfig(), false));
                     // mOriginalImageViewFragment.setImage(data.getData());
                 }
             }
@@ -272,7 +272,7 @@ public class PhotoFiltering extends AppCompatActivity {
             return;
         }
 
-        if (originalBitmap != null)
+        if (mOriginalBitmap != null)
         {
             // Create a CoF object with the specified parameters and apply it.
             double sigma = mFilteringParametersFragment.getSigma();
@@ -280,7 +280,7 @@ public class PhotoFiltering extends AppCompatActivity {
             int width = mFilteringParametersFragment.getWidth();
             int iter = mFilteringParametersFragment.getIter();
             CoFilter coFilter = new CoFilter(sigma, height, width);
-            filteredBitmap = coFilter.Apply(originalBitmap, iter);
+            mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
 
 
             // Create the post filtering fragment of buttons if it is the first time
@@ -295,7 +295,7 @@ public class PhotoFiltering extends AppCompatActivity {
             transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
             transaction.commit();
 
-            mFilteredImageViewFragment.setImage(filteredBitmap);
+            mFilteredImageViewFragment.setImage(mFilteredBitmap);
             filteringDone = true;
         }
     }
@@ -318,13 +318,40 @@ public class PhotoFiltering extends AppCompatActivity {
         //TODO - show a pop-up dialog with explanation about the utilization of the application.
     }
 
+
+
     /**
      *
      * @param view
      */
     public void onSaveResultClick(View view)
     {
-        //todo
+        Log.i(TAG, "onSaveResultClick:  onClick event");
+        String root = Environment.getExternalStorageDirectory().toString() + "/CoF";
+        File myDir = new File(root);
+
+        //noinspection ResultOfMethodCallIgnored
+        myDir.mkdirs();
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("HHmmss_ddMMyyyy");
+        String currentDateandTime = sdf.format(new Date());
+        String fileName = "CoF_" + currentDateandTime + ".jpg";
+        File file = new File(myDir, fileName);
+        if (file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            mFilteredBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            addImageToGallery(file.getAbsolutePath(), this);
+            Toast.makeText(getApplicationContext(), "Image saved: " + fileName, Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
