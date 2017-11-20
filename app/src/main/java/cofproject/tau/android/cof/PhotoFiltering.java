@@ -12,11 +12,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Switch;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,15 +27,17 @@ import java.io.InputStream;
 
 public class PhotoFiltering extends AppCompatActivity {
     private static final String TAG = "PhotoFiltering";
+    private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
+    private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     private static final int GALLERY_REQUEST_CODE = 1;
     private int imgHeight, imgWidth;
     private boolean filteringDone;
     private Bitmap originalBitmap;
     private Bitmap filteredBitmap;
-    private ImageView newPhotoView;
     private PreFilteringButtonsFragment mPreFilterButtonFragment;
-    private ImageViewFragment mImageViewFragment;
+    private ImageViewFragment mOriginalImageViewFragment;
+    private ImageViewFragment mFilteredImageViewFragment;
     private InFilterButtonsFragment mInFilterButtonFragment;
     private ParametersFragment mFilteringParametersFragment;
     private PostFilteringButtonsFragment mPostFilterButtonFragment;
@@ -171,14 +171,11 @@ public class PhotoFiltering extends AppCompatActivity {
                     imgWidth = originalBitmap.getWidth();
 
                     // Initialize image view fragment that will hold the image.
-                    if(mImageViewFragment == null)
-                    {
-                        mImageViewFragment = new ImageViewFragment();
-                    }
+                    if(mOriginalImageViewFragment == null) {mOriginalImageViewFragment = new ImageViewFragment();}
                     // Add the image fragment to the container.
-                    getFragmentManager().beginTransaction().add(R.id.main_view_container, mImageViewFragment).commit();
-                    mImageViewFragment.setImage(originalBitmap.copy(originalBitmap.getConfig(), false));
-                    // mImageViewFragment.setImage(data.getData());
+                    getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
+                    mOriginalImageViewFragment.setImage(originalBitmap.copy(originalBitmap.getConfig(), false));
+                    // mOriginalImageViewFragment.setImage(data.getData());
                 }
             }
             catch (FileNotFoundException e) { e.printStackTrace(); }
@@ -209,11 +206,13 @@ public class PhotoFiltering extends AppCompatActivity {
             mFilteringParametersFragment = new ParametersFragment();
             mFilteringParametersFragment.setDimensions(imgHeight, imgWidth);
         }
-        getFragmentManager().beginTransaction().replace(R.id.main_view_container, mFilteringParametersFragment).commit();
-
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.main_view_container, mFilteringParametersFragment);
 
         if(mInFilterButtonFragment == null) { mInFilterButtonFragment = new InFilterButtonsFragment(); }
-        getFragmentManager().beginTransaction().replace(R.id.filtering_activity_button_container,mInFilterButtonFragment).commit();
+        transaction.replace(R.id.filtering_activity_button_container,mInFilterButtonFragment);
+        transaction.addToBackStack(FROM_ORIGINAL_TO_FILTERING);
+        transaction.commit();
 
     }
 
@@ -283,15 +282,20 @@ public class PhotoFiltering extends AppCompatActivity {
             CoFilter coFilter = new CoFilter(sigma, height, width);
             filteredBitmap = coFilter.Apply(originalBitmap, iter);
 
+
             // Create the post filtering fragment of buttons if it is the first time
             if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
+            // Create the filtered image view.
+            if(mFilteredImageViewFragment == null) {mFilteredImageViewFragment = new ImageViewFragment(); }
 
-            // Removing the pre-filtering fragment of buttons and adding the post-filtering fragment of buttons
+            // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
-            transaction.replace(R.id.main_view_container, mImageViewFragment);
-            mImageViewFragment.setImage(filteredBitmap);
+            transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+            transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
             transaction.commit();
+
+            mFilteredImageViewFragment.setImage(filteredBitmap);
             filteringDone = true;
         }
     }
@@ -333,23 +337,6 @@ public class PhotoFiltering extends AppCompatActivity {
         //TODO - implement this
     }
 
-    /**
-     *
-     * @param view
-     */
-    public void onDiscardClick(View view)
-    {
-        filteringDone = false;
-        // Swap between the fragments again.
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.filtering_activity_button_container ,mPreFilterButtonFragment);
-        // Bring back the original image.
-        transaction.replace(R.id.main_view_container, mImageViewFragment);
-        transaction.commit();
-        mImageViewFragment.setImage(originalBitmap);
-
-
-    }
 
 
 

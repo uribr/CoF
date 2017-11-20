@@ -80,4 +80,6 @@ public class ImageViewFragment extends Fragment
     {
             bitmap = BitmapFactory.decodeByteArray(bytesArray, 0, bytesArray.length);
     }
+
+
 }

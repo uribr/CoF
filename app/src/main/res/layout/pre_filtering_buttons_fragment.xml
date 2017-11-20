@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:onClick="onChangeParameters"
-        android:text="@string/paramters_input"
+        android:text="@string/parameters_input"
         android:textAllCaps="false"
         android:textSize="12sp"
         android:visibility="visible"/>

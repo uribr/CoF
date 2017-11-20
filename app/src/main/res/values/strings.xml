@@ -6,8 +6,7 @@
     <string name="browse_gallery_button_text">Browse Device Gallery</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_filter_photo">Filtering</string>
-    <string name="share_button_text">Share</string>
-    <string name="apply_button_text">Apply</string>
+
 
     <string name="filter_parameter_name">Spatial \u03C3</string>
     <string name="window_width_text">Window Width</string>
@@ -17,11 +16,13 @@
     <string name="Scribble">Scribble</string>
     <string name="Preset">Preset</string>
 
-    <string name="paramters_input">Change Parameters</string>
+    <string name="parameters_input">Change Parameters</string>
     <string name="help_button_text">Help</string>
-    <string name="save_preset_text">Save Preset</string>
-    <string name="load_preset_text">Load Preset</string>
-    <string name="apply_filter_text">Apply Filter</string>
+    <string name="save_text">Save</string>
+    <string name="share_text">Share</string>
+    <string name="load_preset_text">Load</string>
+    <string name="apply_filter_text">Apply</string>
+    <string name="apply_button_text">Apply</string>
 
     <string name="yes">Yes</string>
     <string name="no">No</string>

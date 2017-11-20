@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:onClick="onSaveResultClick"
-        android:text="Save Result"
+        android:text="@string/save_text"
         android:textAllCaps="false"
         android:layout_weight="1"
         android:textSize="12sp"
@@ -19,19 +19,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:onClick="onShareClick"
-        android:text="Share"
+        android:text="@string/share_text"
         android:layout_weight="1"
         android:textAllCaps="false"
         android:textSize="12sp"
         android:visibility="visible"/>
-
-    <Button
-        android:id="@+id/discard_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:onClick="onDiscardClick"
-        android:text="Discard"
-        android:textAllCaps="false"/>
 
 </LinearLayout>

@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:onClick="onSavePresetClick"
-        android:text="@string/save_preset_text"
+        android:text="@string/save_text"
         android:textAllCaps="false"
         android:textSize="12sp"
         android:visibility="visible"/>
@@ -44,6 +44,7 @@
         android:layout_weight="1"
         android:onClick="onHelpClick"
         android:text="@string/help_button_text"
-        android:textAllCaps="false"/>
+        android:textAllCaps="false"
+        android:textSize="12sp"/>
 
 </LinearLayout>
