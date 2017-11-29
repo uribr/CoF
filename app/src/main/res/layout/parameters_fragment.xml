@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--TODO - delete-->
+<!--TODO - delete old ui-->
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -12,121 +12,117 @@
         android:id="@+id/Parameters"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="173dp">
 
-        <android.support.constraint.ConstraintLayout
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="129dp">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal"
+            android:columnCount="2"
+            android:columnOrderPreserved="false"
+            android:rowCount="1">
 
-            <NumberPicker
-                android:id="@+id/numberPicker2"
+            <LinearLayout
+                android:id="@+id/linearLayout56"
                 android:layout_width="wrap_content"
-                android:layout_height="57dp"
-                android:layout_marginEnd="44dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/number_of_iterations"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/number_of_iterations"
-                app:layout_constraintTop_toTopOf="@+id/number_of_iterations"/>
-
-            <EditText
-                android:id="@+id/number_of_iterations"
-                android:layout_width="134dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="2dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="2dp"
-                android:layout_weight="5"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:maxLength="3"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.222"
-                app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.562"/>
+                android:layout_column="1"
+                android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal|end"
+                android:orientation="horizontal">
+
+                <NumberPicker
+                    android:id="@+id/IterationPicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_column="0"
+                android:layout_gravity="center_horizontal|start"
+                android:layout_marginRight="25dp"
                 android:text="@string/Iterations"
-                android:textSize="12sp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/number_of_iterations"
-                app:layout_constraintStart_toStartOf="parent"/>
+                android:textSize="30sp"/>
 
-        </android.support.constraint.ConstraintLayout>
+        </GridLayout>
 
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <EditText
-                android:id="@+id/spatial_sigma_input"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="5"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:maxLength="3"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/parameter_name_textview"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"/>
+        <GridLayout
+            android:id="@+id/spatialGridLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal"
+            android:columnCount="2"
+            android:useDefaultMargins="false">
 
             <TextView
                 android:id="@+id/parameter_name_textview"
-                android:layout_width="54dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/filter_parameter_name"
-                android:textSize="12sp"
-                android:visibility="visible"
-                app:layout_constraintBaseline_toBaselineOf="@+id/spatial_sigma_input"
-                app:layout_constraintStart_toStartOf="parent"/>
-
-            <SeekBar
-                android:id="@+id/seekBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/spatial_sigma_input"
-                tools:layout_editor_absoluteY="16dp"/>
-        </android.support.constraint.ConstraintLayout>
+                android:layout_column="0"
+                android:layout_gravity="right|clip_vertical|clip_horizontal"
+
+                android:layout_marginRight="25dp"
+                android:text="@string/filter_parameter_name"
+                android:textSize="30sp"
+                android:visibility="visible"/>
+
+            <LinearLayout
+                android:id="@+id/linearLayout4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal|end"
+
+                android:orientation="horizontal">
+
+                <NumberPicker
+                    android:id="@+id/SigmaIntegerPicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="."
+                    android:textSize="30sp"/>
+
+                <NumberPicker
+                    android:id="@+id/SigmaFractionPicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    />
+
+            </LinearLayout>
+        </GridLayout>
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1">
+
+            <NumberPicker
+                android:id="@+id/HeightPicker"
+                android:layout_width="62dp"
+                android:layout_height="57dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="44dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/window_height_input"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <EditText
                 android:id="@+id/window_height_input"
-                android:layout_width="0dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
                 android:layout_marginStart="8dp"
@@ -135,7 +131,6 @@
                 android:ems="10"
                 android:inputType="numberDecimal"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/window_height_textview"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -157,8 +152,21 @@
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1">
+
+            <NumberPicker
+                android:id="@+id/WidthPicker"
+                android:layout_width="62dp"
+                android:layout_height="57dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/window_width_input"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/window_width_textview"
@@ -177,7 +185,7 @@
 
             <EditText
                 android:id="@+id/window_width_input"
-                android:layout_width="0dp"
+                android:layout_width="134dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
@@ -186,18 +194,17 @@
                 android:ems="10"
                 android:inputType="numberDecimal"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/window_width_textview"
                 app:layout_constraintTop_toTopOf="parent"/>
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/presetSpinnerLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -211,7 +218,7 @@
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <Spinner
-                android:id="@+id/spinner"
+                android:id="@+id/presetSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -223,7 +230,7 @@
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView4"
+                app:layout_constraintStart_toEndOf="@+id/presetSpinnerLabel"
                 app:layout_constraintTop_toTopOf="parent"/>
         </android.support.constraint.ConstraintLayout>
 

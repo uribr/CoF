@@ -49,7 +49,7 @@ public class ImageViewFragment extends Fragment
             if (bitmap != null) { bitmap.recycle(); }
             if(uri != null)
             {
-                // Store image
+                // store image
                 stream = getActivity().getContentResolver().openInputStream(uri);
                 bitmap = BitmapFactory.decodeStream(stream);
             }

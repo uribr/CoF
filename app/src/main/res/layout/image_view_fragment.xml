@@ -5,8 +5,6 @@
              android:layout_height="match_parent"
              tools:context="cofproject.tau.android.cof.ImageViewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ImageView
         android:id="@+id/new_photo_view"
         android:layout_width="match_parent"

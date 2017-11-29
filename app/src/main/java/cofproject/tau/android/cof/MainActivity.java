@@ -1,11 +1,13 @@
 package cofproject.tau.android.cof;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -17,15 +19,21 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+
     // Private members and methods
-    private static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
-    private static final int APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private static final int FILTERING_RETURN_CODE = 2;
+    private SharedPreferences sharedPreferences;
 
     private Intent genBasicImageProcIntent(boolean capture)
     {
+        boolean defVal = true;
+        String tmpStr;
+
         Intent intent = new Intent(this, PhotoFiltering.class);
-        intent.putExtra("capture", capture);
+        intent.putExtra(getString(R.string.Capture), capture);
+        tmpStr = getString(R.string.ScribbleTutorial);
+        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, defVal));
+        tmpStr = getString(R.string.ParametersTutorial);
+        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, defVal));
         return intent;
     }
 
@@ -42,19 +50,22 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE)
+        {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_main);
-        //TODO - read counter from configuration file
-    }
 
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        //TODO - write new counter to configuarion file.
+        // Create configuration files if none exist
+        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
     }
 
 
     // Public members and methods
+    public static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
+    public static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
+    public static final int FILTERING_RETURN_CODE = 2; // TODO - is this needed?
 
     /**
      *
@@ -65,22 +76,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
     {
-        switch (requestCode)
+        if (requestCode == APP_PERMISSIONS_REQUEST_CAMERA)
         {
-            case APP_PERMISSIONS_REQUEST_CAMERA:
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    // Permission was granted, activating camera
-                    startCameraActivity();
-                }
-                break;
-                // Permission denied, do nothing.
+                // Permission was granted, activating camera
+                startCameraActivity();
             }
-            case APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-
-            // TODO - add cases to handle storage managment (not sure if we really need that permissions, will leave it be for now.
+            // Permission denied, do nothing.
         }
     }
 
@@ -98,27 +102,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     *
-     * @param view
+     * The method checks whether the application has permission to
+     * access the camera and if we don't an asynchronous permission
+     * request is made.
      */
-    public void onNewPhotoClick(View view)
+    public void requestCameraPermission()
     {
         boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-
         if(!cameraPermissionCheck)
         {
             // Request permission to access the camera, this is done ASYNCHRONOUSLY!
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, APP_PERMISSIONS_REQUEST_CAMERA);
         }
-        if(!readExternalStoragePermissionCheck)
-        {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        }
-        else
-        {
-            startCameraActivity();
-        }
+    }
+
+
+    /**
+     *
+     * @param view
+     */
+    public void onNewPhotoClick(View view)
+    {
+        requestCameraPermission();
+        startCameraActivity();
     }
 
     /**
@@ -127,6 +133,7 @@ public class MainActivity extends AppCompatActivity
      */
     public void startGallery(View view)
     {
+
         startActivityForResult(genBasicImageProcIntent(false), FILTERING_RETURN_CODE);
     }
 

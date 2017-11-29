@@ -26,7 +26,16 @@
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="okMsg">OK</string>
+    <string name="InvalidNameError">A preset name must be alphanumeric and contain at least one letter.</string>
+    <string name="PresetsConfigFileName">cofproject.tau.android.cof.FILTER_PRESETS_FILE</string>
+    <string name="ScribbleTutorial">cofproject.tau.android.cof.SCRIBBLE_TUTORIAL</string>
+    <string name="ParametersTutorial">cofproject.tau.android.cof.PARAMETER_TUTORIAL</string>
+    <string name="Capture">capture</string>
+    <string name="SavePresetPromptMsg">Enter a name for this preset:</string>
+    <string name="DefaultPresetName">Default</string>
+    <string name="RelativeCheckBoxTxt">Save relative height and width</string>
+    <string name="SetAsDefaultCheckBoxTxt">Set as default preset</string>
 
 </resources>
+
