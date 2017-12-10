@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content"
+              android:orientation="horizontal">
 
     <Switch
         android:id="@+id/scribble_switch"
@@ -14,14 +14,16 @@
         android:layout_marginBottom="2dp"
         android:layout_marginTop="2dp"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:checked="false"
         android:onClick="onScribbleOn"
         android:splitTrack="false"
         android:text="@string/Scribble"
+        android:textColor="@android:color/background_light"
         android:textIsSelectable="false"
         android:textSize="12sp"
-        android:thumbTint="@android:color/holo_purple"
-        android:trackTint="@android:color/black"
+        android:thumbTint="@android:color/darker_gray"
+        android:trackTint="@android:color/darker_gray"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,25 +31,29 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:checked="false"/>
 
-    <Button
-        android:id="@+id/apply_filter_btn"
+    <ImageButton
+        android:id="@+id/change_parameters_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:onClick="onChangeParameters"
         android:text="@string/parameters_input"
         android:textAllCaps="false"
         android:textSize="12sp"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        app:srcCompat="@android:drawable/ic_menu_manage"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/help_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:onClick="onHelpClick"
         android:text="@string/help_button_text"
-        android:textAllCaps="false"/>
+        android:textAllCaps="false"
+        app:srcCompat="@android:drawable/ic_menu_help"/>
 
 
 </LinearLayout>

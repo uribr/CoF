@@ -56,7 +56,7 @@ public class Preset
     {
         if(mActualtWidth <= 0 || mActualHeight <= 0 || mSigma == 0
                 || mNumberOfIteration == 0 || mName.isEmpty()
-                || (((mRelativeWidth == 0.0 || mRelativeWidth  == 0.0) && !mRelative)))
+                || (((mRelativeWidth == 0.0 || mRelativeWidth  == 0.0) && mRelative)))
         {
             mValid = false;
         }
@@ -71,7 +71,7 @@ public class Preset
     }
 
 
-    public String getmName()
+    public String getName()
     {
         return mName;
     }
@@ -88,26 +88,38 @@ public class Preset
 
     public void setRelativeHeight(int windowHeight, int imageHeight)
     {
-        if(windowHeight <= imageHeight && windowHeight > 0) { this.mRelativeHeight = windowHeight/imageHeight; }
+        if(windowHeight <= imageHeight && windowHeight > 0) { this.mRelativeHeight = (double)(windowHeight)/(double)(imageHeight); }
     }
 
     public double getRelativeWidth() { return mRelativeWidth; }
 
     public int getWidth(int width)
     {
-        if(mRelative || mActualtWidth > width) { return (int)(mRelativeWidth * width); }
+        if(mRelative || mActualtWidth > width)
+        {
+            int res = (int)(mRelativeWidth * (double)(width));
+            if (res == 0) { return ++res; }
+            else if (res > width) { return --res; }
+            return  res;
+        }
         else { return mActualtWidth; }
     }
 
     public int getHeight(int height)
     {
-        if(mRelative || mActualHeight > height) { return (int)(mRelativeHeight * height); }
+        if(mRelative || mActualHeight > height)
+        {
+            int res = (int)(mRelativeHeight * (double)(height));
+            if (res == 0) { return ++res; }
+            else if (res > height) { return --res; }
+            return  res;
+        }
         else { return mActualHeight; }
     }
 
     public void setRelativeWidth(int windowWidth, int imageWidth)
     {
-        if(windowWidth <= imageWidth && windowWidth > 0) { this.mRelativeWidth = windowWidth/imageWidth; }
+        if(windowWidth <= imageWidth && windowWidth > 0) { this.mRelativeWidth = (double)(windowWidth)/(double)(imageWidth); }
     }
 
     public double getSigma()

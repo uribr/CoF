@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/deletePreset"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        android:onClick="onDeletePresetClick"
+        app:srcCompat="@android:drawable/ic_menu_delete"/>
+
+    <ImageButton
+        android:id="@+id/save_preset_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        android:onClick="onSavePresetClick"
+        app:srcCompat="@android:drawable/ic_menu_save"/>
 
     <Button
         android:id="@+id/load_preset_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:onClick="onLoadPresetClick"
         android:text="@string/load_preset_text"
         android:textAllCaps="false"
-        android:textSize="12sp"
-        android:visibility="visible"/>
-
-    <Button
-        android:id="@+id/save_preset_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:onClick="onSavePresetClick"
-        android:text="@string/save_text"
-        android:textAllCaps="false"
+        android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
         android:visibility="visible"/>
 
@@ -31,20 +41,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:onClick="onApplyFilterClick"
         android:text="@string/apply_filter_text"
         android:textAllCaps="false"
+        android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
         android:visibility="visible"/>
 
-    <Button
-        android:id="@+id/help_btn2"
+    <ImageButton
+        android:id="@+id/help_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
+        android:background="@android:color/black"
         android:onClick="onHelpClick"
-        android:text="@string/help_button_text"
-        android:textAllCaps="false"
-        android:textSize="12sp"/>
+        app:srcCompat="@android:drawable/ic_menu_help"/>
 
 </LinearLayout>

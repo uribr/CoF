@@ -113,24 +113,10 @@
                 android:layout_height="57dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="44dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/window_height_input"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <EditText
-                android:id="@+id/window_height_input"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="2dp"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/window_height_textview"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -165,7 +151,7 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/window_width_input"
+                app:layout_constraintStart_toEndOf="@+id/window_width_textview"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
@@ -183,19 +169,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
-            <EditText
-                android:id="@+id/window_width_input"
-                android:layout_width="134dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/window_width_textview"
-                app:layout_constraintTop_toTopOf="parent"/>
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout

@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -42,13 +43,18 @@ import java.io.InputStream;
 import java.text.CharacterIterator;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
  */
 //TODO - Replace reconstructing preset with modifying for better performance.
-public class PhotoFiltering extends AppCompatActivity {
+public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener
+{
     private static final String TAG = "PhotoFiltering";
     private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
@@ -64,6 +70,7 @@ public class PhotoFiltering extends AppCompatActivity {
     private boolean mfilteringDone;
     private boolean isLandscape;
     private boolean mSavedOnce;
+    private boolean mParameterFragmentLoaded;
     private Bitmap mOriginalBitmap;
     private Bitmap mFilteredBitmap;
     private PreFilteringButtonsFragment mPreFilterButtonFragment;
@@ -98,7 +105,18 @@ public class PhotoFiltering extends AppCompatActivity {
         return atLeastOneChar;
     }
 
-
+    private List<String> getPresetNames()
+    {
+        Vector<String> list = new Vector<>();
+        Map<String, ?> map = mPresetPref.getAll();
+        list.add(getString(R.string.DefaultPresetName));
+        for (Map.Entry<String, ?> entry : map.entrySet())
+        {
+            if(entry.getKey().equals(getString(R.string.DefaultPresetName))) { continue; }
+            list.add(entry.getKey());
+        }
+        return list;
+    }
 
     private void createPreset(String name,boolean relative, boolean newDefault, boolean createDefault)
     {
@@ -143,14 +161,18 @@ public class PhotoFiltering extends AppCompatActivity {
         }
     }
 
-    private void loadDefaultPreset()
+    private void openPresetConfigFile()
     {
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
-        String name = getString(R.string.DefaultPresetName);
-        String params = mPresetPref.getString(name, "");
+    }
 
-        if(params.isEmpty())
-        {
+
+    private void loadDefaultPreset()
+    {
+       String name = getString(R.string.DefaultPresetName);
+       String params = mPresetPref.getString(name, "");
+       if(params.isEmpty())
+       {
             // No default preset found, generating an hardcoded default preset
             createPreset(name,false, true, true);
             if(mPreset.isValid())
@@ -163,7 +185,7 @@ public class PhotoFiltering extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\nPlease choose valid parameters.", Toast.LENGTH_SHORT).show();
                 return;
             }
-        }
+       }
         else { mPreset = new Preset(name, params); }
     }
 
@@ -174,7 +196,7 @@ public class PhotoFiltering extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mParameterFragmentLoaded = false;
         if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -283,6 +305,25 @@ public class PhotoFiltering extends AppCompatActivity {
         else { finish(); }
     }
 
+    public void onComplete(Spinner spinner)
+    {
+        mParameterFragmentLoaded = true;
+        // Open the configuration file that contains the presets
+        openPresetConfigFile();
+
+        // Load the default preset
+        loadDefaultPreset();
+
+        // Set the dimensions of the image
+        mFilteringParametersFragment.setDimensionsLimit(imgHeight, imgWidth);
+        mFilteringParametersFragment.applyLimiters();
+        mFilteringParametersFragment.applyPreset(mPreset);
+        mFilteringParametersFragment.setPresetList(getPresetNames());
+        List<String> array = new ArrayList<>(getPresetNames());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, array);
+        spinner.setAdapter(adapter);
+
+    }
 
     public boolean getFilteringDone() { return this.mfilteringDone; }
 
@@ -295,11 +336,8 @@ public class PhotoFiltering extends AppCompatActivity {
         // detect changes in the text.
         if(mFilteringParametersFragment == null)
         {
-            // Load the default preset
-            loadDefaultPreset();
             mFilteringParametersFragment = new ParametersFragment();
-            mFilteringParametersFragment.setDimensionsLimit(imgHeight, imgWidth);
-            mFilteringParametersFragment.applyPreset(mPreset);
+
         }
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         if(isLandscape) { transaction.replace(R.id.parameter_view_container, mFilteringParametersFragment); }
@@ -435,6 +473,7 @@ public class PhotoFiltering extends AppCompatActivity {
                 // and announce the success or failure of the saving.
                 if(userInput.getError() == null && mPreset.store(mPresetPref))
                 {
+                    mFilteringParametersFragment.onStored(name);
                     Toast.makeText(getApplicationContext(), "Preset Saved", Toast.LENGTH_SHORT).show();
                 }
                 else
@@ -465,6 +504,7 @@ public class PhotoFiltering extends AppCompatActivity {
             mPreset = new Preset(name, mPresetPref.getString(name, ""));
             if(mPreset.isValid())
             {
+                mFilteringParametersFragment.applyPreset(mPreset);
                 Toast.makeText(getApplicationContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
             }
             else
@@ -568,6 +608,18 @@ public class PhotoFiltering extends AppCompatActivity {
         }
     }
 
+
+    public void onDeletePresetClick(View view)
+    {
+        // Default preset cannot be deleted but it can be overridden.
+        if(mPreset.getName() != getString(R.string.DefaultPresetName))
+        {
+            SharedPreferences.Editor editor = mPresetPref.edit();
+            editor.remove(mPreset.getName());
+            editor.commit();
+            mFilteringParametersFragment.onRemovedPreset(mPreset.getName());
+        }
+    }
 
 
 
