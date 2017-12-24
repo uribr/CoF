@@ -14,6 +14,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void startCameraActivity()
     {
+        //throw new UnsupportedOperationException("Internal camera feature is not implemented");
         startActivityForResult(genBasicImageProcIntent(true), FILTERING_RETURN_CODE);
     }
 
@@ -123,8 +126,10 @@ public class MainActivity extends AppCompatActivity
      */
     public void onNewPhotoClick(View view)
     {
-        requestCameraPermission();
-        startCameraActivity();
+        Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
+        ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
+        imageButton.setOnClickListener(null);
+        //TODO requestCameraPermission();
     }
 
     /**

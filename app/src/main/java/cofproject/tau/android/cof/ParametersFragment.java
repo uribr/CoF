@@ -21,9 +21,9 @@ import java.util.List;
 public class ParametersFragment extends Fragment
 {
 
-    public static interface OnCompleteListener
+    public interface OnCompleteListener
     {
-        public abstract void onComplete(Spinner spinner);
+        void onComplete(Spinner spinner);
     }
 
     private OnCompleteListener mListener;

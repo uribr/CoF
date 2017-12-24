@@ -25,6 +25,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -53,7 +54,7 @@ import java.util.Vector;
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
  */
 //TODO - Replace reconstructing preset with modifying for better performance.
-public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener
+public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener, ImageViewFragment.OnScribbleUpdate
 {
     private static final String TAG = "PhotoFiltering";
     private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
@@ -305,6 +306,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         else { finish(); }
     }
 
+    public void onNewScribblePoint(List<Pair<Integer, Integer>> coordinates)
+    {
+
+    }
+
     public void onComplete(Spinner spinner)
     {
         mParameterFragmentLoaded = true;
@@ -330,8 +336,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
     public void onChangeParameters(View view)
     {
-        //TODO - store parameters
-
         // Add listeners to the EditText widgets to
         // detect changes in the text.
         if(mFilteringParametersFragment == null)
@@ -370,7 +374,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    //TODO Remove all scribble
+                    mOriginalImageViewFragment.clearScribble();
                 }
             });
             builder.setNegativeButton("no", new DialogInterface.OnClickListener()
@@ -381,7 +385,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             }});
 
             builder.create().show();
-
+        }
+        else
+        {
+            mOriginalImageViewFragment.turnScribbleOn();
         }
     }
 
@@ -392,6 +399,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     public void onApplyFilterClick(View view)
     {
         // Based on code from: https://stackoverflow.com/questions/43513919/android-alert-dialog-with-one-two-and-three-buttons/43513920#43513920
+
         // Verify that all of the parameters are within the proper ranges.
 //        if (!mFilteringParametersFragment.verifyValues())
 //        {
@@ -417,8 +425,15 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             int width = mFilteringParametersFragment.getWidth();
             int iter = mFilteringParametersFragment.getIter();
             CoFilter coFilter = new CoFilter(sigma, height, width);
-            mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
 
+            if (mPreFilterButtonFragment.isScribbleOn())
+            {
+                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter, mOriginalImageViewFragment.getScribbleCoordinates());
+            }
+            else
+            {
+                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
+            }
 
             // Create the post filtering fragment of buttons if it is the first time
             if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
@@ -525,7 +540,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
      */
     public void onHelpClick(View view)
     {
-        //TODO - show a pop-up dialog with explanation about the utilization of the application.
+        //TODO - show a tutorial of the application that should be used when the user first reache a new screen. Note that the tutorial is screen-dependent
     }
 
     /**

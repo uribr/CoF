@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal">
+              android:layout_height="match_parent">
 
     <Switch
         android:id="@+id/scribble_switch"
@@ -20,36 +20,56 @@
         android:text="@string/Scribble"
         android:textIsSelectable="false"
         android:textSize="12sp"
-        android:thumbTint="@android:color/darker_gray"
-        android:trackTint="@android:color/holo_blue_light"
+        android:thumbTint="@android:color/holo_purple"
+        android:trackTint="@android:color/black"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:checked="true"/>
+        tools:checked="false"/>
 
-    <ImageButton
-        android:id="@+id/change_parameters_btn"
+    <Button
+        android:id="@+id/load_preset_btn2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:onClick="onChangeParameters"
-        android:text="@string/parameters_input"
+        android:onClick="onSavePresetClick"
+        android:text="@string/load_preset_text"
         android:textAllCaps="false"
         android:textSize="12sp"
-        android:visibility="visible"
-        app:srcCompat="@android:drawable/ic_menu_manage"/>
+        android:visibility="visible"/>
 
-    <ImageButton
+    <Button
+        android:id="@+id/save_preset_btn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:onClick="onSavePresetClick"
+        android:text="@string/save_text"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
+    <Button
+        android:id="@+id/apply_filter_btn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:onClick="onApplyFilterClick"
+        android:text="@string/apply_filter_text"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
+    <Button
         android:id="@+id/help_btn"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:onClick="onHelpClick"
         android:text="@string/help_button_text"
-        android:textAllCaps="false"
-        app:srcCompat="@android:drawable/ic_menu_help"/>
+        android:textAllCaps="false"/>
 
 
 </LinearLayout>

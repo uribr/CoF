@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
 /**
  * Created by Uri on 31/10/2017.
@@ -12,11 +13,17 @@ import android.view.ViewGroup;
 
 public class PreFilteringButtonsFragment extends Fragment
 {
+    protected  View mView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.pre_filtering_buttons_fragment, container, false);
-        return view;
+        mView = inflater.inflate(R.layout.pre_filtering_buttons_fragment, container, false);
+        return mView;
+    }
+
+    public boolean isScribbleOn()
+    {
+        return ((Switch)mView.findViewById(R.id.scribble_switch)).isChecked();
     }
 
 }

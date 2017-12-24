@@ -11,10 +11,4 @@
         android:layout_height="match_parent"
         android:visibility="visible"
         app:srcCompat="@android:color/background_dark"/>
-
-    <cofproject.tau.android.cof.DottedView
-        android:id="@+id/dottedView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
 </FrameLayout>
