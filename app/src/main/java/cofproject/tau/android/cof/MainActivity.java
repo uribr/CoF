@@ -89,6 +89,16 @@ public class MainActivity extends AppCompatActivity
             }
             // Permission denied, do nothing.
         }
+        else if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
+        {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                // Permission was granted, open gallery
+                startGallery();
+            }
+            // Permission denied, do nothing
+        }
     }
 
     /**
@@ -109,14 +119,16 @@ public class MainActivity extends AppCompatActivity
      * access the camera and if we don't an asynchronous permission
      * request is made.
      */
-    public void requestCameraPermission()
+    public boolean requestCameraPermission()
     {
         boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
         if(!cameraPermissionCheck)
         {
             // Request permission to access the camera, this is done ASYNCHRONOUSLY!
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, APP_PERMISSIONS_REQUEST_CAMERA);
+            return false;
         }
+        return true;
     }
 
 
@@ -129,17 +141,33 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
         ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
         imageButton.setOnClickListener(null);
-        //TODO requestCameraPermission();
+        //TODO if(requestCameraPermission()) { startCameraActivity(); }
     }
 
     /**
      *
      * @param view
      */
-    public void startGallery(View view)
+    public void onGalleryButtonClick(View view)
     {
+        if(requestExternalStoragePermission()) { startGallery(); }
+    }
 
+    public void startGallery()
+    {
         startActivityForResult(genBasicImageProcIntent(false), FILTERING_RETURN_CODE);
+    }
+
+    public boolean requestExternalStoragePermission()
+    {
+        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
+        if(!readExternalStoragePermissionCheck)
+        {
+            // Request permission to read and write to external storage, this is done ASYNCHRONOUSLY!
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
+            return false;
+        }
+        return true;
     }
 
     @Override

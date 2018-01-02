@@ -1,6 +1,5 @@
 package cofproject.tau.android.cof;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,9 +17,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -35,15 +30,12 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.CharacterIterator;
 import java.text.SimpleDateFormat;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,7 +46,7 @@ import java.util.Vector;
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
  */
 //TODO - Replace reconstructing preset with modifying for better performance.
-public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener, ImageViewFragment.OnScribbleUpdate
+public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener
 {
     private static final String TAG = "PhotoFiltering";
     private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
@@ -94,17 +86,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 
-    private boolean isNameValid(String str)
-    {
-        boolean atLeastOneChar = false;
-        CharacterIterator cI = new StringCharacterIterator(str);
-        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next())
-        {
-            if(Character.isAlphabetic(c)) { atLeastOneChar = true; }
-            else if(!Character.isDigit(c)) { return false; }
-        }
-        return atLeastOneChar;
-    }
 
     private List<String> getPresetNames()
     {
@@ -306,10 +287,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         else { finish(); }
     }
 
-    public void onNewScribblePoint(List<Pair<Integer, Integer>> coordinates)
-    {
-
-    }
 
     public void onComplete(Spinner spinner)
     {
@@ -329,6 +306,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, array);
         spinner.setAdapter(adapter);
 
+    }
+
+    public String onComplete(String name)
+    {
+        return mPresetPref.getString(name, "");
     }
 
     public boolean getFilteringDone() { return this.mfilteringDone; }
@@ -367,7 +349,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         if(!sw.isChecked())
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Error");
+            builder.setTitle("Warning");
             builder.setMessage("This action will delete all scribble points created so far.\nAre you sure you want to continue?\n");
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
             {
@@ -383,7 +365,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                 Switch scribble = (Switch)findViewById(R.id.scribble_switch);
                 scribble.setChecked(true);
             }});
-
+            builder.setCancelable(false);
             builder.create().show();
         }
         else
@@ -507,32 +489,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         dialog.show();
     }
 
-    /**
-     *
-     * @param view
-     */
-    public void onLoadPresetClick(View view)
-    {
-        String name = ((Spinner)findViewById(R.id.presetSpinner)).getSelectedItem().toString();
-        if(isNameValid(name))
-        {
-            mPreset = new Preset(name, mPresetPref.getString(name, ""));
-            if(mPreset.isValid())
-            {
-                mFilteringParametersFragment.applyPreset(mPreset);
-                Toast.makeText(getApplicationContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                Toast.makeText(getApplicationContext(), "Invalid preset, modify preset to make it valid before applying it", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else
-        {
-            Toast.makeText(getApplicationContext(), "Invalid name, preset loading failed.", Toast.LENGTH_SHORT).show();
-        }
-
-    }
 
     /**
      *
@@ -543,37 +499,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         //TODO - show a tutorial of the application that should be used when the user first reache a new screen. Note that the tutorial is screen-dependent
     }
 
-    /**
-     * The method checks whether the application has permission to
-     * access the external storage and if we don't an asynchronous
-     * permission request is made.
-     */
-    public void requestExternalStoragePermission()
-    {
-        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if(!readExternalStoragePermissionCheck)
-        {
-            // Request permission to read and write to external storage, this is done ASYNCHRONOUSLY!
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
-        }
-        // The application has permissions thus we call the internal saving operation
-        else if(!mSavedOnce) { internalSaveOperation(); }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
-    {
-        if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
-        {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                // Permission was granted, save image
-                internalSaveOperation();
-            }
-            // Permission denied, do nothing.
-        }
-    }
 
     /**
      *
@@ -582,7 +507,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     public void onSaveResultClick(View view)
     {
         Log.i(TAG, "onSaveResultClick:  onClick event");
-        requestExternalStoragePermission();
+        if(!mSavedOnce) { internalSaveOperation(); }
     }
 
 

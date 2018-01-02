@@ -63,7 +63,11 @@ public class Preset
         else if (set){ mValid = true; }
     }
 
-    public boolean isValid() { return mValid; }
+    public boolean isValid()
+    {
+        validate(true);
+        return mValid;
+    }
 
     public void validate()
     {

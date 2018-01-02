@@ -22,17 +22,6 @@
         app:srcCompat="@android:drawable/ic_menu_save"/>
 
     <Button
-        android:id="@+id/load_preset_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:onClick="onLoadPresetClick"
-        android:text="@string/load_preset_text"
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        android:visibility="visible"/>
-
-    <Button
         android:id="@+id/apply_filter_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

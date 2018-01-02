@@ -10,6 +10,7 @@ import android.util.Pair;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,9 +19,10 @@ import java.util.List;
 
 public class DottedView extends View
 {
-    private ArrayList<Pair<Integer, Integer>> mScribblePointsCoords = new ArrayList<>();
-    private int radius = 5;
+    private ArrayList<ArrayList<Pair<Integer, Integer>>> mScribblePointsCoords = new ArrayList<>();
+    private ArrayList<Pair<Integer, Integer>> mTempGroup;
     private Paint mPaint;
+    private int mRadius;
 
     public DottedView(Context context)
     {
@@ -44,20 +46,50 @@ public class DottedView extends View
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        for (Pair<Integer, Integer> pair: mScribblePointsCoords)
+        Pair<Integer, Integer> point1 = null;
+        Pair<Integer, Integer> point2 = null;
+        Iterator<ArrayList<Pair<Integer, Integer>>> groupIter = mScribblePointsCoords.iterator();
+
+        for  (ArrayList<Pair<Integer, Integer>> group : mScribblePointsCoords)
         {
-            canvas.drawCircle(pair.first, pair.second, radius, mPaint);
+            if (group.size() == 1)
+            {
+                point1 = mScribblePointsCoords.get(0).get(0);
+                canvas.drawCircle(point1.first, point1.second, mRadius, mPaint);
+                continue;
+            }
+
+            point1 = group.get(0);
+            for (int index = 0; index < group.size(); index++)
+            {
+                point2 = group.get(index);
+                mPaint.setStrokeWidth(mRadius);
+                canvas.drawLine(point1.first, point1.second, point2.first, point2.second, mPaint);
+                point1 = point2;
+            }
         }
     }
 
-    public void addScribblePointsCoords(Pair pair)
+    public void addScribblePointsCoords(Pair<Integer, Integer> pair, boolean first, boolean last)
     {
-        mScribblePointsCoords.add(pair);
+        if (first && last) { return; }
+
+        if (first) { mTempGroup = new ArrayList<>();}
+
+        if (!mTempGroup.contains(pair)) { mTempGroup.add(pair); }
+
+        if (last) { mScribblePointsCoords.add(mTempGroup); }
     }
+
 
     public List<Pair<Integer, Integer>> getScribbleCoordinatesList()
     {
-        return mScribblePointsCoords;
+        ArrayList<Pair<Integer, Integer>>  pairs = new ArrayList<>();
+        for (ArrayList<Pair<Integer, Integer>> lst : mScribblePointsCoords)
+        {
+            pairs.addAll(lst);
+        }
+        return pairs;
     }
 
     public void clearScribble()
@@ -70,5 +102,8 @@ public class DottedView extends View
     {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setColor(Color.BLUE);
+        mScribblePointsCoords = new ArrayList<>();
+        mTempGroup = new ArrayList<>();
+        mRadius = 10;
     }
 }

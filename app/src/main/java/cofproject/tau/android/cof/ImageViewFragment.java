@@ -32,12 +32,6 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
 //    private List<Pair<Integer, Integer>> mTouchHistroy;
     private Paint mPaint;
 
-    public interface OnScribbleUpdate
-    {
-        void onNewScribblePoint(List<Pair<Integer, Integer>> coordinates);
-
-    }
-
     @Override
     public boolean onTouch(View v, MotionEvent event)
     {
@@ -90,15 +84,36 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
                 // If the scribble switch is turned on and the event was that of
                 // movement (to that end down and up events are considered movements as well
                 int eventAction = event.getAction();
-                if(mScribbleState &&  (eventAction == MotionEvent.ACTION_MOVE || eventAction == MotionEvent.ACTION_DOWN))
+                boolean consumed = false;
+                if(mScribbleState)
                 {
-                    // Add the point of touch movement to the list of scribble points
-                    mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()));
-                    // Invalidate the plane above the image (the DottedView) forcing the view to call its' OnDraw method.
-                    mOverlayView.invalidate();
-                    return true;
+                    if (eventAction == MotionEvent.ACTION_DOWN)
+                    {
+                        consumed = true;
+                        Pair<Integer, Integer> p = new Pair<>((int) event.getX(), (int) event.getY());
+                        Log.d(TAG, "onTouch: start point =  " + p.toString());
+                        mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()), true, false);
+
+                    }
+                    else if (eventAction == MotionEvent.ACTION_MOVE)
+                    {
+                        // Add the point of touch movement to the list of scribble points
+                        consumed = true;
+                        Pair<Integer, Integer> p = new Pair<>((int) event.getX(), (int) event.getY());
+                        Log.d(TAG, "onTouch: " + p.toString());
+                        mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()), false, false);
+                    }
+                    else if(eventAction == MotionEvent.ACTION_UP)
+                    {
+                        consumed = true;
+                        Pair<Integer, Integer> p = new Pair<>((int) event.getX(), (int) event.getY());
+                        Log.d(TAG, "onTouch: end point = " + p.toString());
+                        mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()), false, true);
+                        // Invalidate the plane above the image (the DottedView) forcing the view to call its' OnDraw method.
+                        mOverlayView.invalidate();
+                    }
                 }
-                return false;
+                return consumed;
 //                if(mScribbleState)
 //                {
 //                    int x = (int) event.getX();

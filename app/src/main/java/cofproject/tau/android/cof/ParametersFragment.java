@@ -6,11 +6,15 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,8 @@ public class ParametersFragment extends Fragment
     public interface OnCompleteListener
     {
         void onComplete(Spinner spinner);
+
+        String onComplete(String name);
     }
 
     private OnCompleteListener mListener;
@@ -86,6 +92,20 @@ public class ParametersFragment extends Fragment
         // TODO? mQuantizationPicker.setValue(preset.getQuantizationLevel());
     }
 
+
+    private boolean isNameValid(String str)
+    {
+        boolean atLeastOneChar = false;
+        CharacterIterator cI = new StringCharacterIterator(str);
+        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next())
+        {
+            if(Character.isAlphabetic(c)) { atLeastOneChar = true; }
+            else if(!Character.isDigit(c)) { return false; }
+        }
+        return atLeastOneChar;
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -132,6 +152,38 @@ public class ParametersFragment extends Fragment
         });
 
         mPresetSpinner = view.findViewById(R.id.presetSpinner);
+        mPresetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                Spinner temp = (Spinner)parent.findViewById(R.id.presetSpinner);
+                String name = temp.getSelectedItem().toString();
+                if(isNameValid(name))
+                {
+                    mPreset = new Preset(name, mListener.onComplete(name));
+                    if(mPreset.getName().length() > 0)
+                    {
+                        applyPreset(mPreset);
+                        Toast.makeText(getContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "Invalid preset, modify preset to make it valid before applying it", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    Toast.makeText(getContext(), "Invalid name, preset loading failed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
 
         mListener.onComplete(mPresetSpinner);
 
