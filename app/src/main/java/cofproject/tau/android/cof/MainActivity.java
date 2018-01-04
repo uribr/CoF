@@ -79,9 +79,11 @@ public class MainActivity extends AppCompatActivity
         }
         else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_main);
+        setTitle(R.string.main_activity_label);
 
         // Create configuration files if none exist
         sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+
     }
 
 

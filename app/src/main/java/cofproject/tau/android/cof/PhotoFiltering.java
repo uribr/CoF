@@ -28,6 +28,8 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.opencv.core.Mat;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,6 +73,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private SharedPreferences mPresetPref;
     private Preset mPreset;
     private Uri mURI;
+
+    private Mat mImToProcess;
+    private Mat mFilteredImage;
+    private Mat mMaskToCollect;
 
     private static void addImageToGallery(final String filePath, final Context context) {
 
@@ -416,16 +422,16 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             int height = mFilteringParametersFragment.getHeight();
             int width = mFilteringParametersFragment.getWidth();
             int iter = mFilteringParametersFragment.getIter();
-            CoFilter coFilter = new CoFilter(sigma, height, width);
-
-            if (mPreFilterButtonFragment.isScribbleOn())
-            {
-                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter, mOriginalImageViewFragment.getScribbleCoordinates());
-            }
-            else
-            {
-                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
-            }
+//            CoFilter coFilter = new CoFilter(sigma, height, width);
+//
+//            if (mPreFilterButtonFragment.isScribbleOn())
+//            {
+//                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter, mOriginalImageViewFragment.getScribbleCoordinates());
+//            }
+//            else
+//            {
+//                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
+//            }
 
             // Create the post filtering fragment of buttons if it is the first time
             if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
@@ -559,10 +565,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     }
 
 
+    @SuppressLint("ApplySharedPref")
     public void onDeletePresetClick(View view)
     {
         // Default preset cannot be deleted but it can be overridden.
-        if(mPreset.getName() != getString(R.string.DefaultPresetName))
+        if(!mPreset.getName().equals(getString(R.string.DefaultPresetName)))
         {
             SharedPreferences.Editor editor = mPresetPref.edit();
             editor.remove(mPreset.getName());
@@ -575,7 +582,20 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy: started");
+        if (mImToProcess != null) {
+            mImToProcess.release();
+        }
+        if (mFilteredImage != null) {
+            mFilteredImage.release();
+        }
+        if (mMaskToCollect != null) {
+            mMaskToCollect.release();
+        }
 
+        super.onDestroy();
 
-
+    }
 }

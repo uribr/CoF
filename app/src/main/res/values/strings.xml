@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">Co-Occurrence Filter</string>
+    <string name="app_name">CoF</string>
+    <string name="main_activity_label">Co-Occurrence Filter</string>
     <string name="about_button_text">About</string>
     <string name="setting_button_text">Settings</string>
     <string name="capture_new_photo_button_text">Capture New Photo</string>
