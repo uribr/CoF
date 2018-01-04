@@ -8,7 +8,16 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <!-- >Normal Permissions</! -->
+    <supports-screens
+        android:resizeable= "false"
+        android:smallScreens= "true"
+        android:normalScreens= "true"
+        android:largeScreens= "false"
+        android:xlargeScreens= "false"
+        android:requiresSmallestWidthDp = "260"/>
     <application
+
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="CoFilter"

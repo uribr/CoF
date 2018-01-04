@@ -44,13 +44,6 @@
                 android:onClick="onNewPhotoClick">
             </ImageButton>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:text="@string/capture_new_photo_button_text">
-            </TextView>
         </LinearLayout>
 
         <LinearLayout
