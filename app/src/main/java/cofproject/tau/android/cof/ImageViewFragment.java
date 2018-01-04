@@ -48,7 +48,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     public void onResume()
     {
         super.onResume();
-        mImageView.setImageBitmap(mBitmap);
+        if (mBitmap != null)
+        {
+            mImageView.setImageBitmap(mBitmap);
+        }
     }
 
     public void setImage(Bitmap bmp)

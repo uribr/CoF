@@ -29,10 +29,8 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -227,7 +225,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_gallery_app)), GALLERY_REQUEST_CODE);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_an_app)), GALLERY_REQUEST_CODE);
         }
 
     }
@@ -270,7 +268,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                     if(mOriginalImageViewFragment == null) {mOriginalImageViewFragment = new ImageViewFragment();}
                     // Add the image fragment to the container.
                     getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
-                    mOriginalImageViewFragment.setImage(mOriginalBitmap.copy(mOriginalBitmap.getConfig(), false));
+                    mOriginalImageViewFragment.setImage(mOriginalBitmap);
                     // mOriginalImageViewFragment.setImage(data.getData());
 
                     if(isLandscape)
@@ -318,9 +316,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
     }
 
-    public String onComplete(String name)
+    public Preset onComplete(String name)
     {
-        return mPresetPref.getString(name, "");
+        String params = mPresetPref.getString(name, "");
+        mPreset = new Preset(name, params);
+        return mPreset;
     }
 
     public boolean getFilteringDone() { return this.mfilteringDone; }
@@ -554,7 +554,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
             shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
             shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-            startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.choose_an_app)));
         }
     }
 
@@ -568,6 +568,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             editor.remove(mPreset.getName());
             editor.commit();
             mFilteringParametersFragment.onRemovedPreset(mPreset.getName());
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(), "Cannot delete default preset", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -29,7 +29,7 @@ public class ParametersFragment extends Fragment
     {
         void onComplete(Spinner spinner);
 
-        String onComplete(String name);
+        Preset onComplete(String name);
     }
 
     private OnCompleteListener mListener;
@@ -89,6 +89,8 @@ public class ParametersFragment extends Fragment
         mIterationPicker.setValue(preset.getNumberOfIteration());
         mHeightPicker.setValue(preset.getHeight(imgHeight));
         mWidthPicker.setValue(preset.getWidth(imgWidth));
+
+
         // TODO? mQuantizationPicker.setValue(preset.getQuantizationLevel());
     }
 
@@ -161,11 +163,11 @@ public class ParametersFragment extends Fragment
                 String name = temp.getSelectedItem().toString();
                 if(isNameValid(name))
                 {
-                    mPreset = new Preset(name, mListener.onComplete(name));
+                    mPreset = mListener.onComplete(name);
                     if(mPreset.getName().length() > 0)
                     {
                         applyPreset(mPreset);
-                        Toast.makeText(getContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
