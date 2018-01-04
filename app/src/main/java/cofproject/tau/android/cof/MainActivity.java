@@ -30,21 +30,6 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences sharedPreferences;
     private static final String TAG = "MainActivity";
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
-                    Log.i(TAG, "OpenCV loaded successfully");
-                }
-                break;
-                default: {
-                    super.onManagerConnected(status);
-                }
-                break;
-            }
-        }
-    };
 
     private Intent genBasicImageProcIntent(boolean capture)
     {

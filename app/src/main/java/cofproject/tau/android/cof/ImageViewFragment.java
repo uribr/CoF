@@ -211,4 +211,8 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     {
         return mOverlayView.getScribbleCoordinatesList();
     }
+
+    public ImageView getImageView() {
+        return mImageView;
+    }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,13 +23,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,6 +86,22 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private Mat mImToProcess;
     private Mat mFilteredImage;
     private Mat mMaskToCollect;
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS: {
+                    Log.i(TAG, "OpenCV loaded successfully");
+                }
+                break;
+                default: {
+                    super.onManagerConnected(status);
+                }
+                break;
+            }
+        }
+    };
 
     private static void addImageToGallery(final String filePath, final Context context) {
 
@@ -384,6 +411,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
     }
 
+
     /**
      *
      * @param view
@@ -409,41 +437,120 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 //            return;
 //        }
 
-        if (mOriginalBitmap != null)
+        Log.i(TAG, "onApplyFilterClick: onClick event!");
+        if (mOriginalBitmap == null)
         {
-            // Update to user changes
-            if (mFilteringParametersFragment != null)
-            {
-                mFilteringParametersFragment.updatePreset(mPreset);
-            }
-            // Create a CoF object with the specified parameters and apply it.;
-
-            if (mPreFilterButtonFragment.isScribbleOn())
-            {
-                //mFilteredBitmap = CoF.applyFilter(mOriginalBitmap, mPreset, mOriginalImageViewFragment.getScribbleCoordinates());
-            }
-            else
-            {
-                //mFilteredBitmap =  CoF.applyFilter(mOriginalBitmap, mPreset);
-            }
-            mFilteredBitmap = mOriginalBitmap;
-
-            // Create the post filtering fragment of buttons if it is the first time
-            if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
-            // Create the filtered image view.
-            if(mFilteredImageViewFragment == null) {mFilteredImageViewFragment = new ImageViewFragment(); }
-
-            // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
-            transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
-            transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
-            transaction.commit();
-
-            mFilteredImageViewFragment.setImage(mFilteredBitmap);
-            mfilteringDone = true;
-            mSavedOnce = false;
+            Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
         }
+        // Update to user changes
+        if (mFilteringParametersFragment != null)
+        {
+            mFilteringParametersFragment.updatePreset(mPreset);
+        }
+
+
+
+        //if (mPreFilterButtonFragment.isScribbleOn())
+        if (false) // todo - handle scribble later on
+        {
+            //mFilteredBitmap = CoF.applyFilter(mOriginalBitmap, mPreset, mOriginalImageViewFragment.getScribbleCoordinates());
+        }
+
+        // begin filtering!!!
+        if (mImToProcess != null) {
+            mImToProcess.release();
+        }
+        mImToProcess = new Mat();
+
+        Utils.bitmapToMat(mOriginalBitmap, mImToProcess);
+        try
+        {
+            Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
+
+            //todo - remove this!!!!!!
+            try {
+                mImToProcess.release();
+                mImToProcess = Utils.loadResource(this, R.drawable.field, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
+                //Imgproc.cvtColor(mImToProcess, rgb, Imgproc.COLOR_BGR2RGB);
+                Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
+
+            //mFilteredBitmap =  CoF.applyFilter(mOriginalBitmap, mPreset);
+            final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Please wait ...", "Applying co-occurence filter ...", true);
+            ringProgressDialog.setCancelable(false);
+            Thread filterThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String TAG = "launcherDialogTag";
+                    try {
+                        // todo - here we will take the user-defined values and apply the filter according to them
+                        if (mFilteredImage != null) {
+                            mFilteredImage.release();
+                        }
+                        mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
+                        int nBins = 32;
+
+                        CoF.applyFilter(mImToProcess, mFilteredImage, nBins);
+
+                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
+
+                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
+                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+
+                        // Create the filtered image view.
+                        if (mFilteredImageViewFragment == null)
+                        {
+                            mFilteredImageViewFragment = new ImageViewFragment();
+                        }
+                        mFilteredImageViewFragment.setImage(mFilteredBitmap);
+                        mfilteringDone = true;
+                        mSavedOnce = false;
+
+                        Log.i(TAG, "filter finished");
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+
+
+                    ringProgressDialog.dismiss();
+
+                    // Create the post filtering fragment of buttons if it is the first time
+                    if (mPostFilterButtonFragment == null) {
+                        mPostFilterButtonFragment = new PostFilteringButtonsFragment();
+                    }
+                    // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
+                    transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+                    transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
+                    transaction.commit();
+                }
+            });
+            filterThread.start();
+
+            //mFilteredBitmap = mOriginalBitmap;
+
+//        // Create the post filtering fragment of buttons if it is the first time
+//        if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
+            // Create the filtered image view.
+//            if (mFilteredImageViewFragment == null) {
+//                mFilteredImageViewFragment = new ImageViewFragment();
+//            }
+//
+//            mFilteredImageViewFragment.setImage(mFilteredBitmap);
+//            mfilteringDone = true;
+//            mSavedOnce = false;
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "onApplyFilterClick: ERROR - " + e.getMessage());
+        }
+
     }
 
     /**
@@ -575,6 +682,19 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         {
             Toast.makeText(getApplicationContext(), "Cannot delete default preset", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0, this, mLoaderCallback);
+        } else {
+            Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+
     }
 
     @Override
