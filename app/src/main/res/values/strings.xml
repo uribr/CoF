@@ -9,8 +9,7 @@
 
 
     <string name="filter_parameter_name">Spatial \u03C3</string>
-    <string name="window_width_text">Window Width</string>
-    <string name="window_height_text">Window Height</string>
+    <string name="window_size_text">Window Size</string>
 
     <string name="Iterations">Iterations</string>
     <string name="Scribble">Scribble</string>

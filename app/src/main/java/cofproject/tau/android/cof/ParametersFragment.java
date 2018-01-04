@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,21 +26,35 @@ public class ParametersFragment extends Fragment
 
     public interface OnCompleteListener
     {
+        /**
+         * Fill the spinner with presets and limit the range of parameters to the image
+         * @param spinner
+         */
         void onComplete(Spinner spinner);
 
-        Preset onComplete(String name);
+        /**
+         * Retrieve the preset that corresponds to name
+         * @param name
+         * @return
+         */
+        Preset getPreset (String name);
+
+        /**
+         * Retrieve the current preset
+         * @return
+         */
+        Preset getCurrentPreset();
     }
 
     private OnCompleteListener mListener;
     private NumberPicker mIterationPicker;
     private NumberPicker mIntegerSigmaPicker;
     private NumberPicker mFractionSigmaPicker;
-    private NumberPicker mHeightPicker;
+    private NumberPicker mSizePicker;
     private ArrayAdapter<String> mAdapter;
     private NumberPicker mWidthPicker;
     private Spinner mPresetSpinner;
-    private Preset mPreset;
-    private Integer imgHeight, imgWidth;
+    private Integer mImgSize;
     private List<String> mPresets;
     private View view;
     private static final int SIGMA_INTEGER_LIMIT = 10;
@@ -87,8 +100,7 @@ public class ParametersFragment extends Fragment
         mIntegerSigmaPicker.setValue(preset.getIntergerPartSigma());
         mFractionSigmaPicker.setValue(preset.getFractionalPartSigma());
         mIterationPicker.setValue(preset.getNumberOfIteration());
-        mHeightPicker.setValue(preset.getHeight(imgHeight));
-        mWidthPicker.setValue(preset.getWidth(imgWidth));
+        mSizePicker.setValue(preset.getWindowSize(mImgSize));
 
 
         // TODO? mQuantizationPicker.setValue(preset.getQuantizationLevel());
@@ -117,11 +129,8 @@ public class ParametersFragment extends Fragment
         mIterationPicker = view.findViewById(R.id.IterationPicker);
         mIterationPicker.setMinValue(ONE);
 
-        mHeightPicker = view.findViewById(R.id.HeightPicker);
-        mHeightPicker.setMinValue(ONE);
-
-        mWidthPicker=view.findViewById(R.id.WidthPicker);
-        mWidthPicker.setMinValue(ONE);
+        mSizePicker = view.findViewById(R.id.WindowSizePicker);
+        mSizePicker.setMinValue(ONE);
 
         mIntegerSigmaPicker = view.findViewById(R.id.SigmaIntegerPicker);
         mIntegerSigmaPicker.setMaxValue(SIGMA_INTEGER_LIMIT);
@@ -163,10 +172,11 @@ public class ParametersFragment extends Fragment
                 String name = temp.getSelectedItem().toString();
                 if(isNameValid(name))
                 {
-                    mPreset = mListener.onComplete(name);
-                    if(mPreset.getName().length() > 0)
+                    Preset preset = mListener.getPreset(name);
+
+                    if(preset.getName().length() > 0)
                     {
-                        applyPreset(mPreset);
+                        applyPreset(preset);
                         //Toast.makeText(getContext(), "Preset Loaded", Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -193,20 +203,18 @@ public class ParametersFragment extends Fragment
     }
 
     public double getSigma() { return (mIntegerSigmaPicker.getValue()+mFractionSigmaPicker.getValue()/100); }
-    public int getHeight()   { return mHeightPicker.getValue(); }
+    public int getHeight()   { return mSizePicker.getValue(); }
     public int getWidth()    { return mWidthPicker.getValue(); }
     public int getIter()     { return mIterationPicker.getValue(); }
-    public void setDimensionsLimit(int height, int width)
+    public void setDimensionsLimit(int size)
     {
-        imgHeight = height;
-        imgWidth = width;
+        mImgSize = size;
     }
 
     public void applyLimiters()
     {
         mIterationPicker.setMaxValue(ITER_LIMIT);
-        mHeightPicker.setMaxValue(imgHeight);
-        mWidthPicker.setMaxValue(imgWidth);
+        mSizePicker.setMaxValue(mImgSize);
     }
     public void setSigma(Double sigma)
     {
@@ -215,7 +223,14 @@ public class ParametersFragment extends Fragment
     }
 
     public void setIter(Integer iter) { mIterationPicker.setValue(iter); }
-    public void setHeight(Integer height) { mHeightPicker.setValue(height); }
-    public void setWidth(Integer width) { mWidthPicker.setValue(width); }
+    public void setSize(Integer height) { mSizePicker.setValue(height); }
     public void setPresetList(List<String> presets) { mPresets = presets; }
+    public void updatePreset(Preset cPreset)
+    {
+        cPreset.setNumberOfIteration(mIterationPicker.getValue());
+        cPreset.setSigma(mIntegerSigmaPicker.getValue()+((double)mFractionSigmaPicker.getValue())/100);
+        cPreset.setmName("Unsaved");
+        cPreset.setRelative(false);
+        cPreset.setWindowSize(mSizePicker.getValue());
+    }
 }

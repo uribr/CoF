@@ -29,6 +29,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:checked="true"/>
 
+    <Button
+        android:id="@+id/apply_filter_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:onClick="onApplyFilterClick"
+        android:text="@string/apply_filter_text"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:visibility="visible"/>
+
     <ImageButton
         android:id="@+id/change_parameters_btn"
         android:layout_width="wrap_content"
