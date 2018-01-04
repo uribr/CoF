@@ -56,7 +56,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         mBitmap = bmp.copy(bmp.getConfig(), false);
         if(this.isResumed())
         {
-            mImageView.setImageBitmap(mBitmap);
+            mImageView.setImageBitmap(Util.getResizedBitmap(mBitmap, 500));
         }
     }
 

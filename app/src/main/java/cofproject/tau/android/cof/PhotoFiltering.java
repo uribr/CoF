@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,7 +19,6 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -59,7 +57,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     private static final double DEFAULT_SIGMA = 1;
 
-    private int imgHeight, imgWidth;
+    private int mImgHeight, mImgWidth;
     private boolean mfilteringDone;
     private boolean isLandscape;
     private boolean mSavedOnce;
@@ -74,6 +72,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private PostFilteringButtonsFragment mPostFilterButtonFragment;
     private SharedPreferences mPresetPref;
     private Preset mPreset;
+    private Uri mURI;
 
     private static void addImageToGallery(final String filePath, final Context context) {
 
@@ -228,10 +227,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, GALLERY_REQUEST_CODE);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_gallery_app)), GALLERY_REQUEST_CODE);
         }
 
     }
+
 
     /**
      *
@@ -242,19 +242,29 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        InputStream stream = null;
+        super.onActivityResult(requestCode, resultCode, data);
+        //InputStream stream = null;
         if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE) && resultCode == Activity.RESULT_OK)
         {
             try
             {
                 if (mOriginalBitmap != null) { mOriginalBitmap.recycle(); }
-                if(data.getData() != null)
+                mURI = data.getData();
+                if(mURI != null)
                 {
                     // store image
-                    stream = getContentResolver().openInputStream(data.getData());
-                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
-                    imgHeight = mOriginalBitmap.getHeight();
-                    imgWidth = mOriginalBitmap.getWidth();
+                    mOriginalBitmap = Util.getBitmap(this, mURI);
+//                    stream = getContentResolver().openInputStream(data.getData());
+//                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
+                    if (mOriginalBitmap != null)
+                    {
+                        mImgHeight = mOriginalBitmap.getHeight();
+                        mImgWidth = mOriginalBitmap.getWidth();
+                    }
+                    else
+                    {
+                        Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
+                    }
 
                     // Initialize image view fragment that will hold the image.
                     if(mOriginalImageViewFragment == null) {mOriginalImageViewFragment = new ImageViewFragment();}
@@ -272,16 +282,16 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
                 }
             }
-            catch (FileNotFoundException e) { e.printStackTrace(); }
+            catch (Exception e) { e.printStackTrace(); }
 
-            finally
-            {
-                if (stream != null)
-                {
-                    try { stream.close(); }
-                    catch (IOException e) { e.printStackTrace(); }
-                }
-            }
+//            finally
+//            {
+//                if (stream != null)
+//                {
+//                    try { stream.close(); }
+//                    catch (IOException e) { e.printStackTrace(); }
+//                }
+//            }
         }
 
         else { finish(); }
@@ -298,7 +308,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         loadDefaultPreset();
 
         // Set the dimensions of the image
-        mFilteringParametersFragment.setDimensionsLimit(imgHeight, imgWidth);
+        mFilteringParametersFragment.setDimensionsLimit(mImgHeight, mImgWidth);
         mFilteringParametersFragment.applyLimiters();
         mFilteringParametersFragment.applyPreset(mPreset);
         mFilteringParametersFragment.setPresetList(getPresetNames());

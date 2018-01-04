@@ -36,6 +36,7 @@
     <string name="DefaultPresetName">Default</string>
     <string name="RelativeCheckBoxTxt">Save relative height and width</string>
     <string name="SetAsDefaultCheckBoxTxt">Set as default preset</string>
+    <string name="choose_gallery_app">Choose an image using:</string>
 
 </resources>
 

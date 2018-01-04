@@ -13,29 +13,49 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.core.Mat;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
-
     // Private members and methods
     private SharedPreferences sharedPreferences;
+    private static final String TAG = "MainActivity";
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS: {
+                    Log.i(TAG, "OpenCV loaded successfully");
+                }
+                break;
+                default: {
+                    super.onManagerConnected(status);
+                }
+                break;
+            }
+        }
+    };
 
     private Intent genBasicImageProcIntent(boolean capture)
     {
-        boolean defVal = true;
         String tmpStr;
 
         Intent intent = new Intent(this, PhotoFiltering.class);
         intent.putExtra(getString(R.string.Capture), capture);
         tmpStr = getString(R.string.ScribbleTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, defVal));
+        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
         tmpStr = getString(R.string.ParametersTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, defVal));
+        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
         return intent;
     }
 
