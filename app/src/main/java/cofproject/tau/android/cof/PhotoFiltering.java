@@ -52,8 +52,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     private static final int GALLERY_REQUEST_CODE = 1;
     // TODO - Are the four following constants reasonable?
-    private static final int DEFAULT_WINDOW_WIDTH = 16;
-    private static final int DEFAULT_WINDOW_HEIGHT = 16;
+    private static final int DEFAULT_WINDOW_SIZE = 16;
     private static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     private static final double DEFAULT_SIGMA = 1;
 
@@ -61,7 +60,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private boolean mfilteringDone;
     private boolean isLandscape;
     private boolean mSavedOnce;
-    private boolean mParameterFragmentLoaded;
     private Bitmap mOriginalBitmap;
     private Bitmap mFilteredBitmap;
     private PreFilteringButtonsFragment mPreFilterButtonFragment;
@@ -108,8 +106,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         mPreset = new Preset(newDefault || createDefault ? getString(R.string.DefaultPresetName) : name,
                 createDefault ? DEFAULT_SIGMA : mFilteringParametersFragment.getSigma(),
                 createDefault ? DEFAULT_NUMBER_OF_ITERATIONS : mFilteringParametersFragment.getIter(),
-                createDefault ? DEFAULT_WINDOW_WIDTH : mFilteringParametersFragment.getWidth(), mOriginalBitmap.getWidth(),
-                createDefault ? DEFAULT_WINDOW_HEIGHT : mFilteringParametersFragment.getHeight(), mOriginalBitmap.getHeight(),
+                createDefault ? DEFAULT_WINDOW_SIZE : mFilteringParametersFragment.getHeight(), mOriginalBitmap.getHeight(),
                 relative);
     }
 
@@ -164,14 +161,13 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             {
                 mPreset.store(mPresetPref);
                 Toast.makeText(getApplicationContext(), "Default preset created and loaded.", Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\nPlease choose valid parameters.", Toast.LENGTH_SHORT).show();
-                return;
+                if ((Math.min(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()) < mPreset.getWindowSize()))
+                {
+                    Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\nPlease choose valid parameters.", Toast.LENGTH_SHORT).show();
+                }
             }
        }
-        else { mPreset = new Preset(name, params); }
+       else { mPreset = new Preset(name, params); }
     }
 
     /**
@@ -181,7 +177,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mParameterFragmentLoaded = false;
         if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -211,13 +206,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, mPreFilterButtonFragment).commit();
 
         // Create a new folder for images in the applications directory
-        //tempImageFile = new File(getFilesDir().getAbsolutePath() + "/Android/data/cofproject.tau.android.cof/temp.jpg");
 
         // Create and send a camera/gallery intent
         Bundle extras = getIntent().getExtras();
         if (extras == null) { return; }
-
-        // Get counter from intent. The counter is used for naming files
 
         Intent intent = new Intent();
 
@@ -283,7 +275,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                     }
 
 
+                    // Open the configuration file that contains the presets
+                    openPresetConfigFile();
 
+                    // Load the default preset
+                    loadDefaultPreset();
                 }
             }
             catch (Exception e) { e.printStackTrace(); }
@@ -304,15 +300,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
     public void onComplete(Spinner spinner)
     {
-        mParameterFragmentLoaded = true;
-        // Open the configuration file that contains the presets
-        openPresetConfigFile();
-
-        // Load the default preset
-        loadDefaultPreset();
-
         // Set the dimensions of the image
-        mFilteringParametersFragment.setDimensionsLimit(mImgHeight, mImgWidth);
+        mFilteringParametersFragment.setDimensionsLimit(Math.min(mImgHeight, mImgWidth));
         mFilteringParametersFragment.applyLimiters();
         mFilteringParametersFragment.applyPreset(mPreset);
         mFilteringParametersFragment.setPresetList(getPresetNames());
@@ -322,10 +311,15 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
     }
 
-    public Preset onComplete(String name)
+    public Preset getPreset(String name)
     {
         String params = mPresetPref.getString(name, "");
         mPreset = new Preset(name, params);
+        return mPreset;
+    }
+
+    public Preset getCurrentPreset()
+    {
         return mPreset;
     }
 
@@ -336,18 +330,18 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     {
         // Add listeners to the EditText widgets to
         // detect changes in the text.
-        if(mFilteringParametersFragment == null)
+        if (mFilteringParametersFragment == null)
         {
             mFilteringParametersFragment = new ParametersFragment();
 
         }
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if(isLandscape) { transaction.replace(R.id.parameter_view_container, mFilteringParametersFragment); }
+        if (isLandscape) { transaction.replace(R.id.parameter_view_container, mFilteringParametersFragment); }
         else { transaction.replace(R.id.main_view_container, mFilteringParametersFragment); }
 
-        if(!isLandscape)
+        if (!isLandscape)
         {
-            if(mInFilterButtonFragment == null) { mInFilterButtonFragment = new InFilterButtonsFragment(); }
+            if (mInFilterButtonFragment == null) { mInFilterButtonFragment = new InFilterButtonsFragment(); }
             transaction.replace(R.id.filtering_activity_button_container,mInFilterButtonFragment);
             transaction.addToBackStack(FROM_ORIGINAL_TO_FILTERING);
             transaction.commit();
@@ -417,21 +411,22 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
         if (mOriginalBitmap != null)
         {
-            // Create a CoF object with the specified parameters and apply it.
-            double sigma = mFilteringParametersFragment.getSigma();
-            int height = mFilteringParametersFragment.getHeight();
-            int width = mFilteringParametersFragment.getWidth();
-            int iter = mFilteringParametersFragment.getIter();
-//            CoFilter coFilter = new CoFilter(sigma, height, width);
-//
-//            if (mPreFilterButtonFragment.isScribbleOn())
-//            {
-//                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter, mOriginalImageViewFragment.getScribbleCoordinates());
-//            }
-//            else
-//            {
-//                mFilteredBitmap = coFilter.Apply(mOriginalBitmap, iter);
-//            }
+            // Update to user changes
+            if (mFilteringParametersFragment != null)
+            {
+                mFilteringParametersFragment.updatePreset(mPreset);
+            }
+            // Create a CoF object with the specified parameters and apply it.;
+
+            if (mPreFilterButtonFragment.isScribbleOn())
+            {
+                //mFilteredBitmap = CoF.applyFilter(mOriginalBitmap, mPreset, mOriginalImageViewFragment.getScribbleCoordinates());
+            }
+            else
+            {
+                //mFilteredBitmap =  CoF.applyFilter(mOriginalBitmap, mPreset);
+            }
+            mFilteredBitmap = mOriginalBitmap;
 
             // Create the post filtering fragment of buttons if it is the first time
             if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
