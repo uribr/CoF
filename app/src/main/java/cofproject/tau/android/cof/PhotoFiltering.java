@@ -495,7 +495,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                         mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
                         int nBins = 32;
 
-                        CoF.applyFilter(mImToProcess, mFilteredImage, nBins);
+                        CoF.applyFilter(mImToProcess, mFilteredImage, mPreset);
 
                         mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
 

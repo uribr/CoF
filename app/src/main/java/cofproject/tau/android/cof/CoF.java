@@ -33,10 +33,20 @@ public class CoF {
      * @param imToProcess   - an RGB image (Mat object) to process
      * @param filteredImage - Mat object where the filtered image is stored
      */
-    public static void applyFilter(Mat imToProcess, Mat filteredImage, int nBins) {
+    public static void applyFilter(Mat imToProcess, Mat filteredImage, Preset params) {
         Log.i(TAG, "applyFilter: Started applying filter");
 
-        int iterCnt = 1;
+        // extract parmeters from params
+        int iterCnt = params.getNumberOfIteration();
+        int winsize = params.getWindowSize();
+        if (winsize % 2 == 0) {
+            winsize--;
+        }
+        int hws = winsize / 2; // half window size, floored
+        double sigma = params.getSigma();
+
+        iterCnt = 1;
+        int nBins = 32;
 
 
         if (imToProcess.rows() != filteredImage.rows() ||  imToProcess.cols() != filteredImage.cols()) {

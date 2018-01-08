@@ -97,7 +97,7 @@ public class ParametersFragment extends Fragment
 
     public void applyPreset(Preset preset)
     {
-        mIntegerSigmaPicker.setValue(preset.getIntergerPartSigma());
+        mIntegerSigmaPicker.setValue(preset.getIntegerPartSigma());
         mFractionSigmaPicker.setValue(preset.getFractionalPartSigma());
         mIterationPicker.setValue(preset.getNumberOfIteration());
         mSizePicker.setValue(preset.getWindowSize(mImgSize));
@@ -229,7 +229,7 @@ public class ParametersFragment extends Fragment
     {
         cPreset.setNumberOfIteration(mIterationPicker.getValue());
         cPreset.setSigma(mIntegerSigmaPicker.getValue()+((double)mFractionSigmaPicker.getValue())/100);
-        cPreset.setmName("Unsaved");
+        cPreset.setName("Unsaved");
         cPreset.setRelative(false);
         cPreset.setWindowSize(mSizePicker.getValue());
     }

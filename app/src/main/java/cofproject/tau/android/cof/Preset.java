@@ -72,7 +72,7 @@ public class Preset
         return mName;
     }
 
-    public void setmName(String name)
+    public void setName(String name)
     {
         if(!name.isEmpty())
         {
@@ -110,7 +110,7 @@ public class Preset
         return mSigma;
     }
 
-    public int getIntergerPartSigma()
+    public int getIntegerPartSigma()
     {
         return (int)Math.floor(mSigma);
     }
