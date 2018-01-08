@@ -25,9 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 public class CoF {
     private static final String TAG = "CoF";
-    private static final double SIGMA_SPATIAL_DEFAULT = Math.sqrt(15);
+    private static final double SIGMA_SPATIAL_DEFAULT = 2*Math.sqrt(15) + 1;
     private static final int WINDOW_SIZE_DEFAULT = 15;
     private static final Size GAUSSIAN_KERNEL_SIZE_DEFAULT = new Size(WINDOW_SIZE_DEFAULT, WINDOW_SIZE_DEFAULT);
+    private static final double SAMPLE_RATE_DEFAULT = 0.1;
+    private static final int NUM_BINS_DEFAULT = 256; // quantization bins
 
     /**
      * @param imToProcess   - an RGB image (Mat object) to process
@@ -45,8 +47,10 @@ public class CoF {
         int hws = winsize / 2; // half window size, floored
         double sigma = params.getSigma();
 
-        iterCnt = 1;
+        iterCnt = 3;
         int nBins = 32;
+        sigma = SIGMA_SPATIAL_DEFAULT;
+
 
 
         if (imToProcess.rows() != filteredImage.rows() ||  imToProcess.cols() != filteredImage.cols()) {
@@ -146,16 +150,16 @@ public class CoF {
         return lst;
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized) {
+    private static void quantize(Mat rgbInput, Mat quantizedIm) {
 
-        quantize(rgbInput, quantized, 256);
+        quantize(rgbInput, quantizedIm, NUM_BINS_DEFAULT);
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized, int k) {
-        quantize(rgbInput, quantized, k, 0.1);
+    private static void quantize(Mat rgbInput, Mat quantizedIm, int k) {
+        quantize(rgbInput, quantizedIm, k, SAMPLE_RATE_DEFAULT);
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized, int k, double sampleRate) {
+    private static void quantize(Mat rgbInput, Mat quantizedIm, int k, double sampleRate) {
 
         Log.i(TAG, "quantize: started");
         Mat rgbInput32f;
@@ -197,6 +201,7 @@ public class CoF {
         TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 100, 1.0);
         Core.kmeans(sampledRgb, k, labels, criteria, 1, Core.KMEANS_PP_CENTERS, centers);
 
+        sampledRgb.release();
         labels.release(); // free unnecessary memory
 
         Size sz = rgbInput.size();
@@ -207,7 +212,7 @@ public class CoF {
         float[] currCent = new float[3]; // will hold RGB of the current center
 
         currCentMat = new Mat(rgbInput32f.size(), rgbInput32f.type());
-        diffMat = new Mat();
+
         minIndices = new Mat();
 
         for (int i = 0; i < k; i++) {
@@ -219,6 +224,7 @@ public class CoF {
             currCentMat.setTo(new Scalar(currCent[0], currCent[1], currCent[2]));
 
             // calculate the squared difference between each pixel of the input image vs. the current center
+            diffMat = new Mat();
             // first subtract
             Core.subtract(rgbInput32f, currCentMat, diffMat);
 
@@ -243,12 +249,17 @@ public class CoF {
             Core.min(diffMat, minErr, minErr);
 
             // in qunatized, update only the minimum indices came from diffMat:
-            quantized.setTo(new Scalar(i), minIndices);
+            quantizedIm.setTo(new Scalar(i), minIndices);
             diffMatSquared.release();
             diffMatReshaped.release();
             diffMat.release();
 
         }
+        minIndices.release();
+        currCentMat.release();
+        minErr.release();
+        centers.release();
+        rgbInput32f.release();
     }
 
 
