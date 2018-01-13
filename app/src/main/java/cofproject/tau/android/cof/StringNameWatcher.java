@@ -4,9 +4,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-
 /**
  * Created by Uri on 29/11/2017.
  */
@@ -19,18 +16,6 @@ public class StringNameWatcher implements TextWatcher
     {
         super();
         mTarget = target;
-    }
-
-    private boolean isNameValid(String str)
-    {
-        boolean atLeastOneChar = false;
-        CharacterIterator cI = new StringCharacterIterator(str);
-        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next())
-        {
-            if(Character.isAlphabetic(c)) { atLeastOneChar = true; }
-            else if(!Character.isDigit(c)) { return false; }
-        }
-        return atLeastOneChar;
     }
 
 
@@ -49,10 +34,12 @@ public class StringNameWatcher implements TextWatcher
     @Override
     public void afterTextChanged(Editable s)
     {
-        if(!isNameValid(s.toString()))
+        if (!Utility.isNameValid(s.toString()))
         {
             mTarget.setError("Preset name must be alphanumeric and contain at least one letter.");
+        } else
+        {
+            mTarget.setError(null);
         }
-        else { mTarget.setError(null); }
     }
 }

@@ -13,7 +13,8 @@ import android.widget.Switch;
 
 public class PreFilteringButtonsFragment extends Fragment
 {
-    protected  View mView;
+    protected View mView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -23,7 +24,7 @@ public class PreFilteringButtonsFragment extends Fragment
 
     public boolean isScribbleOn()
     {
-        return ((Switch)mView.findViewById(R.id.scribble_switch)).isChecked();
+        return ((Switch) mView.findViewById(R.id.scribble_switch)).isChecked();
     }
 
 }

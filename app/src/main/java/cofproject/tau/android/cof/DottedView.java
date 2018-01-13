@@ -1,5 +1,6 @@
 // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
 package cofproject.tau.android.cof;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -50,7 +51,7 @@ public class DottedView extends View
         Pair<Integer, Integer> point2 = null;
         Iterator<ArrayList<Pair<Integer, Integer>>> groupIter = mScribblePointsCoords.iterator();
 
-        for  (ArrayList<Pair<Integer, Integer>> group : mScribblePointsCoords)
+        for (ArrayList<Pair<Integer, Integer>> group : mScribblePointsCoords)
         {
             if (group.size() == 1)
             {
@@ -72,19 +73,31 @@ public class DottedView extends View
 
     public void addScribblePointsCoords(Pair<Integer, Integer> pair, boolean first, boolean last)
     {
-        if (first && last) { return; }
+        if (first && last)
+        {
+            return;
+        }
 
-        if (first) { mTempGroup = new ArrayList<>();}
+        if (first)
+        {
+            mTempGroup = new ArrayList<>();
+        }
 
-        if (!mTempGroup.contains(pair)) { mTempGroup.add(pair); }
+        if (!mTempGroup.contains(pair))
+        {
+            mTempGroup.add(pair);
+        }
 
-        if (last) { mScribblePointsCoords.add(mTempGroup); }
+        if (last)
+        {
+            mScribblePointsCoords.add(mTempGroup);
+        }
     }
 
 
     public List<Pair<Integer, Integer>> getScribbleCoordinatesList()
     {
-        ArrayList<Pair<Integer, Integer>>  pairs = new ArrayList<>();
+        ArrayList<Pair<Integer, Integer>> pairs = new ArrayList<>();
         for (ArrayList<Pair<Integer, Integer>> lst : mScribblePointsCoords)
         {
             pairs.addAll(lst);

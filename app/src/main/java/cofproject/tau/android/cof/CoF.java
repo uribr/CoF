@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class CoF {
+public class CoF
+{
     private static final String TAG = "CoF";
     private static final double SIGMA_SPATIAL_DEFAULT = Math.sqrt(15);
     private static final int WINDOW_SIZE_DEFAULT = 15;
@@ -33,13 +34,15 @@ public class CoF {
      * @param imToProcess   - an RGB image (Mat object) to process
      * @param filteredImage - Mat object where the filtered image is stored
      */
-    public static void applyFilter(Mat imToProcess, Mat filteredImage, int nBins) {
+    public static void applyFilter(Mat imToProcess, Mat filteredImage, int nBins)
+    {
         Log.i(TAG, "applyFilter: Started applying filter");
 
         int iterCnt = 1;
 
 
-        if (imToProcess.rows() != filteredImage.rows() ||  imToProcess.cols() != filteredImage.cols()) {
+        if (imToProcess.rows() != filteredImage.rows() || imToProcess.cols() != filteredImage.cols())
+        {
             Log.e(TAG, "applyFilter: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
         }
 
@@ -104,7 +107,8 @@ public class CoF {
 
         sw.reset();
         sw.start();
-        for(int i = 0; i < iterCnt; i++) {
+        for (int i = 0; i < iterCnt; i++)
+        {
             Log.d(TAG, "applyFilter: cofilter iteration no. " + i);
             coFilter(imToProcessCopy, idx, filteredImage, pmi);
             filteredImage.copyTo(imToProcessCopy);
@@ -125,27 +129,33 @@ public class CoF {
      * @param n - a positive integer
      * @return a new Integer list ranged from 0 to n-1
      */
-    private static List<Integer> zeroTo(int n) {
-        if (n < 0) {
+    private static List<Integer> zeroTo(int n)
+    {
+        if (n < 0)
+        {
             Log.e(TAG, "zeroTo: n < 0", new IllegalArgumentException("n < 0"));
         }
         List<Integer> lst = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++)
+        {
             lst.add(i);
         }
         return lst;
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized) {
+    private static void quantize(Mat rgbInput, Mat quantized)
+    {
 
         quantize(rgbInput, quantized, 256);
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized, int k) {
+    private static void quantize(Mat rgbInput, Mat quantized, int k)
+    {
         quantize(rgbInput, quantized, k, 0.1);
     }
 
-    private static void quantize(Mat rgbInput, Mat quantized, int k, double sampleRate) {
+    private static void quantize(Mat rgbInput, Mat quantized, int k, double sampleRate)
+    {
 
         Log.i(TAG, "quantize: started");
         Mat rgbInput32f;
@@ -175,7 +185,8 @@ public class CoF {
         Collections.shuffle(perm, new Random(System.currentTimeMillis()));
 
         // choose only the nSamplePoints first row indices from the shuffled list
-        for (int i = 0; i < nSamplePoints; i++) {
+        for (int i = 0; i < nSamplePoints; i++)
+        {
             rgbReshaped.row(perm.get(i)).copyTo(sampledRgb.row(i));
         }
 
@@ -200,7 +211,8 @@ public class CoF {
         diffMat = new Mat();
         minIndices = new Mat();
 
-        for (int i = 0; i < k; i++) {
+        for (int i = 0; i < k; i++)
+        {
 
             Log.d(TAG, "quantize: updating quantized image - level " + Integer.toString(i));
 
@@ -242,18 +254,21 @@ public class CoF {
     }
 
 
-    private static void collectPab(Mat im2Collect, Mat pab) {
+    private static void collectPab(Mat im2Collect, Mat pab)
+    {
         Mat mask2Collect = Mat.ones(im2Collect.size(), CvType.CV_32FC1);
         collectPab(im2Collect, mask2Collect, pab);
 
 
     }
 
-    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab) {
+    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab)
+    {
         collectPab(im2Collect, mask2Collect, pab, 256);
     }
 
-    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins) {
+    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins)
+    {
         collectPab(im2Collect, mask2Collect, pab, nBins, null);
     }
 
@@ -265,13 +280,15 @@ public class CoF {
      * @param coocFilt
      * @return
      */
-    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins, Mat coocFilt) {
+    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins, Mat coocFilt)
+    {
 
         Log.i(TAG, "collectPab: started");
 
         float[][] pabArr = new float[nBins][nBins];
 
-        for (int iLevel = 0; iLevel < nBins; iLevel++) {
+        for (int iLevel = 0; iLevel < nBins; iLevel++)
+        {
 
             //todo - check this carefully!!!!!!!!
             Mat cmpMat = new Mat();
@@ -286,7 +303,8 @@ public class CoF {
             //Mat masked = cmpMat.mul(mask2Collect);
 
             // todo - handle general filter
-            if (coocFilt == null) {
+            if (coocFilt == null)
+            {
                 Mat tmp = new Mat();
                 //fixme - handle non-default values
                 double sigma = SIGMA_SPATIAL_DEFAULT; // sigma = sigmaX = sigmaY
@@ -296,7 +314,8 @@ public class CoF {
                 tmp.release();
 
                 // todo - think of something more efficient, accumarray style
-                for (int j = 0; j < nBins; j++) {
+                for (int j = 0; j < nBins; j++)
+                {
 
 
                     Core.compare(im2Collect, new Scalar(j), cmpMat, Core.CMP_EQ);
@@ -331,44 +350,55 @@ public class CoF {
         //Core.normalize(pab, pab, 1, 0, Core.NORM_L1);
     }
 
-    private static void modMatChannels(Mat im2Filter, Mat mat, Mat updatedMat) {
-        try {
-            if (im2Filter.channels() == 3 * mat.channels()) {
+    private static void modMatChannels(Mat im2Filter, Mat mat, Mat updatedMat)
+    {
+        try
+        {
+            if (im2Filter.channels() == 3 * mat.channels())
+            {
                 // duplicate 3 channels if needed
                 List<Mat> pab3chans = Arrays.asList(mat, mat, mat);
                 Core.merge(pab3chans, updatedMat);
-            } else {
+            } else
+            {
                 mat.copyTo(updatedMat);
             }
-        } catch (NullPointerException e) {
+        } catch (NullPointerException e)
+        {
             Log.e(TAG, "modMatChannels: mat == null", e);
         }
 
     }
 
-    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab) {
+    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab)
+    {
         coFilter(im2Filter, im2Collect, filteredImage, pab, null);
 
     }
 
-    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab, Mat fSmooth) {
+    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab, Mat fSmooth)
+    {
 
         Log.i(TAG, "coFilter: started");
-        if (fSmooth == null) { //todo - handle non-null case
+        if (fSmooth == null)
+        { //todo - handle non-null case
 
             //fixme - handle non-default case
             double sigma = SIGMA_SPATIAL_DEFAULT; // sigma = sigmaX = sigmaY
             Size kerSize = GAUSSIAN_KERNEL_SIZE_DEFAULT;
 
             // default parameters
-            if (im2Filter.type() == CvType.CV_8UC(im2Filter.channels())) {
+            if (im2Filter.type() == CvType.CV_8UC(im2Filter.channels()))
+            {
                 im2Filter.convertTo(im2Filter, CvType.CV_32FC(im2Filter.channels()));
             }
 
 
-            if (filteredImage != null) {
+            if (filteredImage != null)
+            {
                 filteredImage.convertTo(filteredImage, im2Filter.type());
-            } else {
+            } else
+            {
                 Log.e(TAG, "coFilter: filteredImage == null", new NullPointerException());
             }
 
@@ -397,7 +427,8 @@ public class CoF {
             innerIm2Collect.release();
 
             // smooth per channel
-            for (int iChannel = 0; iChannel < im2Filter.channels(); iChannel++) {
+            for (int iChannel = 0; iChannel < im2Filter.channels(); iChannel++)
+            {
 
                 Log.d(TAG, "coFilter: smoothing channel " + iChannel);
                 Mat cim = channels2Filter.get(iChannel);
@@ -418,7 +449,8 @@ public class CoF {
                 Mat sumS = Mat.zeros(mVals.size(), CvType.CV_32FC1);
 
                 // per level smoothing
-                for (int iLevel = 0; iLevel < nBins; iLevel++) {
+                for (int iLevel = 0; iLevel < nBins; iLevel++)
+                {
                     System.gc();
 
                     Log.d(TAG, "coFilter: smoothing level " + iLevel + " in channel " + iChannel);
@@ -472,36 +504,44 @@ public class CoF {
             }
             Core.merge(Arrays.asList(filtImChans), filteredImage);
 
-            for (Mat m : channels2Collect) {
+            for (Mat m : channels2Collect)
+            {
                 m.release();
             }
-            for (Mat m : channels2Filter) {
+            for (Mat m : channels2Filter)
+            {
                 m.release();
             }
-            for (Mat m : channelsPab) {
+            for (Mat m : channelsPab)
+            {
                 m.release();
             }
 
-            for (Mat m : filtImChans) {
+            for (Mat m : filtImChans)
+            {
                 m.release();
             }
         }
     }
 
 
-    private static void applyLUTonData(byte[] inputData, float[] lut, float[] outputData) {
+    private static void applyLUTonData(byte[] inputData, float[] lut, float[] outputData)
+    {
 
-        if (inputData.length != outputData.length) {
+        if (inputData.length != outputData.length)
+        {
             Log.e(TAG, "applyLUTonData: inputData.length != outputData.length", new IllegalArgumentException("inputData.length != outputData.length"));
         }
 
         byte[] tmp = inputData.clone();
         Arrays.sort(tmp);
-        if (tmp[0] < 0 || tmp[tmp.length - 1] > lut.length) {
+        if (tmp[0] < 0 || tmp[tmp.length - 1] > lut.length)
+        {
             Log.e(TAG, "applyLUTonData: Invalid values in inputData", new IllegalArgumentException("Invalid values in inputData"));
         }
 
-        for (int i = 0; i < inputData.length; i++) {
+        for (int i = 0; i < inputData.length; i++)
+        {
             outputData[i] = lut[inputData[i]];
         }
     }

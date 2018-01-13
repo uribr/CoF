@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import java.util.ArrayList;
+
 import java.util.List;
 
 /**
@@ -28,7 +28,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private DottedView mOverlayView;
     private Bitmap mBitmap;
     private boolean mScribbleState;
-//    private Pair<Integer, Integer> mInitialPoint;
+    //    private Pair<Integer, Integer> mInitialPoint;
 //    private List<Pair<Integer, Integer>> mTouchHistroy;
     private Paint mPaint;
 
@@ -38,12 +38,14 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         v.onTouchEvent(event);
         return true;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         mScribbleState = false;
     }
+
     @Override
     public void onResume()
     {
@@ -57,15 +59,15 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     public void setImage(Bitmap bmp)
     {
         mBitmap = bmp.copy(bmp.getConfig(), false);
-        if(this.isResumed())
+        if (this.isResumed())
         {
-            mImageView.setImageBitmap(Util.getResizedBitmap(mBitmap, 500));
+            mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
         }
     }
 
     // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
+
     /**
-     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -88,7 +90,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
                 // movement (to that end down and up events are considered movements as well
                 int eventAction = event.getAction();
                 boolean consumed = false;
-                if(mScribbleState)
+                if (mScribbleState)
                 {
                     if (eventAction == MotionEvent.ACTION_DOWN)
                     {
@@ -97,16 +99,14 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
                         Log.d(TAG, "onTouch: start point =  " + p.toString());
                         mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()), true, false);
 
-                    }
-                    else if (eventAction == MotionEvent.ACTION_MOVE)
+                    } else if (eventAction == MotionEvent.ACTION_MOVE)
                     {
                         // Add the point of touch movement to the list of scribble points
                         consumed = true;
                         Pair<Integer, Integer> p = new Pair<>((int) event.getX(), (int) event.getY());
                         Log.d(TAG, "onTouch: " + p.toString());
                         mOverlayView.addScribblePointsCoords(new Pair<>((int) event.getX(), (int) event.getY()), false, false);
-                    }
-                    else if(eventAction == MotionEvent.ACTION_UP)
+                    } else if (eventAction == MotionEvent.ACTION_UP)
                     {
                         consumed = true;
                         Pair<Integer, Integer> p = new Pair<>((int) event.getX(), (int) event.getY());
@@ -203,16 +203,16 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     }
 
     /**
-     *
      * @return list of Pairs<Integer, Integer> representing the coordinates of the
-     *         scribbled points in the DottedView view that hangs above the image
+     * scribbled points in the DottedView view that hangs above the image
      */
     public List<Pair<Integer, Integer>> getScribbleCoordinates()
     {
         return mOverlayView.getScribbleCoordinatesList();
     }
 
-    public ImageView getImageView() {
+    public ImageView getImageView()
+    {
         return mImageView;
     }
 }

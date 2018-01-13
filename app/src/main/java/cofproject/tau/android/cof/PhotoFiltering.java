@@ -9,7 +9,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -20,14 +19,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -35,7 +27,6 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -45,57 +36,58 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+
+import static cofproject.tau.android.cof.Utility.CAMERA_CAPTURE_REQUEST_CODE;
+import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
+import static cofproject.tau.android.cof.Utility.FROM_FILTERING_TO_RESULT;
+import static cofproject.tau.android.cof.Utility.GALLERY_REQUEST_CODE;
+import static cofproject.tau.android.cof.Utility.IMG_SIZE;
+import static cofproject.tau.android.cof.Utility.LANDSCAPE;
+import static cofproject.tau.android.cof.Utility.extractPresetFromDataIntent;
+import static cofproject.tau.android.cof.Utility.insertPresetToDataInent;
 
 /**
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
  */
 //TODO - Replace reconstructing preset with modifying for better performance.
-public class PhotoFiltering extends AppCompatActivity implements ParametersFragment.OnCompleteListener
+public class PhotoFiltering extends AppCompatActivity
 {
+    public static int countCreates = 0;
     private static final String TAG = "PhotoFiltering";
-    private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
-    private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
-    private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
-    private static final int GALLERY_REQUEST_CODE = 1;
-    // TODO - Are the four following constants reasonable?
-    private static final int DEFAULT_WINDOW_SIZE = 16;
-    private static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
-    private static final double DEFAULT_SIGMA = 1;
 
     private int mImgHeight, mImgWidth;
     private boolean mfilteringDone;
-    private boolean isLandscape;
+    private boolean mIsLandscape;
     private boolean mSavedOnce;
     private Bitmap mOriginalBitmap;
     private Bitmap mFilteredBitmap;
     private PreFilteringButtonsFragment mPreFilterButtonFragment;
     private ImageViewFragment mOriginalImageViewFragment;
     private ImageViewFragment mFilteredImageViewFragment;
-    private InFilterButtonsFragment mInFilterButtonFragment;
-    private ParametersFragment mFilteringParametersFragment;
-    private PostFilteringButtonsFragment mPostFilterButtonFragment;
-    private SharedPreferences mPresetPref;
-    private Preset mPreset;
-    private Uri mURI;
 
+    private PostFilteringButtonsFragment mPostFilterButtonFragment;
+    private Preset mPreset;
+
+    private Uri mURI;
     private Mat mImToProcess;
     private Mat mFilteredImage;
-    private Mat mMaskToCollect;
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+    private Mat mMaskToCollect;
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this)
+    {
         @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
+        public void onManagerConnected(int status)
+        {
+            switch (status)
+            {
+                case LoaderCallbackInterface.SUCCESS:
+                {
                     Log.i(TAG, "OpenCV loaded successfully");
                 }
                 break;
-                default: {
+                default:
+                {
                     super.onManagerConnected(status);
                 }
                 break;
@@ -103,7 +95,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
     };
 
-    private static void addImageToGallery(final String filePath, final Context context) {
+    private static void addImageToGallery(final String filePath, final Context context)
+    {
 
         ContentValues values = new ContentValues();
 
@@ -114,28 +107,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 
-
-    private List<String> getPresetNames()
-    {
-        Vector<String> list = new Vector<>();
-        Map<String, ?> map = mPresetPref.getAll();
-        list.add(getString(R.string.DefaultPresetName));
-        for (Map.Entry<String, ?> entry : map.entrySet())
-        {
-            if(entry.getKey().equals(getString(R.string.DefaultPresetName))) { continue; }
-            list.add(entry.getKey());
-        }
-        return list;
-    }
-
-    private void createPreset(String name,boolean relative, boolean newDefault, boolean createDefault)
-    {
-        mPreset = new Preset(newDefault || createDefault ? getString(R.string.DefaultPresetName) : name,
-                createDefault ? DEFAULT_SIGMA : mFilteringParametersFragment.getSigma(),
-                createDefault ? DEFAULT_NUMBER_OF_ITERATIONS : mFilteringParametersFragment.getIter(),
-                createDefault ? DEFAULT_WINDOW_SIZE : mFilteringParametersFragment.getHeight(), mOriginalBitmap.getHeight(),
-                relative);
-    }
 
     private void internalSaveOperation()
     {
@@ -170,52 +141,28 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
     }
 
-    private void openPresetConfigFile()
-    {
-        mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
-    }
-
-
-    private void loadDefaultPreset()
-    {
-       String name = getString(R.string.DefaultPresetName);
-       String params = mPresetPref.getString(name, "");
-       if(params.isEmpty())
-       {
-            // No default preset found, generating an hardcoded default preset
-            createPreset(name,false, true, true);
-            if(mPreset.isValid())
-            {
-                mPreset.store(mPresetPref);
-                Toast.makeText(getApplicationContext(), "Default preset created and loaded.", Toast.LENGTH_SHORT).show();
-                if ((Math.min(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()) < mPreset.getWindowSize()))
-                {
-                    Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\nPlease choose valid parameters.", Toast.LENGTH_SHORT).show();
-                }
-            }
-       }
-       else { mPreset = new Preset(name, params); }
-    }
 
     /**
-     *
      * @param savedInstanceState
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
+        Log.d(TAG, String.format("onCreate: No.%d", countCreates));
+        countCreates += 1;
+        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            isLandscape = true;
-            mFilteringParametersFragment = new ParametersFragment();
+            mIsLandscape = true;
+        } else
+        {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-        else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_photo_filtering);
 
         // Create filtering related buttons fragment and
         mPreFilterButtonFragment = new PreFilteringButtonsFragment();
-
 //        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener()
 //        {
 //            @Override
@@ -236,7 +183,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
         // Create and send a camera/gallery intent
         Bundle extras = getIntent().getExtras();
-        if (extras == null) { return; }
+        if (extras == null)
+        {
+            return;
+        }
 
         Intent intent = new Intent();
 
@@ -244,8 +194,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         {
             intent.setAction(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
-        }
-        else
+        } else
         {
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -257,7 +206,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
 
     /**
-     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -267,123 +215,128 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     {
         super.onActivityResult(requestCode, resultCode, data);
         //InputStream stream = null;
-        if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE) && resultCode == Activity.RESULT_OK)
+        if (resultCode == Activity.RESULT_OK)
         {
-            try
+            if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE))
             {
-                if (mOriginalBitmap != null) { mOriginalBitmap.recycle(); }
-                mURI = data.getData();
-                if(mURI != null)
+                try
                 {
-                    // store image
-                    mOriginalBitmap = Util.getBitmap(this, mURI);
-//                    stream = getContentResolver().openInputStream(data.getData());
-//                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
                     if (mOriginalBitmap != null)
                     {
-                        mImgHeight = mOriginalBitmap.getHeight();
-                        mImgWidth = mOriginalBitmap.getWidth();
+                        mOriginalBitmap.recycle();
+                    }
+                    mURI = data.getData();
+                    if (mURI != null)
+                    {
+                        // store image
+                        mOriginalBitmap = Utility.getBitmap(this, mURI);
+                        //                    stream = getContentResolver().openInputStream(data.getData());
+                        //                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
+                        if (mOriginalBitmap != null)
+                        {
+                            mImgHeight = mOriginalBitmap.getHeight();
+                            mImgWidth = mOriginalBitmap.getWidth();
+                        } else
+                        {
+                            Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
+                        }
+
+                        // Initialize image view fragment that will hold the image.
+                        if (mOriginalImageViewFragment == null)
+                        {
+                            mOriginalImageViewFragment = new ImageViewFragment();
+                        }
+                        // Add the image fragment to the container.
+                        getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
+                        mOriginalImageViewFragment.setImage(mOriginalBitmap);
+                        // mOriginalImageViewFragment.setImage(data.getData());
+
+                        if (mIsLandscape)
+                        {
+                            onFilterSettingsClick(new View(this));
+                        }
                     }
                     else
                     {
-                        Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
+                        finish();
                     }
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
-                    // Initialize image view fragment that will hold the image.
-                    if(mOriginalImageViewFragment == null) {mOriginalImageViewFragment = new ImageViewFragment();}
-                    // Add the image fragment to the container.
-                    getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
-                    mOriginalImageViewFragment.setImage(mOriginalBitmap);
-                    // mOriginalImageViewFragment.setImage(data.getData());
+                //            finally
+                //            {
+                //                if (stream != null)
+                //                {
+                //                    try { stream.close(); }
+                //                    catch (IOException e) { e.printStackTrace(); }
+                //                }
+                //            }
+            }
 
-                    if(isLandscape)
+            else if (requestCode == FILTER_SETTINGS_REQUEST_CODE)
+            {
+                if (data != null)
+                {
+                    Preset tmp = extractPresetFromDataIntent(data);
+                    if (tmp != null)
                     {
-                        onChangeParameters(new View(this));
+                        mPreset = tmp;
                     }
-
-
-                    // Open the configuration file that contains the presets
-                    openPresetConfigFile();
-
-                    // Load the default preset
-                    loadDefaultPreset();
                 }
             }
-            catch (Exception e) { e.printStackTrace(); }
+        }
+    }
 
-//            finally
+
+    public boolean getFilteringDone()
+    {
+        return this.mfilteringDone;
+    }
+
+
+    public void onFilterSettingsClick(View view)
+    {
+
+        Intent intent = new Intent(this, FilterSettings.class);
+        int img_size = Math.min(mImgHeight, mImgWidth);
+        // If the current preset is not null, put its content in the intent.
+//        if (mPreset != null)
+//        {
+//           insertPresetToDataInent(mPreset, intent, img_size);
+
+//            intent.putExtra(PRESET_NAME, mPreset.getName());
+//            intent.putExtra(SIGMA, mPreset.getSigma());
+//            if (mPreset.isRelative())
 //            {
-//                if (stream != null)
-//                {
-//                    try { stream.close(); }
-//                    catch (IOException e) { e.printStackTrace(); }
-//                }
+//                intent.putExtra(WINDOW_SIZE, mPreset.getWindowSize(img_size));
+//            } else
+//            {
+//                intent.putExtra(WINDOW_SIZE, mPreset.getWindowSize());
 //            }
-        }
-
-        else { finish(); }
-    }
-
-
-    public void onComplete(Spinner spinner)
-    {
-        // Set the dimensions of the image
-        mFilteringParametersFragment.setDimensionsLimit(Math.min(mImgHeight, mImgWidth));
-        mFilteringParametersFragment.applyLimiters();
-        mFilteringParametersFragment.applyPreset(mPreset);
-        mFilteringParametersFragment.setPresetList(getPresetNames());
-        List<String> array = new ArrayList<>(getPresetNames());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, array);
-        spinner.setAdapter(adapter);
-
-    }
-
-    public Preset getPreset(String name)
-    {
-        String params = mPresetPref.getString(name, "");
-        mPreset = new Preset(name, params);
-        return mPreset;
-    }
-
-    public Preset getCurrentPreset()
-    {
-        return mPreset;
-    }
-
-    public boolean getFilteringDone() { return this.mfilteringDone; }
-
-
-    public void onChangeParameters(View view)
-    {
-        // Add listeners to the EditText widgets to
-        // detect changes in the text.
-        if (mFilteringParametersFragment == null)
+//            intent.putExtra(ITERATIONS, mPreset.getNumberOfIteration());
+//            intent.putExtra(QUANTIZATION, mPreset.getQuantization());
+//            intent.putExtra(IS_RELATIVE,mPreset.isRelative());
+//        }
+        if (mPreset == null)
         {
-            mFilteringParametersFragment = new ParametersFragment();
-
+            mPreset = Preset.createPreset(img_size);
         }
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (isLandscape) { transaction.replace(R.id.parameter_view_container, mFilteringParametersFragment); }
-        else { transaction.replace(R.id.main_view_container, mFilteringParametersFragment); }
-
-        if (!isLandscape)
-        {
-            if (mInFilterButtonFragment == null) { mInFilterButtonFragment = new InFilterButtonsFragment(); }
-            transaction.replace(R.id.filtering_activity_button_container,mInFilterButtonFragment);
-            transaction.addToBackStack(FROM_ORIGINAL_TO_FILTERING);
-            transaction.commit();
-        }
-
+        insertPresetToDataInent(mPreset, intent, img_size);
+        // Notify the activity if we're in landscape mode.
+        intent.putExtra(LANDSCAPE, mIsLandscape);
+        intent.putExtra(IMG_SIZE, img_size);
+        startActivityForResult(intent, FILTER_SETTINGS_REQUEST_CODE);
     }
 
     /**
-     *
      * @param view
      */
     public void onScribbleOn(View view)
     {
         Switch sw = view.findViewById(R.id.scribble_switch);
-        if(!sw.isChecked())
+        if (!sw.isChecked())
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Warning");
@@ -397,15 +350,17 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                 }
             });
             builder.setNegativeButton("no", new DialogInterface.OnClickListener()
-            { @Override public void onClick(DialogInterface dialog, int which)
             {
-                Switch scribble = (Switch)findViewById(R.id.scribble_switch);
-                scribble.setChecked(true);
-            }});
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    Switch scribble = findViewById(R.id.scribble_switch);
+                    scribble.setChecked(true);
+                }
+            });
             builder.setCancelable(false);
             builder.create().show();
-        }
-        else
+        } else
         {
             mOriginalImageViewFragment.turnScribbleOn();
         }
@@ -413,7 +368,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
 
     /**
-     *
      * @param view
      */
     public void onApplyFilterClick(View view)
@@ -438,16 +392,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 //        }
 
         Log.i(TAG, "onApplyFilterClick: onClick event!");
-        if (mOriginalBitmap == null)
-        {
-            Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
-        }
-        // Update to user changes
-        if (mFilteringParametersFragment != null)
-        {
-            mFilteringParametersFragment.updatePreset(mPreset);
-        }
-
 
 
         //if (mPreFilterButtonFragment.isScribbleOn())
@@ -457,7 +401,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
 
         // begin filtering!!!
-        if (mImToProcess != null) {
+        if (mImToProcess != null)
+        {
             mImToProcess.release();
         }
         mImToProcess = new Mat();
@@ -468,28 +413,32 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
 
             //todo - remove this!!!!!!
-            try {
+            try
+            {
                 mImToProcess.release();
                 mImToProcess = Utils.loadResource(this, R.drawable.field, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
+                //
                 //Imgproc.cvtColor(mImToProcess, rgb, Imgproc.COLOR_BGR2RGB);
                 Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 e.printStackTrace();
             }
-
-
-
 
             //mFilteredBitmap =  CoF.applyFilter(mOriginalBitmap, mPreset);
             final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Please wait ...", "Applying co-occurence filter ...", true);
             ringProgressDialog.setCancelable(false);
-            Thread filterThread = new Thread(new Runnable() {
+            Thread filterThread = new Thread(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     String TAG = "launcherDialogTag";
-                    try {
+                    try
+                    {
                         // todo - here we will take the user-defined values and apply the filter according to them
-                        if (mFilteredImage != null) {
+                        if (mFilteredImage != null)
+                        {
                             mFilteredImage.release();
                         }
                         mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
@@ -512,7 +461,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                         mSavedOnce = false;
 
                         Log.i(TAG, "filter finished");
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         Log.e(TAG, e.getMessage(), e);
                     }
 
@@ -520,7 +470,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                     ringProgressDialog.dismiss();
 
                     // Create the post filtering fragment of buttons if it is the first time
-                    if (mPostFilterButtonFragment == null) {
+                    if (mPostFilterButtonFragment == null)
+                    {
                         mPostFilterButtonFragment = new PostFilteringButtonsFragment();
                     }
                     // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
@@ -532,84 +483,19 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                 }
             });
             filterThread.start();
-
-            //mFilteredBitmap = mOriginalBitmap;
-
-//        // Create the post filtering fragment of buttons if it is the first time
-//        if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
-            // Create the filtered image view.
-//            if (mFilteredImageViewFragment == null) {
-//                mFilteredImageViewFragment = new ImageViewFragment();
-//            }
-//
-//            mFilteredImageViewFragment.setImage(mFilteredBitmap);
-//            mfilteringDone = true;
-//            mSavedOnce = false;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             Log.d(TAG, "onApplyFilterClick: ERROR - " + e.getMessage());
         }
-
     }
 
     /**
      *
      * @param view
      */
-    public void onSavePresetClick(View view)
-    {
-        // Based on code from: https://www.mkyong.com/android/android-prompt-user-input-dialog-example/
-        // setup the alert builder
-        LayoutInflater li = LayoutInflater.from(this);
-        final View promptsView = li.inflate(R.layout.prompt, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(promptsView);
-
-        // Add a listener to the user input to check if the name is valid
-        // and display an error to the user if it isn't valid.
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
-        userInput.addTextChangedListener(new StringNameWatcher(userInput));
-        final CheckBox relativeCheckBox = promptsView.findViewById(R.id.relativePresetCheckBox);
-        final CheckBox setAsDefaultCheckBox = promptsView.findViewById(R.id.SetAsDefaultCheckBox);
-        // add a button
-        builder.setPositiveButton(getString(R.string.okMsg), new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-
-                String name = userInput.getText().toString();
-                // Create the preset object
-                createPreset(name, relativeCheckBox.isChecked(), setAsDefaultCheckBox.isChecked(), false);
-
-                // if the input is valid (e.g no error is being displayed)
-                // we attempt to store the preset in the configuration file
-                // and announce the success or failure of the saving.
-                if(userInput.getError() == null && mPreset.store(mPresetPref))
-                {
-                    mFilteringParametersFragment.onStored(name);
-                    Toast.makeText(getApplicationContext(), "Preset Saved", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(), "Invalid name, preset saving failed.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog,int id) { dialog.cancel(); }
-        });
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
 
     /**
-     *
      * @param view
      */
     public void onHelpClick(View view)
@@ -619,18 +505,19 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
 
     /**
-     *
      * @param view
      */
     public void onSaveResultClick(View view)
     {
         Log.i(TAG, "onSaveResultClick:  onClick event");
-        if(!mSavedOnce) { internalSaveOperation(); }
+        if (!mSavedOnce)
+        {
+            internalSaveOperation();
+        }
     }
 
 
     /**
-     *
      * @param view
      */
     public void onShareClick(View view)
@@ -639,16 +526,22 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         Log.i(TAG, "onShareClick: onClick event");
 
         // save bitmap to cache directory
-        try {
+        try
+        {
 
             File cachePath = new File(this.getCacheDir(), "images");
-            cachePath.mkdirs(); // don't forget to make the directory
+            if (!cachePath.mkdirs())
+            {
+                // don't forget to make the directory
+                Log.i(TAG, "onShareClick: Failed to create directory.");
+            }
             FileOutputStream stream = new FileOutputStream(cachePath + "/image.jpg"); // overwrites this image every time
             mFilteredBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.flush();
             stream.close();
 
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
 
@@ -656,7 +549,8 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         File newFile = new File(imagePath, "image.jpg");
         Uri contentUri = FileProvider.getUriForFile(this, "cofproject.tau.android.cof.fileprovider", newFile);
 
-        if (contentUri != null) {
+        if (contentUri != null)
+        {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
@@ -667,30 +561,16 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     }
 
 
-    @SuppressLint("ApplySharedPref")
-    public void onDeletePresetClick(View view)
-    {
-        // Default preset cannot be deleted but it can be overridden.
-        if(!mPreset.getName().equals(getString(R.string.DefaultPresetName)))
-        {
-            SharedPreferences.Editor editor = mPresetPref.edit();
-            editor.remove(mPreset.getName());
-            editor.commit();
-            mFilteringParametersFragment.onRemovedPreset(mPreset.getName());
-        }
-        else
-        {
-            Toast.makeText(getApplicationContext(), "Cannot delete default preset", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
-        if (!OpenCVLoader.initDebug()) {
+        if (!OpenCVLoader.initDebug())
+        {
             Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0, this, mLoaderCallback);
-        } else {
+        } else
+        {
             Log.d("OpenCV", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
@@ -698,19 +578,25 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy()
+    {
         Log.i(TAG, "onDestroy: started");
-        if (mImToProcess != null) {
+        if (mImToProcess != null)
+        {
             mImToProcess.release();
         }
-        if (mFilteredImage != null) {
+        if (mFilteredImage != null)
+        {
             mFilteredImage.release();
         }
-        if (mMaskToCollect != null) {
+        if (mMaskToCollect != null)
+        {
             mMaskToCollect.release();
         }
 
         super.onDestroy();
 
     }
+
+
 }
