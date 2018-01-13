@@ -99,7 +99,15 @@
                     android:layout_height="match_parent"
                     />
 
+                <!--<SeekBar-->
+                    <!--android:id="@+id/seekBar"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="5"/>-->
+
             </LinearLayout>
+
+
         </GridLayout>
 
         <android.support.constraint.ConstraintLayout

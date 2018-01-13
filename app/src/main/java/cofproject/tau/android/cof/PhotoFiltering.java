@@ -25,8 +25,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -81,6 +79,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private SharedPreferences mPresetPref;
     private Preset mPreset;
     private Uri mURI;
+    private File mFile;
     private boolean mIsFiltered = false;
     private boolean mIsShared = false;
 
@@ -239,11 +238,19 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         Bundle extras = getIntent().getExtras();
         if (extras == null) { return; }
 
+
+
+
+
+
         Intent intent = new Intent();
 
         if (extras.getBoolean(getString(R.string.Capture)))
         {
+            mFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "tmp_img_" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+            mURI = Uri.fromFile(mFile);
             intent.setAction(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mFile));
             startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
         }
         else
@@ -267,19 +274,29 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        //InputStream stream = null;
+
         if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE) && resultCode == Activity.RESULT_OK)
         {
             try
             {
                 if (mOriginalBitmap != null) { mOriginalBitmap.recycle(); }
-                mURI = data.getData();
+
+                if (requestCode == GALLERY_REQUEST_CODE) {
+                    mURI = data.getData();
+                }
                 if(mURI != null)
                 {
                     // store image
                     mOriginalBitmap = Util.getBitmap(this, mURI);
-//                    stream = getContentResolver().openInputStream(data.getData());
-//                    mOriginalBitmap = BitmapFactory.decodeStream(stream);
+
+                    if (requestCode == CAMERA_CAPTURE_REQUEST_CODE) {
+                        // if our image was taken from the camera - delete it (keep it only in the bitmap)
+                        File f = new File(mURI.getPath());
+                        if (f.exists()) {
+                            f.delete();
+                        }
+                    }
+
                     if (mOriginalBitmap != null)
                     {
                         mImgHeight = mOriginalBitmap.getHeight();
@@ -295,13 +312,11 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                     // Add the image fragment to the container.
                     getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
                     mOriginalImageViewFragment.setImage(mOriginalBitmap);
-                    // mOriginalImageViewFragment.setImage(data.getData());
 
                     if(isLandscape)
                     {
                         onChangeParameters(new View(this));
                     }
-
 
                     // Open the configuration file that contains the presets
                     openPresetConfigFile();
@@ -311,15 +326,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                 }
             }
             catch (Exception e) { e.printStackTrace(); }
-
-//            finally
-//            {
-//                if (stream != null)
-//                {
-//                    try { stream.close(); }
-//                    catch (IOException e) { e.printStackTrace(); }
-//                }
-//            }
         }
 
         else { finish(); }
@@ -415,13 +421,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
     private void startFiltering() {
         try
         {
-            Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
-
             //todo - remove this!!!!!!
             try {
                 mImToProcess.release();
                 mImToProcess = Utils.loadResource(this, R.drawable.olive, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
-                //Imgproc.cvtColor(mImToProcess, rgb, Imgproc.COLOR_BGR2RGB);
                 Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -429,22 +432,26 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
 
             final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Applying Co-Occurrence Filter", "Please wait...", true);
             ringProgressDialog.setCancelable(false);
+            ringProgressDialog.setCanceledOnTouchOutside(false);
             Thread filterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     String TAG = "launcherDialogTag";
                     try {
-                        // todo - here we will take the user-defined values and apply the filter according to them
+
+                        // prepare a new Mat object for the filtered image
                         if (mFilteredImage != null) {
                             mFilteredImage.release();
                         }
                         mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
-                        int nBins = 32;
 
+                        // aplly the filter!
                         CoF.applyFilter(mImToProcess, mFilteredImage, mPreset);
 
+                        // convert filterd image to uint8 type
                         mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
 
+                        // save the filtered Mat into Bitmap
                         mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
                         Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
 
@@ -459,7 +466,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                         mIsShared = false;
                         mIsFiltered = true;
 
-                        Log.i(TAG, "filter finished");
+                        Log.i(TAG, "Filtering finished");
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
@@ -481,22 +488,10 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             });
             filterThread.start();
 
-            //mFilteredBitmap = mOriginalBitmap;
-
-//        // Create the post filtering fragment of buttons if it is the first time
-//        if (mPostFilterButtonFragment == null) {mPostFilterButtonFragment = new PostFilteringButtonsFragment();}
-            // Create the filtered image view.
-//            if (mFilteredImageViewFragment == null) {
-//                mFilteredImageViewFragment = new ImageViewFragment();
-//            }
-//
-//            mFilteredImageViewFragment.setImage(mFilteredBitmap);
-//            mfilteringDone = true;
-//            mSavedOnce = false;
         }
         catch (Exception e)
         {
-            Log.d(TAG, "onApplyFilterClick: ERROR - " + e.getMessage());
+            Log.e(TAG, "startFiltering: ERROR - " + e.getMessage(), e);
         }
 
     }
@@ -508,24 +503,6 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
      */
     public void onApplyFilterClick(View view)
     {
-        // Based on code from: https://stackoverflow.com/questions/43513919/android-alert-dialog-with-one-two-and-three-buttons/43513920#43513920
-
-        // Verify that all of the parameters are within the proper ranges.
-//        if (!mFilteringParametersFragment.verifyValues())
-//        {
-//            // setup the alert builder
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle("Error");
-//            builder.setMessage("Please enter the filters parameters.\n\nIf you are unsure what to enter press the help button.");
-//
-//            // add a button
-//            builder.setPositiveButton("OK", null);
-//
-//            // create and show the alert dialog
-//            AlertDialog dialog = builder.create();
-//            dialog.show();
-//            return;
-//        }
 
         Log.i(TAG, "onApplyFilterClick: onClick event!");
         if (mOriginalBitmap == null)
@@ -553,6 +530,9 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         mImToProcess = new Mat();
 
         Utils.bitmapToMat(mOriginalBitmap, mImToProcess);
+
+        // the image loaded from the bitmap is RGBa - convert it to RGB
+        Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
 
         startFiltering();
 
@@ -699,9 +679,9 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
         }
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("WARNING");
-        alertDialog.setMessage("Are you sure you want to go back? The filterd image will be lost!");
+        alertDialog.setMessage(R.string.back_pressed_msg);
         // Add the buttons
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 mIsFiltered = false;
                 PhotoFiltering.super.onBackPressed();
@@ -709,7 +689,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
             }
         });
 
-        alertDialog.setNegativeButton("No",new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(getString(R.string.no),new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {}
         });
 

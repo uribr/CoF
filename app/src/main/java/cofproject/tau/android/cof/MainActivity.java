@@ -13,21 +13,16 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.core.Mat;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
     // Private members and methods
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences mSharedPreferences;
     private static final String TAG = "MainActivity";
 
 
@@ -38,9 +33,9 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this, PhotoFiltering.class);
         intent.putExtra(getString(R.string.Capture), capture);
         tmpStr = getString(R.string.ScribbleTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
+        intent.putExtra(tmpStr, mSharedPreferences.getBoolean(tmpStr, true));
         tmpStr = getString(R.string.ParametersTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
+        intent.putExtra(tmpStr, mSharedPreferences.getBoolean(tmpStr, true));
         return intent;
     }
 
@@ -67,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         setTitle(R.string.main_activity_label);
 
         // Create configuration files if none exist
-        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        mSharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
 
     }
 
@@ -145,10 +140,10 @@ public class MainActivity extends AppCompatActivity
      */
     public void onNewPhotoClick(View view)
     {
-        Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
-        ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
-        imageButton.setOnClickListener(null);
-        //TODO if(requestCameraPermission()) { startCameraActivity(); }
+        //Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
+        //ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
+        //imageButton.setOnClickListener(null);
+        if(requestCameraPermission()) { startCameraActivity(); }
     }
 
     /**

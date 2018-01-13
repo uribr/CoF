@@ -37,6 +37,7 @@
     <string name="RelativeCheckBoxTxt">Save relative height and width</string>
     <string name="SetAsDefaultCheckBoxTxt">Set as default preset</string>
     <string name="choose_an_app">Choose an app:</string>
+    <string name="back_pressed_msg">You did not save or share your filtered image.\nAre you sure you want to go back?\nThe filtered image will be lost!</string>
 
 </resources>
 
