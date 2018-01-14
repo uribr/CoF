@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +21,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -47,6 +45,8 @@ import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
 import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utility.extractPresetFromDataIntent;
 import static cofproject.tau.android.cof.Utility.isNameValid;
+import static cofproject.tau.android.cof.Utility.mapSeekbarToSigma;
+import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
 
 public class FilterSettings extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
@@ -56,7 +56,6 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     private SharedPreferences mPresetPref;
     private Preset mPreset;
     private ParametersFragment mFilteringParametersFragment;
-    private int mLastSelectedPreset;
     private boolean mIsADialogOpen;
     private int mImgSize;
     private List<String> mPresets;
@@ -65,15 +64,14 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
 
     private void onStored(String name)
     {
+        Log.d(TAG, "onStored: ");
         mPresets.add(name);
-        //updateSpinnerMenu();
     }
 
     private void onRemovedPreset(String name)
     {
         Log.d(TAG, "onRemovedPreset: ");
         mPresets.remove(name);
-        //updateSpinnerMenu();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -166,10 +164,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         }
         return list;
     }
-
-
-
-
+    
     private void createPresetFromUserSettings(String name, boolean relative, boolean newDefault)
     {
         Log.d(TAG, "createPresetFromUserSettings: creating preset");
@@ -218,9 +213,9 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     }
 
 
-    public void onSavePresetClick(View view)
+    public void onSaveButtonClick(View view)
     {
-        Log.d(TAG, "onSavePresetClick: entering");
+        Log.d(TAG, "onSaveButtonClick: entering");
         // Based on code from: https://www.mkyong.com/android/android-prompt-user-input-dialog-example/
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
@@ -228,7 +223,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
 
-        Log.d(TAG, "onSavePresetClick: creating widgets");
+        Log.d(TAG, "onSaveButtonClick: creating widgets");
         // Add a listener to the user input to check if the name is valid
         // and display an error to the user if it isn't valid.
         final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
@@ -255,7 +250,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             }
         });
 
-        Log.d(TAG, "onSavePresetClick: adding buttons");
+        Log.d(TAG, "onSaveButtonClick: adding buttons");
         // add a button
         builder.setPositiveButton(getString(R.string.save_text), new DialogInterface.OnClickListener()
         {
@@ -271,12 +266,13 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 // we attempt to store the preset in the configuration file
                 // and announce the success or failure of the saving.
 
-                if (isNameValid(name) && mPreset.validate() && mPreset.store(mPresetPref))
+                if (isNameValid(name, setAsDefaultCheckBox.isChecked()) && mPreset.validate() && mPreset.store(mPresetPref))
                 {
                     onStored(name);
-
+                    mFilteringParametersFragment.setPresetName(name);
                     Toast.makeText(getApplicationContext(), "Preset Saved", Toast.LENGTH_SHORT).show();
-                } else
+                }
+                else
                 {
                     Toast.makeText(getApplicationContext(), "Invalid name, preset saving failed.", Toast.LENGTH_SHORT).show();
                 }
@@ -291,16 +287,16 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             }
         });
 
-        Log.d(TAG, "onSavePresetClick: show dialog");
+        Log.d(TAG, "onSaveButtonClick: show dialog");
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     @SuppressLint("ApplySharedPref")
-    public void onDeletePresetClick(View view)
+    public void onDelteButtonPress(View view)
     {
-        Log.i(TAG, "onDeletePresetClick: onClick event");
+        Log.i(TAG, "onDelteButtonPress: onClick event");
         // Default preset cannot be deleted but it can be overridden.
         if (!mPreset.getName().equals(getString(R.string.DefaultPresetName)))
         {
@@ -310,7 +306,8 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             onRemovedPreset(mPreset.getName());
             Toast.makeText(getApplicationContext(), "Preset deleted.",
                     Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "onDeletePresetClick: deleteing preset");
+            mFilteringParametersFragment.setPresetName(UNSAVED_PRESET_NAME);
+            Log.d(TAG, "onDelteButtonPress: deleteing preset");
         }
         else
         {
@@ -510,14 +507,14 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
 
         builder.setTitle(R.string.select_spatial_u03c3_value);
 
-        final TextView textView = promptsView.findViewById(R.id.progress);
-        textView.setText(String.format(Locale.ENGLISH,"%.02f",
-                mFilteringParametersFragment.getSigma()));
-
         final SeekBar seekBar = promptsView.findViewById(R.id.seekbar);
         seekBar.setMax(((int) Math.floor(MAX_SIGMA * SIGMA_SEEKBAR_LENGTH)));
         seekBar.setProgress(mapSigmaToProgress(mFilteringParametersFragment.getSigma()));
 
+        final EditText editText = promptsView.findViewById(R.id.progress);
+        editText.setText(String.format(Locale.ENGLISH,"%.02f",
+                mFilteringParametersFragment.getSigma()));
+        editText.addTextChangedListener(new SigmaValueWatcher(editText, seekBar));
 
         Log.d(TAG, "showSeekbarDialog: adding seekbar listener");
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
@@ -525,8 +522,11 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
-                textView.setText(String.format(Locale.ENGLISH, "%.02f",
-                        mapSeekbarToSigma(progress)));
+                if(fromUser)
+                {
+                    editText.setText(String.format(Locale.ENGLISH, "%04.002f",
+                            mapSeekbarToSigma(progress)));
+                }
             }
 
             @Override
@@ -548,7 +548,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 {
                     double newSigmaValue =  mapSeekbarToSigma(seekBar.getProgress());
                     if (mFilteringParametersFragment.getSigma() != newSigmaValue
-                            && newSigmaValue > 0.00)
+                            && newSigmaValue > 0.00 && editText.getError() == null)
                     {
                         // Once the values loaded from the preset have been changed, we display
                         // the string "Unsaved Preset" in the current value of the preseet
@@ -579,22 +579,11 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 mIsADialogOpen = false;
             }
         });
-        builder.setCancelable(false);
         Log.d(TAG, "showSeekbarDialog: showing dialog");
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    @NonNull
-    private Double mapSeekbarToSigma(int progress)
-    {
-        Log.d(TAG, "mapSeekbarToSigma: entering");
-        return ((double) (progress)) * (1 / MAX_SIGMA);
-    }
-    private Integer mapSigmaToProgress(double sigma)
-    {
-        Log.d(TAG, "mapSigmaToProgress: entering");
-        return ((int) (sigma * MAX_SIGMA));
-    }
+
 }
 

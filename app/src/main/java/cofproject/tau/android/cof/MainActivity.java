@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,33 +13,151 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
     // Public members and methods
     public static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
     public static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
-    public static final int FILTERING_RETURN_CODE = 2; // TODO - is this needed?
-    private static final String TAG = "MainActivity";
+
+    /**
+     * Callback method for permission requests. Expects an {@link #APP_PERMISSIONS_REQUEST_CAMERA}
+     * or {@link #APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE} as requestCode and calls
+     * the {@link #startFilteringTaskViaCamera()} or {@link #startFilteringTaskViaGallery()}
+     * respectively.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
+    {
+        // Camera request
+        if (requestCode == APP_PERMISSIONS_REQUEST_CAMERA)
+        {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                // Permission was granted, activating camera
+                startFilteringTaskViaCamera();
+            }
+            // Permission denied, do nothing.
+        }
+        // External storage request
+        else if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
+        {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                // Permission was granted, open gallery
+                startFilteringTaskViaGallery();
+            }
+            // Permission denied, do nothing
+        }
+    }
+
+    /**
+     * The method checks whether the the current context has permission to
+     * access the camera. If it does not an asynchronous permission request is issued.
+     * @return whether the current context has permission to access the camera.
+     */
+    public boolean requestCameraPermission()
+    {
+        // Check if we have permission.
+        boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this,
+                        android.Manifest.permission.CAMERA) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED);
+
+        if (!cameraPermissionCheck)
+        {
+            // Request permission to access the camera, this is done ASYNCHRONOUSLY!
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                    APP_PERMISSIONS_REQUEST_CAMERA);
+            return false;
+        }
+
+        // We already have permission.
+        return true;
+    }
+
+    /**
+     * The method checks whether the the current context has permission to
+     * access the external storage. If it does not an asynchronous permission request is issued.
+     * @return whether the current context has permission to access the external storage.
+     */
+    public boolean requestExternalStoragePermission()
+    {
+        // Check if we have permission.
+        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED);
+
+        if (!readExternalStoragePermissionCheck)
+        {
+            // Request permission to read and write to external storage, this is done ASYNCHRONOUSLY!
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
+
+            return false;
+        }
+
+        // We already have permission
+        return true;
+    }
+
+    /**
+     * Attempts to call {@link #startFilteringTaskViaCamera()} if the current context has permission
+     * to access the camera, if not an asynchronous request for such a permission is made and method
+     * terminates. If the permission is already given, the method calls the
+     * startFilteringTaskViaCamera to initiate the filtering task.
+     *
+     * See {@link #requestCameraPermission()} and
+     * {@link #onRequestPermissionsResult(int, String[], int[])}for more information.
+     *
+     * @param view - the calling view.
+     */
+    public void onCameraButtonClick(View view)
+    {
+        Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
+        // Check for permission.
+        //TODO if(requestCameraPermission())
+//         {
+//             startFilteringTaskViaCamera();
+//         }
+    }
+
+    /**
+     * Attempts to call {@link #startFilteringTaskViaGallery()} if the current context has
+     * permission to access the camera, if not an asynchronous request for such a permission is made
+     * and method terminates. If the permission is already given, the method calls the
+     * startFilteringTaskViaCamera to initiate the filtering task.
+     *
+     * See {@link #requestExternalStoragePermission()} and
+     * {@link #onRequestPermissionsResult(int, String[], int[])}for more information.
+     *
+     * @param view - the calling view.
+     */
+    public void onGalleryButtonClick(View view)
+    {
+        // Check for permission.
+        if (requestExternalStoragePermission())
+        {
+            startFilteringTaskViaGallery();
+        }
+    }
+
+
+
+
     // Private members and methods
+    private static final String TAG = "MainActivity";
     private SharedPreferences sharedPreferences;
 
     /**
-     * @param ctx
-     * @param intent
-     * @return
+     * Convenience for creating an intent that initiates the filtering task.
+     * @param capture - to use camera or not (not using the camera will force use
+     *                of the device storage)
+     * @return the intent to issue
      */
-    public static boolean isIntentAvailable(Context ctx, Intent intent)
-    {
-        final PackageManager mgr = ctx.getPackageManager();
-        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return list.size() > 0;
-    }
-
     private Intent genBasicImageProcIntent(boolean capture)
     {
         String tmpStr;
@@ -55,12 +172,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     *
+     * Starts the filtering task with the device storage as the image source.
      */
-    private void startCameraActivity()
+    private void startFilteringTaskViaCamera()
     {
         //throw new UnsupportedOperationException("Internal camera feature is not implemented");
         startActivity(genBasicImageProcIntent(true));
+    }
+
+    /**
+     * Starts the filtering task with the device storage as the image source.
+     */
+    public void startFilteringTaskViaGallery()
+    {
+        startActivity(genBasicImageProcIntent(false));
     }
 
     // Protected members and methods
@@ -83,90 +208,5 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    /**
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
-    {
-        if (requestCode == APP_PERMISSIONS_REQUEST_CAMERA)
-        {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                // Permission was granted, activating camera
-                startCameraActivity();
-            }
-            // Permission denied, do nothing.
-        } else if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
-        {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                // Permission was granted, open gallery
-                startGallery();
-            }
-            // Permission denied, do nothing
-        }
-    }
-
-    /**
-     * The method checks whether the application has permission to
-     * access the camera and if we don't an asynchronous permission
-     * request is made.
-     */
-    public boolean requestCameraPermission()
-    {
-        boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if (!cameraPermissionCheck)
-        {
-            // Request permission to access the camera, this is done ASYNCHRONOUSLY!
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, APP_PERMISSIONS_REQUEST_CAMERA);
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * @param view
-     */
-    public void onNewPhotoClick(View view)
-    {
-        Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
-        ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
-        imageButton.setOnClickListener(null);
-        //TODO if(requestCameraPermission()) { startCameraActivity(); }
-    }
-
-    /**
-     * @param view
-     */
-    public void onGalleryButtonClick(View view)
-    {
-        if (requestExternalStoragePermission())
-        {
-            startGallery();
-        }
-    }
-
-    public void startGallery()
-    {
-        startActivity(genBasicImageProcIntent(false));
-    }
-
-    public boolean requestExternalStoragePermission()
-    {
-        boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if (!readExternalStoragePermissionCheck)
-        {
-            // Request permission to read and write to external storage, this is done ASYNCHRONOUSLY!
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
-            return false;
-        }
-        return true;
-    }
 
 }

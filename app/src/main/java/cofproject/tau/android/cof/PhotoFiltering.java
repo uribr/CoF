@@ -287,6 +287,11 @@ public class PhotoFiltering extends AppCompatActivity
                 }
             }
         }
+        else
+        {
+            finish();
+            //onBackPressed();
+        }
     }
 
 
@@ -319,11 +324,14 @@ public class PhotoFiltering extends AppCompatActivity
 //            intent.putExtra(QUANTIZATION, mPreset.getQuantization());
 //            intent.putExtra(IS_RELATIVE,mPreset.isRelative());
 //        }
-        if (mPreset == null)
+//        if (mPreset == null)
+//        {
+//            mPreset = Preset.createPreset(img_size);
+//        }
+        if (mPreset != null)
         {
-            mPreset = Preset.createPreset(img_size);
+            insertPresetToDataInent(mPreset, intent, img_size);
         }
-        insertPresetToDataInent(mPreset, intent, img_size);
         // Notify the activity if we're in landscape mode.
         intent.putExtra(LANDSCAPE, mIsLandscape);
         intent.putExtra(IMG_SIZE, img_size);

@@ -7,15 +7,19 @@ package cofproject.tau.android.cof;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.List;
 
 class Utility
 {
@@ -25,7 +29,7 @@ class Utility
     static final int MAX_PRESET_NAME_LENGTH = 21;
     static final int SIGMA_SEEKBAR_LENGTH = 100;
     static final double MAX_SIGMA = 100;
-    static final double MIN_SIGMA = 0.001;
+    static final double ZERO_SIGMA = 0.001;
     static final int MAX_ITERATIONS = 10;
     static final int ONE = 1;
     static final int ZERO = 0;
@@ -60,7 +64,7 @@ class Utility
      * @param str
      * @return
      */
-    static boolean isNameValid(String str)
+    static boolean isNameValid(String str, boolean canBeDefault)
     {
         boolean atLeastOneChar = false;
         CharacterIterator cI = new StringCharacterIterator(str);
@@ -75,7 +79,12 @@ class Utility
                 return false;
             }
         }
-        return atLeastOneChar && !str.equals(Preset.DEFAULT_PRESET_NAME) && !str.equals(UNSAVED_PRESET_NAME) && str.length() <= MAX_PRESET_NAME_LENGTH;
+        return atLeastOneChar && (canBeDefault || !str.equals(Preset.DEFAULT_PRESET_NAME)) && !str.equals(UNSAVED_PRESET_NAME) && str.length() <= MAX_PRESET_NAME_LENGTH;
+    }
+
+    static boolean isNameValid(String str)
+    {
+        return isNameValid(str, false);
     }
 
     static Intent insertPresetToDataInent(Preset preset, Intent intent, int imgSize)
@@ -185,5 +194,31 @@ class Utility
             width = (int) (height * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    /**
+     * A static method for verifying if there is an activity that accepts the intent provided
+     * within the context of ctx
+     * @param ctx
+     * @param intent
+     * @return
+     */
+    public static boolean isIntentAvailable(Context ctx, Intent intent)
+    {
+        final PackageManager mgr = ctx.getPackageManager();
+        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
+    @NonNull
+    static Double mapSeekbarToSigma(int progress)
+    {
+        Log.d(TAG, "mapSeekbarToSigma: entering");
+        return ((double) (progress)) * (1 / MAX_SIGMA);
+    }
+    static Integer mapSigmaToProgress(double sigma)
+    {
+        Log.d(TAG, "mapSigmaToProgress: entering");
+        return ((int) (sigma * MAX_SIGMA));
     }
 }

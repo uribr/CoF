@@ -26,7 +26,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="64dp"
             android:background="@android:drawable/btn_default"
-            android:onClick="onNewPhotoClick"
+            android:onClick="onCameraButtonClick"
             android:orientation="vertical"
             android:weightSum="1"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -41,7 +41,7 @@
                 android:background="@null"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_menu_camera"
-                android:onClick="onNewPhotoClick">
+                android:onClick="onCameraButtonClick">
             </ImageButton>
 
         </LinearLayout>

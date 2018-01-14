@@ -35,13 +35,13 @@
 
         <activity
             android:name=".PhotoFiltering"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_filter_photo"
             android:parentActivityName=".MainActivity">
         </activity>
         <activity
             android:name=".FilterSettings"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:label="@string/filtersetting_label"
             android:parentActivityName=".PhotoFiltering">
         </activity>

@@ -12,7 +12,7 @@ public class StringNameWatcher implements TextWatcher
 {
     private EditText mTarget;
 
-    public StringNameWatcher(EditText target)
+    StringNameWatcher(EditText target)
     {
         super();
         mTarget = target;
@@ -20,21 +20,15 @@ public class StringNameWatcher implements TextWatcher
 
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after)
-    {
-
-    }
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count)
-    {
-
-    }
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     @Override
     public void afterTextChanged(Editable s)
     {
-        if (!Utility.isNameValid(s.toString()))
+        if (!Utility.isNameValid(s.toString(), mTarget.isEnabled()))
         {
             mTarget.setError("Preset name must be alphanumeric and contain at least one letter.");
         } else

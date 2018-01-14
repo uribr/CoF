@@ -25,13 +25,13 @@
             android:layout_margin="10dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:onClick="onNewPhotoClick"
+            android:background="@android:drawable/btn_default"
+            android:backgroundTintMode="src_in"
+            android:onClick="onCameraButtonClick"
             android:orientation="vertical"
             android:weightSum="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
                 android:id="@+id/img_btn_capture_photo"
@@ -39,7 +39,7 @@
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:onClick="onNewPhotoClick"
+                android:clickable="false"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_menu_camera">
             </ImageButton>
@@ -48,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:background="@null"
                 android:clickable="false"
                 android:text="@string/capture_new_photo_button_text">
             </TextView>
@@ -60,7 +61,7 @@
             android:layout_margin="10dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="64dp"
-            android:background="?attr/selectableItemBackground"
+            android:background="@android:drawable/btn_default"
             android:onClick="onGalleryButtonClick"
             android:orientation="vertical"
             android:weightSum="1"
@@ -73,7 +74,7 @@
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:onClick="onGalleryButtonClick"
+                android:clickable="false"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_menu_gallery">
             </ImageButton>
@@ -82,6 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:background="@null"
                 android:clickable="false"
                 android:text="@string/browse_gallery_button_text">
             </TextView>
