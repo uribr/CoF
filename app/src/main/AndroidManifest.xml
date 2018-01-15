@@ -17,8 +17,6 @@
         android:xlargeScreens="false"/>
 
     <application
-
-
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/main_activity_label"
@@ -37,13 +35,13 @@
 
         <activity
             android:name=".PhotoFiltering"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_filter_photo"
             android:parentActivityName=".MainActivity">
         </activity>
         <activity
             android:name=".FilterSettings"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:label="@string/filtersetting_label"
             android:parentActivityName=".PhotoFiltering">
         </activity>

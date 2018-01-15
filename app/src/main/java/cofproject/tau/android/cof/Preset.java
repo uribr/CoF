@@ -46,7 +46,8 @@ public class Preset
         mWindowSize = Integer.parseInt(paramsArr[1]);
         mSigma = Double.parseDouble(paramsArr[2]);
         mNumberOfIteration = Integer.parseInt(paramsArr[3]);
-        mRelative = Boolean.parseBoolean(paramsArr[4]);
+        mQuantizationLevels = Integer.parseInt(paramsArr[4]);
+        mRelative = Boolean.parseBoolean(paramsArr[5]);
         mName = name;
     }
 
@@ -193,19 +194,18 @@ public class Preset
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(mRelativeWindowSize);
-        sb.append(',');
-        sb.append(mWindowSize);
-        sb.append(',');
-        sb.append(mSigma);
-        sb.append(',');
-        sb.append(mNumberOfIteration);
-        sb.append(',');
-        sb.append(mQuantizationLevels);
-        sb.append(',');
-        sb.append(mRelative);
-        return sb.toString();
+        String sb = String.valueOf(mRelativeWindowSize) +
+                ',' +
+                mWindowSize +
+                ',' +
+                mSigma +
+                ',' +
+                mNumberOfIteration +
+                ',' +
+                mQuantizationLevels +
+                ',' +
+                mRelative;
+        return sb;
     }
 
     public boolean store(SharedPreferences prefs)

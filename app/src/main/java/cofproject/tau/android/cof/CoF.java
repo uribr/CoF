@@ -1,17 +1,8 @@
 package cofproject.tau.android.cof;
 
-//package com.example.android.coftest;
-
-
 import android.util.Log;
-
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
 import com.google.common.primitives.Floats;
-import com.google.common.primitives.Ints;
-
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -31,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CoF {
     private static final String TAG = "CoF";
+    private static final int ITERATIONS_COUNT_DEFAULT = 1;
     private static final double SIGMA_SPATIAL_DEFAULT = 2 * Math.sqrt(15) + 1;
     private static final int WINDOW_SIZE_DEFAULT = 15;
     private static final Size GAUSSIAN_KERNEL_SIZE_DEFAULT = new Size(WINDOW_SIZE_DEFAULT, WINDOW_SIZE_DEFAULT);
@@ -53,17 +45,23 @@ public class CoF {
         Log.i(TAG, "applyFilter: Started applying filter");
 
         // extract parmeters from params
-        int iterCnt = params.getNumberOfIteration();
-        int winsize = params.getWindowSize();
-        if (winsize % 2 == 0) {
-            winsize--;
-        }
-        int hws = winsize / 2; // half window size, floored
-        double sigma = params.getSigma();
+        int iterCnt = ITERATIONS_COUNT_DEFAULT;
+        int winSize = WINDOW_SIZE_DEFAULT;
+        double sigma = SIGMA_SPATIAL_DEFAULT;
+        if (params != null) {
+            iterCnt = params.getNumberOfIteration();
+            winSize = params.getWindowSize();
+            sigma = params.getSigma();
 
-        iterCnt = 3;
+        }
+
+        if (winSize % 2 == 0) {
+            winSize--;
+        }
+
+        int hws = winSize / 2; // half window size, floored
         int nBins = 32;
-        sigma = SIGMA_SPATIAL_DEFAULT;
+
 
 
         if (imToProcess.rows() != filteredImage.rows() || imToProcess.cols() != filteredImage.cols()) {
