@@ -445,7 +445,7 @@ public class PhotoFiltering extends AppCompatActivity implements ParametersFragm
                         }
                         mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
 
-                        // aplly the filter!
+                        // apply the filter!
                         CoF.applyFilter(mImToProcess, mFilteredImage, mPreset);
 
                         // convert filterd image to uint8 type
