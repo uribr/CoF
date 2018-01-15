@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import java.util.ArrayList;
+
 import java.util.List;
 
 /**
@@ -59,7 +59,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         mBitmap = bmp.copy(bmp.getConfig(), false);
         if(this.isResumed())
         {
-            mImageView.setImageBitmap(Util.getResizedBitmap(mBitmap, 500));
+            mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
         }
     }
 
@@ -117,47 +117,6 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
                     }
                 }
                 return consumed;
-//                if(mScribbleState)
-//                {
-//                    int x = (int) event.getX();
-//                    int y = (int) event.getY();
-//                    mOverlayView.addScribblePointsCoords(new Pair<>(x,y));
-//                    mOverlayView.invalidate();
-//
-//                    if (event.getAction() == MotionEvent.ACTION_DOWN)
-//                    {
-////                        Log.d(TAG, "onTouch: ACTION_DOWN. Coordinates: " + Integer.toString((int)event.getX()) + ", " + Integer.toString((int)event.getY()));
-//                        int x = (int) event.getX();
-//                        int y = (int) event.getY();
-//                        mInitialPoint = new Pair<>(x, y);
-//                        return true;
-//                    }
-//                    else if (event.getAction() == MotionEvent.ACTION_MOVE)
-//                    {
-////                        Log.d(TAG, "onTouch: ACTION_MOVE. Coordinates: " + Integer.toString((int)event.getX()) + ", " + Integer.toString((int)event.getY()));
-//                        mTouchHistroy.add(new Pair<Integer, Integer>((int) event.getX(),(int) event.getY()));
-//                        mOverlayView.addScribblePointsCoords(new Pair<Integer, Integer>((int) event.getX(),(int) event.getY()));
-//                        mOverlayView.invalidate();
-//                        return true;
-//                    }
-//                    else if (event.getAction() == MotionEvent.ACTION_UP)
-//                    {
-////                        Log.d(TAG, "onTouch: ACTION_UP. Coordinates: " + Integer.toString((int)event.getX()) + ", " + Integer.toString((int)event.getY()));
-//                        Pair<Integer, Integer> lastPoint = new Pair<>((int) event.getX(),(int) event.getY());
-//                        if (lastPoint == mInitialPoint && mTouchHistroy.size() == 1)
-//                        {
-//                            mOverlayView.addScribblePointsCoords(mInitialPoint);
-//                            mOverlayView.invalidate();
-//                        }
-//                         else
-//                        {
-//                            for (Pair<Integer, Integer> point : mTouchHistroy) { mOverlayView.addScribblePointsCoords(point); }
-//                            mOverlayView.invalidate();
-//                        }
-//                        mTouchHistroy.clear();
-//                        return true;
-//                    }
-//                }
             }
         });
 

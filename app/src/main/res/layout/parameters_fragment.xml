@@ -1,184 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--TODO - delete old ui-->
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cofproject.tau.android.cof.ParametersFragment">
+    android:orientation="vertical"
+    android:weightSum="5">
 
     <LinearLayout
-        android:id="@+id/Parameters"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/preset_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="173dp">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:onClick="onSettingClick"
+        android:orientation="horizontal">
 
-        <GridLayout
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/preset"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/current_preset_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal"
-            android:columnCount="2"
-            android:columnOrderPreserved="false"
-            android:rowCount="1">
-
-            <LinearLayout
-                android:id="@+id/linearLayout56"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal|end"
-                android:orientation="horizontal">
-
-                <NumberPicker
-                    android:id="@+id/IterationPicker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_column="0"
-                android:layout_gravity="center_horizontal|start"
-                android:layout_marginRight="25dp"
-                android:text="@string/Iterations"
-                android:textSize="30sp"/>
-
-        </GridLayout>
-
-        <GridLayout
-            android:id="@+id/spatialGridLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal"
-            android:columnCount="2"
-            android:useDefaultMargins="false">
-
-            <TextView
-                android:id="@+id/parameter_name_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_gravity="right|clip_vertical|clip_horizontal"
-
-                android:layout_marginRight="25dp"
-                android:text="@string/filter_parameter_name"
-                android:textSize="30sp"
-                android:visibility="visible"/>
-
-            <LinearLayout
-                android:id="@+id/linearLayout4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="center_horizontal|clip_vertical|clip_horizontal|end"
-
-                android:orientation="horizontal">
-
-                <NumberPicker
-                    android:id="@+id/SigmaIntegerPicker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    />
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="."
-                    android:textSize="30sp"/>
-
-                <NumberPicker
-                    android:id="@+id/SigmaFractionPicker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    />
-
-                <!--<SeekBar-->
-                    <!--android:id="@+id/seekBar"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_weight="5"/>-->
-
-            </LinearLayout>
-
-
-        </GridLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <NumberPicker
-                android:id="@+id/WindowSizePicker"
-                android:layout_width="62dp"
-                android:layout_height="57dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/window_height_textview"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/window_height_textview"
-                android:layout_width="91dp"
-                android:layout_height="30dp"
-                android:layout_marginBottom="2dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="2dp"
-                android:text="@string/window_size_text"
-                android:textSize="12sp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-        </android.support.constraint.ConstraintLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/presetSpinnerLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/Preset"
-                android:textSize="12sp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <Spinner
-                android:id="@+id/presetSpinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="2"
-                android:clipToPadding="false"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/presetSpinnerLabel"
-                app:layout_constraintTop_toTopOf="parent"/>
-        </android.support.constraint.ConstraintLayout>
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/default_preset_name"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"
+            android:theme="@android:style/Theme.Material"/>
 
     </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:clickable="false"/>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/quantization_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:onClick="onSettingClick"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/quantization_level"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/current_quantization_level"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/_32"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:clickable="false"/>
+
+    <LinearLayout
+        android:id="@+id/window_size_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:onClick="onSettingClick"
+        android:orientation="horizontal"
+        android:showDividers="beginning|middle"
+        android:textColor="@color/colorAccent">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/window_size"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/current_window_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/_16"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:clickable="false"/>
+
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/deviation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:onClick="onSettingClick"
+        android:orientation="horizontal"
+        android:textColor="@color/colorAccent">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/spatial_u03c3"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/current_deviation_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/_1"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:clickable="false"/>
+
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/iteration_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:onClick="onSettingClick"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/number_of_iterations"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/current_iteration_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/_1"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary"
+        android:clickable="false"/>
+
+</LinearLayout>

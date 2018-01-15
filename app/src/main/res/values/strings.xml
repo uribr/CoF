@@ -27,6 +27,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="okMsg">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="InvalidNameError">A preset name must be alphanumeric and contain at least one letter.</string>
     <string name="PresetsConfigFileName">cofproject.tau.android.cof.FILTER_PRESETS_FILE</string>
     <string name="ScribbleTutorial">cofproject.tau.android.cof.SCRIBBLE_TUTORIAL</string>
@@ -38,6 +39,22 @@
     <string name="SetAsDefaultCheckBoxTxt">Set as default preset</string>
     <string name="choose_an_app">Choose an app:</string>
     <string name="back_pressed_msg">You did not save or share your filtered image.\nAre you sure you want to go back?\nThe filtered image will be lost!</string>
+
+
+    <string name="title_activity_filter_preferences">Settings</string>
+    <string name="quantization_level">Quantization Level</string>
+    <string name="select_a_preset">Select a preset</string>
+    <string name="select_spatial_u03c3_value">Select spatial σ value:</string>
+    <string name="load_preset">Load Preset</string>
+    <string name="preset">Preset</string>
+    <string name="default_preset_name">Default</string>
+    <string name="_32">32</string>
+    <string name="window_size">Window Size</string>
+    <string name="_16">16</string>
+    <string name="spatial_u03c3">Spatial σ</string>
+    <string name="number_of_iterations">Number of iterations</string>
+    <string name="_1">1</string>
+    <string name="filtersetting_label">Settings</string>
 
 
 </resources>

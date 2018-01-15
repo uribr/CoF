@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:onClick="onChangeParameters"
+        android:onClick="onFilterSettingsClick"
         android:text="@string/parameters_input"
         android:textAllCaps="false"
         android:textSize="12sp"
