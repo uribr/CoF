@@ -21,25 +21,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
-    // Public members and methods
-    public static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
-    public static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
-    public static final int FILTERING_RETURN_CODE = 2; // TODO - is this needed?
-    private static final String TAG = "MainActivity";
     // Private members and methods
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences mSharedPreferences;
+    private static final String TAG = "MainActivity";
 
-    /**
-     * @param ctx
-     * @param intent
-     * @return
-     */
-    public static boolean isIntentAvailable(Context ctx, Intent intent)
-    {
-        final PackageManager mgr = ctx.getPackageManager();
-        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return list.size() > 0;
-    }
 
     private Intent genBasicImageProcIntent(boolean capture)
     {
@@ -48,9 +33,9 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this, PhotoFiltering.class);
         intent.putExtra(getString(R.string.Capture), capture);
         tmpStr = getString(R.string.ScribbleTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
+        intent.putExtra(tmpStr, mSharedPreferences.getBoolean(tmpStr, true));
         tmpStr = getString(R.string.ParametersTutorial);
-        intent.putExtra(tmpStr, sharedPreferences.getBoolean(tmpStr, true));
+        intent.putExtra(tmpStr, mSharedPreferences.getBoolean(tmpStr, true));
         return intent;
     }
 
@@ -60,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     private void startCameraActivity()
     {
         //throw new UnsupportedOperationException("Internal camera feature is not implemented");
-        startActivity(genBasicImageProcIntent(true));
+        startActivityForResult(genBasicImageProcIntent(true), FILTERING_RETURN_CODE);
     }
 
     // Protected members and methods
@@ -68,22 +53,27 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE)
+        if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+        else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_main);
         setTitle(R.string.main_activity_label);
 
         // Create configuration files if none exist
-        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        mSharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
 
     }
 
+
+    // Public members and methods
+    public static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
+    public static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
+    public static final int FILTERING_RETURN_CODE = 2; // TODO - is this needed?
+
     /**
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -100,7 +90,8 @@ public class MainActivity extends AppCompatActivity
                 startCameraActivity();
             }
             // Permission denied, do nothing.
-        } else if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
+        }
+        else if (requestCode == MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE)
         {
             // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -113,6 +104,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
+     *
+     * @param ctx
+     * @param intent
+     * @return
+     */
+    public static boolean isIntentAvailable(Context ctx, Intent intent)
+    {
+        final PackageManager mgr = ctx.getPackageManager();
+        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
+    /**
      * The method checks whether the application has permission to
      * access the camera and if we don't an asynchronous permission
      * request is made.
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity
     public boolean requestCameraPermission()
     {
         boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if (!cameraPermissionCheck)
+        if(!cameraPermissionCheck)
         {
             // Request permission to access the camera, this is done ASYNCHRONOUSLY!
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, APP_PERMISSIONS_REQUEST_CAMERA);
@@ -131,36 +135,35 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
+     *
      * @param view
      */
     public void onNewPhotoClick(View view)
     {
-        Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
-        ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
-        imageButton.setOnClickListener(null);
-        //TODO if(requestCameraPermission()) { startCameraActivity(); }
+        //Toast.makeText(getApplicationContext(), "Sorry, feature is unavailable at the moment.", Toast.LENGTH_SHORT).show();
+        //ImageButton imageButton = findViewById(R.id.img_btn_capture_photo);
+        //imageButton.setOnClickListener(null);
+        if(requestCameraPermission()) { startCameraActivity(); }
     }
 
     /**
+     *
      * @param view
      */
     public void onGalleryButtonClick(View view)
     {
-        if (requestExternalStoragePermission())
-        {
-            startGallery();
-        }
+        if(requestExternalStoragePermission()) { startGallery(); }
     }
 
     public void startGallery()
     {
-        startActivity(genBasicImageProcIntent(false));
+        startActivityForResult(genBasicImageProcIntent(false), FILTERING_RETURN_CODE);
     }
 
     public boolean requestExternalStoragePermission()
     {
         boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED);
-        if (!readExternalStoragePermissionCheck)
+        if(!readExternalStoragePermissionCheck)
         {
             // Request permission to read and write to external storage, this is done ASYNCHRONOUSLY!
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
@@ -168,5 +171,13 @@ public class MainActivity extends AppCompatActivity
         }
         return true;
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 
 }

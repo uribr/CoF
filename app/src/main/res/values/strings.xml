@@ -125,6 +125,8 @@
     <string name="number_of_iterations">Number of iterations</string>
     <string name="_1">1</string>
     <string name="filtersetting_label">Settings</string>
+    <string name="back_pressed_msg">You did not save or share your filtered image.\nAre you sure you want to go back?\nThe filtered image will be lost!</string>
+
 
 </resources>
 
