@@ -23,7 +23,11 @@ import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -177,31 +181,48 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     public void loadPreset()
     {
         Log.d(TAG, "loadPreset: entering");
-        if (mPreset == null)
+        try
         {
-            String params = mPresetPref.getString(DEFAULT_PRESET_NAME, "");
-            if (params.isEmpty())
+            Map<String, String> map = new HashMap<>();
+            if (mPreset == null)
             {
-                // No default preset found, generating an hardcoded default preset
-                mPreset = Preset.createPreset(mImgSize);
+                String jsonString = mPresetPref.getString(DEFAULT_PRESET_NAME, new JSONObject().toString());
+                JSONObject jsonObject = new JSONObject(jsonString);
 
-                if (mImgSize < mPreset.getWindowSize())
+                Iterator<String> keysItr = jsonObject.keys();
+                while(keysItr.hasNext())
                 {
+                    String key = keysItr.next();
+                    String value = (String) jsonObject.get(key);
+                    map.put(key, value);
+                }
+
+                if (map.isEmpty())
+                {
+                    // No default preset found, generating an hardcoded default preset
                     mPreset = Preset.createPreset(mImgSize);
-                    Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
-                }
-                else
+                    mPreset.store(mPresetPref);
+                    if (mImgSize < mPreset.getWindowSize())
+                    {
+                        mPreset = Preset.createPreset(mImgSize);
+                        Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(), "Default preset created.", Toast.LENGTH_SHORT).show();
+                    }
+                } else
                 {
-                    Toast.makeText(getApplicationContext(), "Default preset created.", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "loadPreset: loading the default preset");
+                    mPreset = new Preset(DEFAULT_PRESET_NAME, map);
                 }
             }
-            else
-            {
-                Log.d(TAG, "loadPreset: loading the default preset");
-                mPreset = new Preset(DEFAULT_PRESET_NAME, params);
-            }
+            mFilteringParametersFragment.applyPreset(mPreset);
         }
-        mFilteringParametersFragment.applyPreset(mPreset);
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public Preset getPreset(String name)
@@ -223,11 +244,13 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
 
+
         Log.d(TAG, "onSaveButtonClick: creating widgets");
         // Add a listener to the user input to check if the name is valid
         // and display an error to the user if it isn't valid.
         final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
-        userInput.addTextChangedListener(new StringNameWatcher(userInput));
+        final StringNameWatcher presetNameWatcher = new StringNameWatcher(userInput);
+        userInput.addTextChangedListener(presetNameWatcher);
         final CheckBox relativeCheckBox = promptsView.findViewById(R.id.relativePresetCheckBox);
         final CheckBox setAsDefaultCheckBox = promptsView.findViewById(R.id.SetAsDefaultCheckBox);
 
@@ -241,11 +264,13 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 {
                     userInput.setText(DEFAULT_PRESET_NAME);
                     userInput.setEnabled(false);
+                    userInput.removeTextChangedListener(presetNameWatcher);
                 }
                 else
                 {
                     userInput.setText(EMPTY_STRING);
                     userInput.setEnabled(true);
+                    userInput.addTextChangedListener(presetNameWatcher);
                 }
             }
         });
@@ -265,6 +290,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 // if the input is valid (e.g no error is being displayed)
                 // we attempt to store the preset in the configuration file
                 // and announce the success or failure of the saving.
+
 
                 if (isNameValid(name, setAsDefaultCheckBox.isChecked()) && mPreset.validate() && mPreset.store(mPresetPref))
                 {

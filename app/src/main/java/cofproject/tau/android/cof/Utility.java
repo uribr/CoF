@@ -11,11 +11,17 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 class Utility
 {
@@ -25,6 +31,7 @@ class Utility
     static final double ZERO_SIGMA = 0.001;
     static final int MAX_ITERATIONS = 10;
     static final int ONE = 1;
+    static final String RELATIVE_WINDOW_SIZE = "relative window size";
     static final int ZERO = 0;
     static final int MAX_QUANTIZATION_LEVEL = 255;
     static final int MIN_QUANTIZATION_LEVEL = 2;
@@ -82,33 +89,52 @@ class Utility
 
     static Intent insertPresetToDataInent(Preset preset, Intent intent, int imgSize)
     {
-        intent.putExtra(HAS_PRESET, true);
         intent.putExtra(PRESET_NAME, preset.getName());
-        intent.putExtra(SIGMA, preset.getSigma());
-        if (preset.isRelative())
-        {
-            intent.putExtra(WINDOW_SIZE, preset.getWindowSize(imgSize));
-        } else
-        {
-            intent.putExtra(WINDOW_SIZE, preset.getWindowSize());
-        }
-        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
-        intent.putExtra(QUANTIZATION, preset.getQuantization());
-
+        intent.putExtra(HAS_PRESET ,new JSONObject(preset.presetToMap()).toString());
+//        intent.putExtra(SIGMA, preset.getSigma());
+//        if (preset.isRelative())
+//        {
+//            intent.putExtra(WINDOW_SIZE, preset.getWindowSize(imgSize));
+//        }
+//        else
+//        {
+//            intent.putExtra(WINDOW_SIZE, preset.getWindowSize());
+//        }
+//        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
+//        intent.putExtra(QUANTIZATION, preset.getQuantization());
         return intent;
     }
 
     static Preset extractPresetFromDataIntent(Intent intent)
     {
-        if (!intent.getBooleanExtra(HAS_PRESET, false))
+        String jsonString = intent.getStringExtra(HAS_PRESET);
+        JSONObject jsonObject;
+        Map<String, String> map = new HashMap<>();
+        try
         {
-            return null;
+            if (jsonString == null) { return null; }
+
+            jsonObject = new JSONObject(jsonString);
+
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext())
+            {
+                String key = keysItr.next();
+                String value = (String) jsonObject.get(key);
+                map.put(key, value);
+            }
         }
-        return new Preset(intent.getStringExtra(PRESET_NAME),
-                intent.getDoubleExtra(SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
-                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
-                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
-                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        return new Preset(intent.getStringExtra(PRESET_NAME), map);
+//                Preset(intent.getStringExtra(PRESET_NAME),
+//                intent.getDoubleExtra(SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
+//                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+//                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
+//                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
     }
 
 

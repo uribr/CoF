@@ -37,7 +37,8 @@ public class StringNameWatcher implements TextWatcher
         if (!Utility.isNameValid(s.toString()))
         {
             mTarget.setError("Preset name must be alphanumeric and contain at least one letter.");
-        } else
+        }
+        else
         {
             mTarget.setError(null);
         }

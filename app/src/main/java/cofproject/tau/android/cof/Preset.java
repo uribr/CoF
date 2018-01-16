@@ -3,12 +3,23 @@ package cofproject.tau.android.cof;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static cofproject.tau.android.cof.Utility.DEFAULT_NUMBER_OF_ITERATIONS;
 import static cofproject.tau.android.cof.Utility.DEFAULT_QUNTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.DEFAULT_SIGMA;
 import static cofproject.tau.android.cof.Utility.DEFAULT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utility.IS_RELATIVE;
+import static cofproject.tau.android.cof.Utility.ITERATIONS;
 import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utility.QUANTIZATION;
+import static cofproject.tau.android.cof.Utility.RELATIVE_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utility.SIGMA;
+import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
 
 /**
  * Created by Uri on 27/11/2017.
@@ -37,6 +48,17 @@ public class Preset
         this.setWindowSize(windowSize, imageSize);
         mName = name;
         mRelative = relative;
+    }
+
+    Preset(String name, Map<String, String> map)
+    {
+        mWindowSize = Integer.parseInt(map.get(WINDOW_SIZE));
+        mSigma = Double.parseDouble(map.get(SIGMA));
+        mNumberOfIteration = Integer.parseInt(map.get(ITERATIONS));
+        mQuantizationLevels = Integer.parseInt(map.get(QUANTIZATION));
+        mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
+        mRelativeWindowSize = Double.parseDouble(map.get(RELATIVE_WINDOW_SIZE));
+        mName = name;
     }
 
     Preset(String name, String params)
@@ -181,7 +203,7 @@ public class Preset
         return false;
     }
 
-    public boolean isRelative()
+    public Boolean isRelative()
     {
         return mRelative;
     }
@@ -194,6 +216,7 @@ public class Preset
     @Override
     public String toString()
     {
+
         String sb = String.valueOf(mRelativeWindowSize) +
                 ',' +
                 mWindowSize +
@@ -208,12 +231,26 @@ public class Preset
         return sb;
     }
 
+
+    public Map<String, String> presetToMap()
+    {
+        Map<String, String> map = new HashMap<>();
+        map.put(WINDOW_SIZE, getWindowSize().toString());
+        map.put(SIGMA, getSigma().toString());
+        map.put(ITERATIONS, getNumberOfIteration().toString());
+        map.put(QUANTIZATION, getQuantization().toString());
+        map.put(RELATIVE_WINDOW_SIZE, getRelativeWindowSize().toString());
+        map.put(IS_RELATIVE, isRelative().toString());
+        return map;
+    }
+
+
     public boolean store(SharedPreferences prefs)
     {
         if (validate())
         {
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(mName, toString());
+            editor.putString(mName, new JSONObject(presetToMap()).toString());
             return editor.commit();
         }
         return false;

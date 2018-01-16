@@ -20,10 +20,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -274,7 +271,6 @@ public class PhotoFiltering extends AppCompatActivity
 
     public void onFilterSettingsClick(View view)
     {
-
         Intent intent = new Intent(this, FilterSettings.class);
         int img_size = Math.min(mImgHeight, mImgWidth);
         // If the current preset is not null, put its content in the intent.
