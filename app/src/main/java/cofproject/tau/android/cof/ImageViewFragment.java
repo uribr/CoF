@@ -3,17 +3,25 @@ package cofproject.tau.android.cof;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
@@ -50,7 +58,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         super.onResume();
         if (mBitmap != null)
         {
-            mImageView.setImageBitmap(mBitmap);
+            setAndResizeImageView();
         }
     }
 
@@ -59,8 +67,37 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         mBitmap = bmp.copy(bmp.getConfig(), false);
         if(this.isResumed())
         {
-            mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
+            setAndResizeImageView();
         }
+    }
+
+    private void setAndResizeImageView() {
+        // set image in imageview
+        mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
+
+        // tighten the ImageView around the image when possible
+        mImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                final int actualHeight, actualWidth;
+                final int imageViewHeight = mImageView.getHeight();
+                final int imageViewWidth = mImageView.getWidth();
+                final int bitmapHeight = mBitmap.getHeight();
+                final int bitmapWidth = mBitmap.getWidth();
+                if (imageViewHeight * bitmapWidth <= imageViewWidth * bitmapHeight) {
+                    actualWidth = bitmapWidth * imageViewHeight / bitmapHeight;
+                    actualHeight = imageViewHeight;
+                } else {
+                    actualHeight = bitmapHeight * imageViewWidth / bitmapWidth;
+                    actualWidth = imageViewWidth;
+                }
+
+                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(actualWidth, actualHeight);
+                mImageView.setLayoutParams(params);
+                mImageView.setForegroundGravity(Gravity.CENTER);
+            }
+        });
+
     }
 
     // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
