@@ -55,6 +55,8 @@
     <string name="number_of_iterations">Number of iterations</string>
     <string name="_1">1</string>
     <string name="filtersetting_label">Settings</string>
+    <string name="CurrentPresetSharedPreferenceFileName">current preset file name</string>
+    <string name="DefaultPresetSharedPreferenceFileName">default preset file name</string>
 
 
 </resources>

@@ -7,8 +7,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +30,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private DottedView mOverlayView;
     private Bitmap mBitmap;
     private boolean mScribbleState;
+    private View mView;
     //    private Pair<Integer, Integer> mInitialPoint;
 //    private List<Pair<Integer, Integer>> mTouchHistroy;
     private Paint mPaint;
@@ -52,7 +55,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         super.onResume();
         if (mBitmap != null)
         {
-            mImageView.setImageBitmap(mBitmap);
+            setAndResizeImageView();
         }
     }
 
@@ -61,8 +64,51 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         mBitmap = bmp.copy(bmp.getConfig(), false);
         if (this.isResumed())
         {
-            mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
+            setAndResizeImageView();
         }
+    }
+
+    private void setAndResizeImageView()
+    {
+        // set image in imageview
+        mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
+
+        // tighten the ImageView around the image when possible
+        mImageView.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                final int actualHeight, actualWidth;
+                final int fragmentHeight = mView.getHeight();
+                final int fragmentWidth = mView.getWidth();
+                final int imageViewHeight = mImageView.getHeight();
+                final int imageViewWidth = mImageView.getWidth();
+                final int bitmapHeight = mBitmap.getHeight();
+                final int bitmapWidth = mBitmap.getWidth();
+                final float density = getContext().getResources().getDisplayMetrics().density;
+                if (imageViewHeight * bitmapWidth <= imageViewWidth * bitmapHeight)
+                {
+                    actualWidth = bitmapWidth * imageViewHeight / bitmapHeight;
+                    actualHeight = imageViewHeight;
+                }
+                else
+                {
+                    actualHeight = bitmapHeight * imageViewWidth / bitmapWidth;
+                    actualWidth = imageViewWidth;
+                }
+
+                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(actualWidth, actualHeight);
+                int horizontalMargin = ((int)(density * (fragmentWidth - actualWidth) / 2));
+                int verticalMargin = ((int)(density * (fragmentHeight - actualHeight) / 2));
+                params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+                mImageView.setLayoutParams(params);
+                mImageView.setForegroundGravity(Gravity.CENTER);
+
+
+            }
+        });
+
     }
 
     // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
@@ -77,9 +123,9 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.image_view_fragment, container, false);
+        mView = inflater.inflate(R.layout.image_view_fragment, container, false);
 //        mTouchHistroy = new ArrayList<>();
-        mOverlayView = view.findViewById(R.id.dottedView);
+        mOverlayView = mView.findViewById(R.id.dottedView);
         // Set listener to react to touch events in the image plane
         mOverlayView.setOnTouchListener(new View.OnTouchListener()
         {
@@ -142,9 +188,9 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
 //        });
         mPaint = new Paint();
         mPaint.setColor(Color.BLUE);
-        mImageView = view.findViewById(R.id.new_photo_view);
+        mImageView = mView.findViewById(R.id.new_photo_view);
         mImageView.setImageBitmap(mBitmap);
-        return view;
+        return mView;
     }
 
     public void turnScribbleOn()

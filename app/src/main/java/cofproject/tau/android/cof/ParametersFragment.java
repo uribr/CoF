@@ -3,13 +3,12 @@ package cofproject.tau.android.cof;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -82,9 +81,11 @@ public class ParametersFragment extends Fragment
 
     public String getPresetName() { return mCurrentPresetName.getText().toString(); }
 
-    public double getSigma()
+    public float getSigma()
     {
-        return Double.parseDouble(mCurrentSigma.getText().toString());
+        Log.d(TAG, "getSigma: " + mCurrentSigma.getText().toString());
+        Log.d(TAG, String.format("getSigma; %f", Float.parseFloat(mCurrentSigma.getText().toString())) );
+        return Float.parseFloat(mCurrentSigma.getText().toString());
     }
 
     public void setSigma(Double sigma)

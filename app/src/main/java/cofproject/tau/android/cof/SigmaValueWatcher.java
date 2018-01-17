@@ -18,7 +18,7 @@ import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
 
 public class SigmaValueWatcher implements TextWatcher
 {
-    private Double currentVal;
+    private Float currentVal;
     private SeekBar mSigmaSeekBar;
     private EditText mTarget;
 
@@ -34,7 +34,7 @@ public class SigmaValueWatcher implements TextWatcher
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         try
         {
-            currentVal = Double.parseDouble(s.toString());
+            currentVal = Float.parseFloat(s.toString());
         }
         catch (NumberFormatException numberFormatEx)
         {
@@ -47,12 +47,12 @@ public class SigmaValueWatcher implements TextWatcher
     @Override
     public void afterTextChanged(Editable s)
     {
-        Double newValue;
+        Float newValue;
         Integer seekBarProgress;
         boolean needToSetString = false;
         try
         {
-            newValue = Double.parseDouble(s.toString());
+            newValue = Float.parseFloat(s.toString());
             if (currentVal.equals(newValue))
             {
                 return;
