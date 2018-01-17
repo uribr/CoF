@@ -1,20 +1,12 @@
 package cofproject.tau.android.cof;
 
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import static cofproject.tau.android.cof.Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-import static cofproject.tau.android.cof.Utility.DEFAULT_QUNTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.DEFAULT_SIGMA;
-import static cofproject.tau.android.cof.Utility.DEFAULT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utility.IS_RELATIVE;
 import static cofproject.tau.android.cof.Utility.ITERATIONS;
 import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.RELATIVE_WINDOW_SIZE;
@@ -39,13 +31,23 @@ public class Preset
     private int mNumberOfIteration;
     private boolean mRelative;
 
-    Preset(String name, double sigma, int numberOfIteration, int windowSize, int imageSize, boolean relative, int quantization)
+    Preset(String name, float sigma, int numberOfIteration, int windowSize, int imageSize, boolean relative, int quantization)
     {
         this.setRelativeWindowSize(windowSize, imageSize);
         this.setSigma(sigma);
         this.setNumberOfIteration(numberOfIteration);
         this.setQuantizationLevel(quantization);
         this.setWindowSize(windowSize, imageSize);
+        mName = name;
+        mRelative = relative;
+    }
+
+    Preset(String name, float sigma, int numberOfIteration, int windowSize, boolean relative, int quantization)
+    {
+        mSigma = sigma;
+        mNumberOfIteration = numberOfIteration;
+        mQuantizationLevels = quantization;
+        mWindowSize = windowSize;
         mName = name;
         mRelative = relative;
     }
@@ -61,24 +63,24 @@ public class Preset
         mName = name;
     }
 
-    Preset(String name, String params)
-    {
-        String[] paramsArr = params.split(DELIMITER, PARAMETER_LIMIT);
-        mRelativeWindowSize = Double.parseDouble(paramsArr[0]);
-        mWindowSize = Integer.parseInt(paramsArr[1]);
-        mSigma = Double.parseDouble(paramsArr[2]);
-        mNumberOfIteration = Integer.parseInt(paramsArr[3]);
-        mQuantizationLevels = Integer.parseInt(paramsArr[4]);
-        mRelative = Boolean.parseBoolean(paramsArr[5]);
-        mName = name;
-    }
+//    Preset(String name, String params)
+//    {
+//        String[] paramsArr = params.split(DELIMITER, PARAMETER_LIMIT);
+//        mRelativeWindowSize = Double.parseDouble(paramsArr[0]);
+//        mWindowSize = Integer.parseInt(paramsArr[1]);
+//        mSigma = Double.parseDouble(paramsArr[2]);
+//        mNumberOfIteration = Integer.parseInt(paramsArr[3]);
+//        mQuantizationLevels = Integer.parseInt(paramsArr[4]);
+//        mRelative = Boolean.parseBoolean(paramsArr[5]);
+//        mName = name;
+//    }
 
-    static Preset createPreset(int imgSize)
-    {
-        Log.d(TAG, "createPresetFromUserSettings: hardcoded default preset");
-        return new Preset(DEFAULT_PRESET_NAME, DEFAULT_SIGMA, DEFAULT_NUMBER_OF_ITERATIONS,
-                DEFAULT_WINDOW_SIZE, imgSize, false, DEFAULT_QUNTIZATION_LEVEL);
-    }
+//    static Preset createPreset(int imgSize)
+//    {
+//        Log.d(TAG, "createPresetFromUserSettings: hardcoded default preset");
+//        return new Preset(DEFAULT_PRESET_NAME, DEFAULT_SIGMA, DEFAULT_NUMBER_OF_ITERATIONS,
+//                DEFAULT_WINDOW_SIZE, imgSize, false, DEFAULT_QUNTIZATION_LEVEL);
+//    }
 
     public boolean validate()
     {
@@ -124,12 +126,14 @@ public class Preset
             if (res == 0)
             {
                 return ++res;
-            } else if (res > size)
+            }
+            else if (res > size)
             {
                 return --res;
             }
             return res;
-        } else
+        }
+        else
         {
             return mWindowSize;
         }
@@ -165,7 +169,7 @@ public class Preset
 
     public boolean setSigma(double sigma)
     {
-        if (sigma <= 10 && sigma > 0)
+        if (sigma <= MAX_SIGMA && sigma > 0)
         {
             this.mSigma = sigma;
             return true;
@@ -244,17 +248,6 @@ public class Preset
         return map;
     }
 
-
-    public boolean store(SharedPreferences prefs)
-    {
-        if (validate())
-        {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(mName, new JSONObject(presetToMap()).toString());
-            return editor.commit();
-        }
-        return false;
-    }
 
 
 }

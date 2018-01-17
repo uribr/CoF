@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:onClick="onDeletePresetClick"
+        android:onClick="onDelteButtonPreset"
         app:srcCompat="@android:drawable/ic_menu_delete"/>
 
     <ImageButton

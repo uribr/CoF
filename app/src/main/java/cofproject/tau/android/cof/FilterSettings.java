@@ -26,15 +26,12 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
-import static cofproject.tau.android.cof.Utility.EMPTY_STRING;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
 import static cofproject.tau.android.cof.Utility.ITERATIONS;
 import static cofproject.tau.android.cof.Utility.LANDSCAPE;
@@ -47,10 +44,14 @@ import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.SIGMA_SEEKBAR_LENGTH;
 import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
 import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
-import static cofproject.tau.android.cof.Utility.extractPresetFromDataIntent;
+import static cofproject.tau.android.cof.Utility.convertJSONString2Map;
+import static cofproject.tau.android.cof.Utility.defaultPresetFile;
 import static cofproject.tau.android.cof.Utility.isNameValid;
+import static cofproject.tau.android.cof.Utility.loadCurrentPreset;
+import static cofproject.tau.android.cof.Utility.loadDefaultPreset;
 import static cofproject.tau.android.cof.Utility.mapSeekbarToSigma;
 import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
+import static cofproject.tau.android.cof.Utility.updatePreset;
 
 public class FilterSettings extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
@@ -65,12 +66,6 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     private List<String> mPresets;
 
     private boolean mIsLandscape;
-
-    private void onStored(String name)
-    {
-        Log.d(TAG, "onStored: ");
-        mPresets.add(name);
-    }
 
     private void onRemovedPreset(String name)
     {
@@ -93,7 +88,9 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             setResult(Activity.RESULT_CANCELED);
             finish();
         }
-        mPreset = extractPresetFromDataIntent(intent);
+
+        // Load preset
+        mPreset = loadCurrentPreset();
 
         Log.d(TAG, "onCreate: adding fragments");
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -128,8 +125,9 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             createPresetFromUserSettings(UNSAVED_PRESET_NAME, false, false);
         }
 
-        // Insert preset to the intent.
-        Utility.insertPresetToDataInent(mPreset, intent, mImgSize);
+        // Update current preset
+        updateCurrentPreset();
+//        Utility.insertPresetToDataInent(mPreset, intent, mImgSize);
         setResult(Activity.RESULT_OK, intent);
         super.onBackPressed();
     }
@@ -152,21 +150,31 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
 //        setResult(Activity.RESULT_OK, intent);
 //    }
 
-    private List<String> getPresetNames()
+    private List<String> loadPresetsNameList()
     {
-        Log.d(TAG, "getPresetNames: entering");
+        Log.d(TAG, "loadPresetsNameList: entering");
         Vector<String> list = new Vector<>();
         Map<String, ?> map = mPresetPref.getAll();
         list.add(getString(R.string.DefaultPresetName));
         for (Map.Entry<String, ?> entry : map.entrySet())
         {
-            if (entry.getKey().equals(getString(R.string.DefaultPresetName)))
-            {
-                continue;
-            }
             list.add(entry.getKey());
         }
         return list;
+    }
+
+
+    public boolean storePreset(Preset preset)
+    {
+        if (preset.validate())
+        {
+            SharedPreferences.Editor editor = mPresetPref.edit();
+            // Put the string representation of the JSON object holding the mapping of
+            // the preset parameters.
+            editor.putString(preset.getName(), new JSONObject(preset.presetToMap()).toString());
+            return editor.commit();
+        }
+        return false;
     }
     
     private void createPresetFromUserSettings(String name, boolean relative, boolean newDefault)
@@ -181,56 +189,38 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     public void loadPreset()
     {
         Log.d(TAG, "loadPreset: entering");
-        try
-        {
-            Map<String, String> map = new HashMap<>();
-            if (mPreset == null)
-            {
-                String jsonString = mPresetPref.getString(DEFAULT_PRESET_NAME, new JSONObject().toString());
-                JSONObject jsonObject = new JSONObject(jsonString);
-
-                Iterator<String> keysItr = jsonObject.keys();
-                while(keysItr.hasNext())
-                {
-                    String key = keysItr.next();
-                    String value = (String) jsonObject.get(key);
-                    map.put(key, value);
-                }
-
-                if (map.isEmpty())
-                {
-                    // No default preset found, generating an hardcoded default preset
-                    mPreset = Preset.createPreset(mImgSize);
-                    mPreset.store(mPresetPref);
-                    if (mImgSize < mPreset.getWindowSize())
-                    {
-                        mPreset = Preset.createPreset(mImgSize);
-                        Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
-                    }
-                    else
-                    {
-                        Toast.makeText(getApplicationContext(), "Default preset created.", Toast.LENGTH_SHORT).show();
-                    }
-                } else
-                {
-                    Log.d(TAG, "loadPreset: loading the default preset");
-                    mPreset = new Preset(DEFAULT_PRESET_NAME, map);
-                }
-            }
-            mFilteringParametersFragment.applyPreset(mPreset);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        mFilteringParametersFragment.applyPreset(mPreset);
+//        try
+//        {
+//            if (mPreset == null)
+//            {
+//                mPreset = loadDefaultPreset(mImgSize);
+//            }
+//            mFilteringParametersFragment.applyPreset(mPreset);
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
     }
 
-    public Preset getPreset(String name)
+    public void loadPreset(String name)
     {
-        Log.d(TAG, "getPreset: entering");
-        String params = mPresetPref.getString(name, "");
-        mPreset = new Preset(name, params);
-        return mPreset;
+        Log.d(TAG, "loadPreset: entering");
+        if (name.equals(DEFAULT_PRESET_NAME))
+        {
+            mPreset = loadDefaultPreset(mImgSize);
+        }
+        else
+        {
+            Map<String, String> map = convertJSONString2Map(mPresetPref.getString(name, new JSONObject().toString()));
+            if (map != null && !map.isEmpty())
+            {
+                mPreset = new Preset(name, map);
+                Log.i(TAG, "loadPreset: Preset loaded successfully");
+            }
+        }
+        mFilteringParametersFragment.applyPreset(mPreset);
     }
 
 
@@ -241,7 +231,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
         final View promptsView = li.inflate(R.layout.prompt, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
 
 
@@ -249,10 +239,10 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         // Add a listener to the user input to check if the name is valid
         // and display an error to the user if it isn't valid.
         final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
-        final StringNameWatcher presetNameWatcher = new StringNameWatcher(userInput);
-        userInput.addTextChangedListener(presetNameWatcher);
         final CheckBox relativeCheckBox = promptsView.findViewById(R.id.relativePresetCheckBox);
         final CheckBox setAsDefaultCheckBox = promptsView.findViewById(R.id.SetAsDefaultCheckBox);
+        final StringNameWatcher presetNameWatcher = new StringNameWatcher(userInput, setAsDefaultCheckBox);
+        userInput.addTextChangedListener(presetNameWatcher);
 
         setAsDefaultCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
@@ -264,13 +254,11 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 {
                     userInput.setText(DEFAULT_PRESET_NAME);
                     userInput.setEnabled(false);
-                    userInput.removeTextChangedListener(presetNameWatcher);
                 }
                 else
                 {
-                    userInput.setText(EMPTY_STRING);
+                    userInput.setText("");
                     userInput.setEnabled(true);
-                    userInput.addTextChangedListener(presetNameWatcher);
                 }
             }
         });
@@ -288,20 +276,35 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                 createPresetFromUserSettings(name, relativeCheckBox.isChecked(), setAsDefaultCheckBox.isChecked());
 
                 // if the input is valid (e.g no error is being displayed)
-                // we attempt to store the preset in the configuration file
+                // we attempt to storePreset the preset in the configuration file
                 // and announce the success or failure of the saving.
 
 
-                if (isNameValid(name, setAsDefaultCheckBox.isChecked()) && mPreset.validate() && mPreset.store(mPresetPref))
+                if(isNameValid(name, setAsDefaultCheckBox.isChecked()))
                 {
-                    onStored(name);
-                    mFilteringParametersFragment.setPresetName(name);
-                    Toast.makeText(getApplicationContext(), "Preset Saved", Toast.LENGTH_SHORT).show();
+                    if(setAsDefaultCheckBox.isChecked())
+                    {
+                        updateDefaultPreset();
+                    }
+                    else if(storePreset(mPreset))
+                    {
+                        mPresets.add(name);
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(), "Saving failed", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    updateCurrentPreset();
+                    mFilteringParametersFragment.applyPreset(mPreset);
+                    Toast.makeText(getApplicationContext(), "Preset saved", Toast.LENGTH_SHORT).show();
+
                 }
                 else
                 {
-                    Toast.makeText(getApplicationContext(), "Invalid name, preset saving failed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Invalid name", Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
 
@@ -319,8 +322,14 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         dialog.show();
     }
 
+    private void updateDefaultPreset()
+    {
+        updatePreset(mPreset, defaultPresetFile, mImgSize);
+    }
+
+
     @SuppressLint("ApplySharedPref")
-    public void onDelteButtonPress(View view)
+    public void onDelteButtonPreset(View view)
     {
         Log.i(TAG, "onDelteButtonPress: onClick event");
         // Default preset cannot be deleted but it can be overridden.
@@ -404,7 +413,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         final SpinnerReselect spinnerReselect = promptsView.findViewById(R.id.presetSpinner);
 
         Log.d(TAG, "showPresetSpinnerDialog: populating the spinner");
-        List<String> array = new ArrayList<>(getPresetNames());
+        List<String> array = new ArrayList<>(loadPresetsNameList());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, array);
         spinnerReselect.setAdapter(adapter);
 
@@ -415,9 +424,8 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                Preset preset = getPreset(spinnerReselect.getSelectedItem().toString());
-                mPreset = preset;
-                mFilteringParametersFragment.applyPreset(preset);
+                loadPreset(spinnerReselect.getSelectedItem().toString());
+                updateCurrentPreset();
             }
         });
 
@@ -441,6 +449,11 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         dialog.show();
 
 
+    }
+
+    private void updateCurrentPreset()
+    {
+        Utility.updateCurrentPreset(mPreset, mImgSize);
     }
 
     private void showNumberPickerDialog(String msg, int maxValue, int currentValue, String tag)

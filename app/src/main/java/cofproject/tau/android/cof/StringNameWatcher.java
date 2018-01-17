@@ -2,6 +2,7 @@ package cofproject.tau.android.cof;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 /**
@@ -11,11 +12,13 @@ import android.widget.EditText;
 public class StringNameWatcher implements TextWatcher
 {
     private EditText mTarget;
+    private CheckBox mCheckBox;
 
-    public StringNameWatcher(EditText target)
+    public StringNameWatcher(EditText target, CheckBox checkBox)
     {
         super();
         mTarget = target;
+        mCheckBox = checkBox;
     }
 
 
@@ -34,7 +37,7 @@ public class StringNameWatcher implements TextWatcher
     @Override
     public void afterTextChanged(Editable s)
     {
-        if (!Utility.isNameValid(s.toString()))
+        if (!Utility.isNameValid(s.toString(), mCheckBox.isChecked()))
         {
             mTarget.setError("Preset name must be alphanumeric and contain at least one letter.");
         }

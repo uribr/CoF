@@ -1,8 +1,10 @@
 package cofproject.tau.android.cof;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -23,12 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
+
 class Utility
 {
     static final int MAX_PRESET_NAME_LENGTH = 21;
     static final int SIGMA_SEEKBAR_LENGTH = 100;
-    static final double MAX_SIGMA = 100;
-    static final double ZERO_SIGMA = 0.001;
+    static final float MAX_SIGMA = 100;
+    static final float ZERO_SIGMA = ((float) 0.001);
     static final int MAX_ITERATIONS = 10;
     static final int ONE = 1;
     static final String RELATIVE_WINDOW_SIZE = "relative window size";
@@ -38,7 +42,7 @@ class Utility
     static final int DEFAULT_WINDOW_SIZE = 16;
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
-    static final double DEFAULT_SIGMA = 1;
+    static final float DEFAULT_SIGMA = 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
     static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     static final int GALLERY_REQUEST_CODE = 1;
@@ -55,6 +59,8 @@ class Utility
     static final String IMG_SIZE = "image size";
     static final String PRESET_NAME = "preset name";
     static final String EMPTY_STRING = "";
+    static SharedPreferences currentPresetFile;
+    static SharedPreferences defaultPresetFile;
     private static final String TAG = "Utility";
 
     /**
@@ -79,7 +85,7 @@ class Utility
                 return false;
             }
         }
-        return atLeastOneChar && (canBeDefault || !str.equals(Preset.DEFAULT_PRESET_NAME)) && !str.equals(UNSAVED_PRESET_NAME) && str.length() <= MAX_PRESET_NAME_LENGTH;
+        return atLeastOneChar && (canBeDefault || !str.equals(Preset.DEFAULT_PRESET_NAME)) && str.length() <= MAX_PRESET_NAME_LENGTH;
     }
 
     static boolean isNameValid(String str)
@@ -87,34 +93,110 @@ class Utility
         return isNameValid(str, false);
     }
 
-    static Intent insertPresetToDataInent(Preset preset, Intent intent, int imgSize)
+
+    @SuppressLint("ApplySharedPref")
+    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize)
     {
-        intent.putExtra(PRESET_NAME, preset.getName());
-        intent.putExtra(HAS_PRESET ,new JSONObject(preset.presetToMap()).toString());
-//        intent.putExtra(SIGMA, preset.getSigma());
-//        if (preset.isRelative())
-//        {
-//            intent.putExtra(WINDOW_SIZE, preset.getWindowSize(imgSize));
-//        }
-//        else
-//        {
-//            intent.putExtra(WINDOW_SIZE, preset.getWindowSize());
-//        }
-//        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
-//        intent.putExtra(QUANTIZATION, preset.getQuantization());
-        return intent;
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PRESET_NAME, preset.getName());
+        editor.putFloat(SIGMA, preset.getSigma().floatValue());
+        editor.putInt(WINDOW_SIZE, preset.getWindowSize(imgSize));
+        editor.putInt(ITERATIONS, preset.getNumberOfIteration());
+        editor.putInt(QUANTIZATION, preset.getQuantization());
+        editor.putBoolean(IS_RELATIVE, preset.isRelative());
+        editor.commit();
     }
 
-    static Preset extractPresetFromDataIntent(Intent intent)
+    static void updateCurrentPreset(Preset curPreset, int imgSize)
     {
-        String jsonString = intent.getStringExtra(HAS_PRESET);
+        updatePreset(curPreset, currentPresetFile, imgSize);
+    }
+
+
+    static Preset loadPreset(SharedPreferences prefs)
+    {
+        return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
+                prefs.getFloat(SIGMA, DEFAULT_SIGMA),
+                prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
+                prefs.getInt(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+                prefs.getBoolean(IS_RELATIVE, false),
+                prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+    }
+
+    static Preset loadCurrentPreset()
+    {
+        return loadPreset(currentPresetFile);
+    }
+
+
+    static Preset loadDefaultPreset(int imgSize)
+    {
+        return loadPreset(defaultPresetFile);
+//
+//        if(map != null && map.isEmpty())
+//        {
+//            return new Preset(DEFAULT_PRESET_NAME, map);
+//        }
+//
+//        String jsonString = defaultPresetFile.getString(new JSONObject().toString());
+//        JSONObject jsonObject = new JSONObject(jsonString);
+//
+//        Iterator<String> keysItr = jsonObject.keys();
+//        while(keysItr.hasNext())
+//        {
+//            String key = keysItr.next();
+//            String value = (String) jsonObject.get(key);
+//            map.put(key, value);
+//        }
+//
+//        if (map.isEmpty())
+//        {
+//            // No default preset found, generating an hardcoded default preset
+//            mPreset = Preset.createPreset(mImgSize);
+//            storePreset(mPreset);
+//            if (mImgSize < mPreset.getWindowSize())
+//            {
+//                mPreset = Preset.createPreset(mImgSize);
+//                Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
+//            }
+//            else
+//            {
+//                Toast.makeText(getApplicationContext(), "Default preset created.", Toast.LENGTH_SHORT).show();
+//            }
+//        } else
+//        {
+//            Log.d(TAG, "loadPreset: loading the default preset");
+//            mPreset = new Preset(DEFAULT_PRESET_NAME, map);
+//        }
+    }
+
+
+//    static Intent insertPresetToDataInent(Preset preset, Intent intent, int imgSize)
+//    {
+//        intent.putExtra(PRESET_NAME, preset.getName());
+//        intent.putExtra(HAS_PRESET ,new JSONObject(preset.presetToMap()).toString());
+////        intent.putExtra(SIGMA, preset.getSigma());
+////        if (preset.isRelative())
+////        {
+////            intent.putExtra(WINDOW_SIZE, preset.getWindowSize(imgSize));
+////        }
+////        else
+////        {
+////            intent.putExtra(WINDOW_SIZE, preset.getWindowSize());
+////        }
+////        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
+////        intent.putExtra(QUANTIZATION, preset.getQuantization());
+//        return intent;
+//    }
+
+
+    static Map<String, String>  convertJSONString2Map(String JSONString)
+    {
         JSONObject jsonObject;
         Map<String, String> map = new HashMap<>();
         try
         {
-            if (jsonString == null) { return null; }
-
-            jsonObject = new JSONObject(jsonString);
+            jsonObject = new JSONObject(JSONString);
 
             Iterator<String> keysItr = jsonObject.keys();
             while(keysItr.hasNext())
@@ -123,19 +205,47 @@ class Utility
                 String value = (String) jsonObject.get(key);
                 map.put(key, value);
             }
+            return map;
         }
 
         catch (JSONException e)
         {
             e.printStackTrace();
         }
-        return new Preset(intent.getStringExtra(PRESET_NAME), map);
-//                Preset(intent.getStringExtra(PRESET_NAME),
-//                intent.getDoubleExtra(SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
-//                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
-//                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
-//                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+        return null;
     }
+
+//    static Preset extractPresetFromDataIntent(Intent intent)
+//    {
+//        String jsonString = intent.getStringExtra(HAS_PRESET);
+//        JSONObject jsonObject;
+//        Map<String, String> map = new HashMap<>();
+//        try
+//        {
+//            if (jsonString == null) { return null; }
+//
+//            jsonObject = new JSONObject(jsonString);
+//
+//            Iterator<String> keysItr = jsonObject.keys();
+//            while(keysItr.hasNext())
+//            {
+//                String key = keysItr.next();
+//                String value = (String) jsonObject.get(key);
+//                map.put(key, value);
+//            }
+//        }
+//
+//        catch (JSONException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        return new Preset(intent.getStringExtra(PRESET_NAME), map);
+////                Preset(intent.getStringExtra(PRESET_NAME),
+////                intent.getDoubleExtra(SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
+////                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+////                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
+////                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+//    }
 
 
     static Bitmap getBitmap(Context context, Uri uri)

@@ -42,8 +42,11 @@ import java.util.Date;
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
 import static cofproject.tau.android.cof.Utility.LANDSCAPE;
-import static cofproject.tau.android.cof.Utility.extractPresetFromDataIntent;
-import static cofproject.tau.android.cof.Utility.insertPresetToDataInent;
+import static cofproject.tau.android.cof.Utility.currentPresetFile;
+import static cofproject.tau.android.cof.Utility.defaultPresetFile;
+import static cofproject.tau.android.cof.Utility.loadCurrentPreset;
+import static cofproject.tau.android.cof.Utility.loadDefaultPreset;
+import static cofproject.tau.android.cof.Utility.updateCurrentPreset;
 
 /**
  * Credit: http://www.vogella.com/tutorials/AndroidCamera/article.html
@@ -69,7 +72,8 @@ public class PhotoFiltering extends AppCompatActivity
     private ImageViewFragment mOriginalImageViewFragment;
     private ImageViewFragment mFilteredImageViewFragment;
     private PostFilteringButtonsFragment mPostFilterButtonFragment;
-    private SharedPreferences mPresetPref;
+    private SharedPreferences mCurrentPreset;
+    private SharedPreferences mDefaultPreset;
     private Preset mPreset;
     private Uri mURI;
     private boolean mIsFiltered;
@@ -79,15 +83,20 @@ public class PhotoFiltering extends AppCompatActivity
     private Mat mFilteredImage;
     private Mat mMaskToCollect;
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this)
+    {
         @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
+        public void onManagerConnected(int status)
+        {
+            switch (status)
+            {
+                case LoaderCallbackInterface.SUCCESS:
+                {
                     Log.i(TAG, "OpenCV loaded successfully");
                 }
                 break;
-                default: {
+                default:
+                {
                     super.onManagerConnected(status);
                 }
                 break;
@@ -95,7 +104,8 @@ public class PhotoFiltering extends AppCompatActivity
         }
     };
 
-    private static void addImageToGallery(final String filePath, final Context context) {
+    private static void addImageToGallery(final String filePath, final Context context)
+    {
 
         ContentValues values = new ContentValues();
 
@@ -140,18 +150,20 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
     /**
-     *
      * @param savedInstanceState
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
+        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             mIsLandscape = true;
+        } else
+        {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-        else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_photo_filtering);
 
         // Create filtering related buttons fragment and
@@ -162,7 +174,10 @@ public class PhotoFiltering extends AppCompatActivity
         // Create a new folder for images in the applications directory
         // Create and send a camera/gallery intent
         Bundle extras = getIntent().getExtras();
-        if (extras == null) { return; }
+        if (extras == null)
+        {
+            return;
+        }
 
         mIsFiltered = false;
         mIsShared = false;
@@ -177,8 +192,7 @@ public class PhotoFiltering extends AppCompatActivity
             intent.setAction(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
-        }
-        else
+        } else
         {
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -186,10 +200,12 @@ public class PhotoFiltering extends AppCompatActivity
             startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_an_app)), GALLERY_REQUEST_CODE);
         }
 
+        // Open preference files.
+        currentPresetFile = getSharedPreferences(getString(R.string.CurrentPresetSharedPreferenceFileName), Context.MODE_PRIVATE);
+        defaultPresetFile = getSharedPreferences(getString(R.string.DefaultPresetSharedPreferenceFileName), Context.MODE_PRIVATE);
     }
 
     /**
-     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -202,63 +218,73 @@ public class PhotoFiltering extends AppCompatActivity
         {
             if (resultCode == Activity.RESULT_OK)
             {
-                if((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE))
+                if ((requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE))
                 {
-                    try {
-                        if (mOriginalBitmap != null) {
+                    try
+                    {
+                        if (mOriginalBitmap != null)
+                        {
                             mOriginalBitmap.recycle();
                         }
-                        if (requestCode == GALLERY_REQUEST_CODE) {
+                        if (requestCode == GALLERY_REQUEST_CODE)
+                        {
                             mURI = data.getData();
                         }
 
-                        if (mURI != null) {
-                            // store image
+                        if (mURI != null)
+                        {
+                            // storePreset image
                             mOriginalBitmap = Utility.getBitmap(this, mURI);
 
-                            if (requestCode == CAMERA_CAPTURE_REQUEST_CODE) {
+                            if (requestCode == CAMERA_CAPTURE_REQUEST_CODE)
+                            {
                                 // if our image was taken from the camera - delete it (keep it only in the bitmap)
                                 File f = new File(mURI.getPath());
-                                if (f.exists()) {
+                                if (f.exists())
+                                {
                                     f.delete();
                                 }
                             }
 
-                            if (mOriginalBitmap != null) {
+                            if (mOriginalBitmap != null)
+                            {
                                 mImgHeight = mOriginalBitmap.getHeight();
                                 mImgWidth = mOriginalBitmap.getWidth();
-                            } else {
+                            } else
+                            {
                                 Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
                             }
 
                             // Initialize image view fragment that will hold the image.
-                            if (mOriginalImageViewFragment == null) {
+                            if (mOriginalImageViewFragment == null)
+                            {
                                 mOriginalImageViewFragment = new ImageViewFragment();
                             }
                             // Add the image fragment to the container.
                             getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
                             mOriginalImageViewFragment.setImage(mOriginalBitmap);
 
-                            if (mIsLandscape) {
+                            if (mIsLandscape)
+                            {
                                 onFilterSettingsClick(new View(this));
                             }
                             return;
                         }
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         e.printStackTrace();
+                    } finally
+                    {
+                        mPreset = loadDefaultPreset(Math.min(mImgHeight, mImgWidth));
+
+                        // Set the default preset as the current preset
+                        updateCurrentPreset(mPreset, Math.min(mImgHeight, mImgWidth));
                     }
-                }
-                else if (requestCode == FILTER_SETTINGS_REQUEST_CODE)
+                } else if (requestCode == FILTER_SETTINGS_REQUEST_CODE)
                 {
                     if (data != null)
                     {
-                        Preset tmp = extractPresetFromDataIntent(data);
-
-                        // Change the current preset only if a preset was extracted from the intent
-                        if (tmp != null)
-                        {
-                            mPreset = tmp;
-                        }
+                        mPreset = loadCurrentPreset();
                     }
                     return;
                 }
@@ -268,32 +294,24 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
 
-
     public void onFilterSettingsClick(View view)
     {
         Intent intent = new Intent(this, FilterSettings.class);
-        int img_size = Math.min(mImgHeight, mImgWidth);
-        // If the current preset is not null, put its content in the intent.
 
-        if (mPreset != null)
-        {
-            insertPresetToDataInent(mPreset, intent, img_size);
-        }
         // Notify the activity if we're in landscape mode.
         intent.putExtra(LANDSCAPE, mIsLandscape);
-        intent.putExtra(IMG_SIZE, img_size);
+        intent.putExtra(IMG_SIZE, Math.min(mImgHeight, mImgWidth));
         startActivityForResult(intent, FILTER_SETTINGS_REQUEST_CODE);
     }
 
 
     /**
-     *
      * @param view
      */
     public void onScribbleOn(View view)
     {
         Switch sw = view.findViewById(R.id.scribble_switch);
-        if(!sw.isChecked())
+        if (!sw.isChecked())
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Warning");
@@ -308,43 +326,51 @@ public class PhotoFiltering extends AppCompatActivity
             });
             builder.setNegativeButton("no", new DialogInterface.OnClickListener()
             {
-                @Override public void onClick(DialogInterface dialog, int which)
+                @Override
+                public void onClick(DialogInterface dialog, int which)
                 {
-                    Switch scribble = (Switch)findViewById(R.id.scribble_switch);
+                    Switch scribble = (Switch) findViewById(R.id.scribble_switch);
                     scribble.setChecked(true);
-                }});
+                }
+            });
             builder.setCancelable(false);
             builder.create().show();
-        }
-        else
+        } else
         {
             mOriginalImageViewFragment.turnScribbleOn();
         }
     }
 
-    private void startFiltering() {
+    private void startFiltering()
+    {
         try
         {
             //todo - remove this!!!!!!
-            try {
+            try
+            {
                 mImToProcess.release();
                 mImToProcess = Utils.loadResource(this, R.drawable.olive, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
                 Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 e.printStackTrace();
             }
 
             final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Applying Co-Occurrence Filter", "Please wait...", true);
             ringProgressDialog.setCancelable(false);
             ringProgressDialog.setCanceledOnTouchOutside(false);
-            Thread filterThread = new Thread(new Runnable() {
+            Thread filterThread = new Thread(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     String TAG = "launcherDialogTag";
-                    try {
+                    try
+                    {
 
                         // prepare a new Mat object for the filtered image
-                        if (mFilteredImage != null) {
+                        if (mFilteredImage != null)
+                        {
                             mFilteredImage.release();
                         }
                         mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
@@ -369,7 +395,8 @@ public class PhotoFiltering extends AppCompatActivity
                         mIsFiltered = true;
 
                         Log.i(TAG, "Filtering finished");
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         Log.e(TAG, e.getMessage(), e);
                     }
 
@@ -377,7 +404,8 @@ public class PhotoFiltering extends AppCompatActivity
                     ringProgressDialog.dismiss();
 
                     // Create the post filtering fragment of buttons if it is the first time
-                    if (mPostFilterButtonFragment == null) {
+                    if (mPostFilterButtonFragment == null)
+                    {
                         mPostFilterButtonFragment = new PostFilteringButtonsFragment();
                     }
                     // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
@@ -390,8 +418,7 @@ public class PhotoFiltering extends AppCompatActivity
             });
             filterThread.start();
 
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             Log.e(TAG, "startFiltering: ERROR - " + e.getMessage(), e);
         }
@@ -400,7 +427,6 @@ public class PhotoFiltering extends AppCompatActivity
 
 
     /**
-     *
      * @param view
      */
     public void onApplyFilterClick(View view)
@@ -419,7 +445,8 @@ public class PhotoFiltering extends AppCompatActivity
         }
 
         // begin filtering!!!
-        if (mImToProcess != null) {
+        if (mImToProcess != null)
+        {
             mImToProcess.release();
         }
         mImToProcess = new Mat();
@@ -435,7 +462,6 @@ public class PhotoFiltering extends AppCompatActivity
 
 
     /**
-     *
      * @param view
      */
     public void onHelpClick(View view)
@@ -445,18 +471,16 @@ public class PhotoFiltering extends AppCompatActivity
 
 
     /**
-     *
      * @param view
      */
     public void onSaveResultClick(View view)
     {
         Log.i(TAG, "onSaveResultClick:  onClick event");
-        if(!mSavedOnce)
+        if (!mSavedOnce)
         {
             // save image
             internalSaveOperation();
-        }
-        else
+        } else
         {
             Toast.makeText(this, "Image already saved", Toast.LENGTH_SHORT).show();
         }
@@ -464,7 +488,6 @@ public class PhotoFiltering extends AppCompatActivity
 
 
     /**
-     *
      * @param view
      */
     public void onShareClick(View view)
@@ -473,7 +496,8 @@ public class PhotoFiltering extends AppCompatActivity
         Log.i(TAG, "onShareClick: onClick event");
 
         // save bitmap to cache directory
-        try {
+        try
+        {
 
             File cachePath = new File(this.getCacheDir(), "images");
             cachePath.mkdirs(); // don't forget to make the directory
@@ -482,8 +506,9 @@ public class PhotoFiltering extends AppCompatActivity
             stream.flush();
             stream.close();
 
-        } catch (IOException e) {
-            Log.e(TAG, "onShareClick: IOExceotion - " + e.getMessage(), e );
+        } catch (IOException e)
+        {
+            Log.e(TAG, "onShareClick: IOExceotion - " + e.getMessage(), e);
             e.printStackTrace();
         }
 
@@ -491,7 +516,8 @@ public class PhotoFiltering extends AppCompatActivity
         File newFile = new File(imagePath, "image.jpg");
         Uri contentUri = FileProvider.getUriForFile(this, "cofproject.tau.android.cof.fileprovider", newFile);
 
-        if (contentUri != null) {
+        if (contentUri != null)
+        {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
@@ -503,8 +529,10 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        if (!mIsFiltered || mSavedOnce || mIsShared) {
+    public void onBackPressed()
+    {
+        if (!mIsFiltered || mSavedOnce || mIsShared)
+        {
             super.onBackPressed();
             return;
         }
@@ -512,16 +540,21 @@ public class PhotoFiltering extends AppCompatActivity
         alertDialog.setTitle("WARNING");
         alertDialog.setMessage(R.string.back_pressed_msg);
         // Add the buttons
-        alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+        alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
                 mIsFiltered = false;
                 PhotoFiltering.super.onBackPressed();
 
             }
         });
 
-        alertDialog.setNegativeButton(getString(R.string.no),new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {}
+        alertDialog.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
+            }
         });
 
         alertDialog.setCancelable(false);
@@ -529,12 +562,15 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
-        if (!OpenCVLoader.initDebug()) {
+        if (!OpenCVLoader.initDebug())
+        {
             Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0, this, mLoaderCallback);
-        } else {
+        } else
+        {
             Log.d("OpenCV", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
@@ -542,17 +578,24 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy()
+    {
         Log.i(TAG, "onDestroy: started");
-        if (mImToProcess != null) {
+        if (mImToProcess != null)
+        {
             mImToProcess.release();
         }
-        if (mFilteredImage != null) {
+        if (mFilteredImage != null)
+        {
             mFilteredImage.release();
         }
-        if (mMaskToCollect != null) {
+        if (mMaskToCollect != null)
+        {
             mMaskToCollect.release();
         }
+
+        // Clear the current preset preference file
+        currentPresetFile.edit().clear().apply();
 
         super.onDestroy();
 
