@@ -14,6 +14,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -58,10 +59,6 @@ public class PhotoFiltering extends AppCompatActivity
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     private static final int GALLERY_REQUEST_CODE = 1;
-    // TODO - Are the four following constants reasonable?
-    private static final int DEFAULT_WINDOW_SIZE = 16;
-    private static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
-    private static final double DEFAULT_SIGMA = 1;
 
     private int mImgHeight, mImgWidth;
     private boolean mIsLandscape;
@@ -178,10 +175,6 @@ public class PhotoFiltering extends AppCompatActivity
         {
             return;
         }
-
-        mIsFiltered = false;
-        mIsShared = false;
-        mSavedOnce = false;
 
         Intent intent = new Intent();
 
@@ -345,16 +338,44 @@ public class PhotoFiltering extends AppCompatActivity
     {
         try
         {
-            //todo - remove this!!!!!!
-            try
-            {
-                mImToProcess.release();
-                mImToProcess = Utils.loadResource(this, R.drawable.olive, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
-                Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+//            try
+//            {
+//                mImToProcess.release();
+//                mImToProcess = Utils.loadResource(this, R.drawable.olive, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
+//                Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
+//            } catch (IOException e)
+//            {
+//                e.printStackTrace();
+//            }
+
+//            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+//
+//                private ProgressDialog mDialog;
+//
+//                @Override
+//                protected void onPreExecute() {
+//                    super.onPreExecute();
+//                    mDialog = new ProgressDialog(PhotoFiltering.this);
+//                    mDialog.setMessage("Please wait...");
+//                    mDialog.setTitle("Applying Co-Occurrence Filter");
+//                    mDialog.setIndeterminate(true);
+//                    mDialog.setCanceledOnTouchOutside(true);
+//                    mDialog.setCancelable(true);
+//                    mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                        @Override
+//                        public void onCancel(DialogInterface dialogInterface) {
+//
+//                        }
+//                    });
+//                    mDialog.show();
+//                }
+//
+//                @Override
+//                protected Void doInBackground(Void... voids) {
+//                    return null;
+//                }
+//
+//            }
 
             final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Applying Co-Occurrence Filter", "Please wait...", true);
             ringProgressDialog.setCancelable(false);
@@ -393,6 +414,8 @@ public class PhotoFiltering extends AppCompatActivity
                         mFilteredImageViewFragment.setImage(mFilteredBitmap);
 
                         mIsFiltered = true;
+                        mIsShared = false;
+                        mSavedOnce = false;
 
                         Log.i(TAG, "Filtering finished");
                     } catch (Exception e)
@@ -433,6 +456,8 @@ public class PhotoFiltering extends AppCompatActivity
     {
 
         Log.i(TAG, "onApplyFilterClick: onClick event!");
+        mIsFiltered = false;
+
         if (mOriginalBitmap == null)
         {
             Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
@@ -546,7 +571,6 @@ public class PhotoFiltering extends AppCompatActivity
             {
                 mIsFiltered = false;
                 PhotoFiltering.super.onBackPressed();
-
             }
         });
 

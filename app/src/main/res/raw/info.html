@@ -1,0 +1,16 @@
+<h2>About the Co-Occurrence Filter</h2>
+
+<p>Co-occurrence Filter (CoF) is a boundary preserving filter. It is based on the Bilateral Filter (BF) but instead of
+    using a Gaussian on the range values to preserve edges
+    it relies on a co-occurrence matrix. Pixel values that cooccur frequently in the image (i.e., inside textured regions)
+    will have a high weight in the co-occurrence matrix. This,
+    in turn, means that such pixel pairs will be averaged and
+    hence smoothed, regardless of their intensity differences.
+    On the other hand, pixel values that rarely co-occur (i.e.,
+    across texture boundaries) will have a low weight in the
+    co-occurrence matrix. As a result, they will not be averaged
+    and the boundary between them will be preserved. The CoF
+    therefore extends the BF to deal with boundaries, not just
+    edges. It learns co-occurrences directly from the image.</p>
+
+<p>The full article can be found <a href = http://www.eng.tau.ac.il/~rjj/2017_CVPR_CoF/1703.04111.pdf>here</a>.</p>

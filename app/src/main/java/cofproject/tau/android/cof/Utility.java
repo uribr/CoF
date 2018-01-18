@@ -34,18 +34,15 @@ class Utility
     static final float MAX_SIGMA = 100;
     static final float ZERO_SIGMA = ((float) 0.001);
     static final int MAX_ITERATIONS = 10;
-    static final int ONE = 1;
+
     static final String RELATIVE_WINDOW_SIZE = "relative window size";
-    static final int ZERO = 0;
     static final int MAX_QUANTIZATION_LEVEL = 255;
     static final int MIN_QUANTIZATION_LEVEL = 2;
-    static final int DEFAULT_WINDOW_SIZE = 16;
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
-    static final float DEFAULT_SIGMA = 1;
+    static final int DEFAULT_WINDOW_SIZE = 15;
+    static final float DEFAULT_SIGMA = 2 * (float)Math.sqrt(15) + 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
-    static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
-    static final int GALLERY_REQUEST_CODE = 1;
     static final int FILTER_SETTINGS_REQUEST_CODE = 2;
     static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
@@ -58,7 +55,6 @@ class Utility
     static final String QUANTIZATION = "quantization";
     static final String IMG_SIZE = "image size";
     static final String PRESET_NAME = "preset name";
-    static final String EMPTY_STRING = "";
     static SharedPreferences currentPresetFile;
     static SharedPreferences defaultPresetFile;
     private static final String TAG = "Utility";
@@ -342,12 +338,12 @@ class Utility
     @NonNull
     static Double mapSeekbarToSigma(int progress)
     {
-        Log.d(TAG, "mapSeekbarToSigma: entering");
+        //Log.d(TAG, "mapSeekbarToSigma: entering");
         return ((double) (progress)) * (1 / MAX_SIGMA);
     }
     static Integer mapSigmaToProgress(double sigma)
     {
-        Log.d(TAG, "mapSigmaToProgress: entering");
+        //Log.d(TAG, "mapSigmaToProgress: entering");
         return ((int) (sigma * MAX_SIGMA));
     }
 }

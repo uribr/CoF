@@ -113,7 +113,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:drawableTop="@drawable/ic_menu_help"
-            android:text="@string/about_button_text"/>
+            android:text="@string/about_button_text"
+            android:onClick="startInfoActivity"/>
     </LinearLayout>
 
 

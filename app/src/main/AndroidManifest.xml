@@ -25,24 +25,24 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PhotoFiltering"
-            android:launchMode="singleTask"
             android:label="@string/title_activity_filter_photo"
+            android:launchMode="singleTask"
             android:parentActivityName=".MainActivity">
         </activity>
         <activity
             android:name=".FilterSettings"
-            android:launchMode="singleTask"
             android:label="@string/filtersetting_label"
+            android:launchMode="singleTask"
             android:parentActivityName=".PhotoFiltering">
         </activity>
 
@@ -56,6 +56,8 @@
                 android:resource="@xml/filepaths"/>
         </provider>
 
+        <activity android:name=".InfoActivity">
+        </activity>
     </application>
 
 </manifest>

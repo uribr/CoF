@@ -39,7 +39,6 @@ import static cofproject.tau.android.cof.Utility.MAX_ITERATIONS;
 import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.ONE;
 import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.SIGMA_SEEKBAR_LENGTH;
 import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
@@ -459,7 +458,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     private void showNumberPickerDialog(String msg, int maxValue, int currentValue, String tag)
     {
         Log.d(TAG, "showNumberPickerDialog: wrapper method for showNumberPickerDialog when no min value is provided");
-        showNumberPickerDialog(msg, maxValue, ONE, currentValue, tag);
+        showNumberPickerDialog(msg, maxValue, 1, currentValue, tag);
     }
 
     private void showNumberPickerDialog(String msg, int maxValue, int minValue,
