@@ -286,7 +286,7 @@ public class PhotoFiltering extends AppCompatActivity
                         updateCurrentPreset(mPreset, Math.min(mImgHeight, mImgWidth));
                     }
                 } else if (requestCode == FILTER_SETTINGS_REQUEST_CODE)
-                {
+                { 
                     if (data != null)
                     {
                         mPreset = loadCurrentPreset();
