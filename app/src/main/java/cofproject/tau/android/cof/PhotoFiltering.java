@@ -46,9 +46,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
@@ -410,10 +408,10 @@ public class PhotoFiltering extends AppCompatActivity
                 sw.start();
                 CoF.quantize(mImToProcess, quantizedIm, nBins);
                 sw.stop();
-                Log.d(TAG, "doInBackground: qunatize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+                Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
 
                 pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-                publishProgress("Collecting co-occurrence statistics...");
+                publishProgress("Collecting Statistics...");
                 sw.reset();
                 sw.start();
                 CoF.collectPab(quantizedIm, mMaskToCollect, pab, nBins, winSize, sigma);
@@ -431,8 +429,8 @@ public class PhotoFiltering extends AppCompatActivity
                 sw.reset();
                 sw.start();
                 for (int i = 0; i < iterCnt; i++) {
-                    Log.d(TAG, "doInBackground: cofilter iteration no. " + (i+1) + "/" + iterCnt);
-                    publishProgress("Filtering - Iteration no. " + (i+1) + "/" + iterCnt);
+                    Log.d(TAG, "doInBackground: cofilter iteration No. " + (i+1) + "/" + iterCnt);
+                    publishProgress("Filtering - Iteration No. " + (i+1) + "/" + iterCnt);
                     CoF.coFilter(imToProcessCopy, quantizedIm, mFilteredImage, pmi, winSize, sigma);
                     mFilteredImage.copyTo(imToProcessCopy);
                     System.gc();
