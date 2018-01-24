@@ -2,6 +2,7 @@ package cofproject.tau.android.cof;
 
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -345,5 +346,19 @@ class Utility
     {
         //Log.d(TAG, "mapSigmaToProgress: entering");
         return ((int) (sigma * MAX_SIGMA));
+    }
+
+    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, String msg) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(msg);
+        return alertDialog;
+    }
+
+    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, int msgID) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(msgID);
+        return alertDialog;
     }
 }

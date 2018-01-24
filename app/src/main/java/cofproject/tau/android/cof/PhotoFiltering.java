@@ -13,6 +13,8 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,16 +23,24 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Bytes;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -39,6 +49,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
@@ -75,6 +88,7 @@ public class PhotoFiltering extends AppCompatActivity
     private Uri mURI;
     private boolean mIsFiltered;
     private boolean mIsShared;
+    private Switch mScribbleSwitch;
 
     private Mat mImToProcess;
     private Mat mFilteredImage;
@@ -177,6 +191,7 @@ public class PhotoFiltering extends AppCompatActivity
         }
 
         Intent intent = new Intent();
+
 
         if (extras.getBoolean(getString(R.string.Capture)))
         {
@@ -303,13 +318,16 @@ public class PhotoFiltering extends AppCompatActivity
      */
     public void onScribbleOn(View view)
     {
-        Switch sw = view.findViewById(R.id.scribble_switch);
-        if (!sw.isChecked())
+        if (mScribbleSwitch == null) {
+            mScribbleSwitch = view.findViewById(R.id.scribble_switch);
+        }
+        if (mScribbleSwitch.isChecked()) {
+            mOriginalImageViewFragment.turnScribbleOn();
+        }
+        else
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Warning");
-            builder.setMessage("This action will delete all scribble points created so far.\nAre you sure you want to continue?\n");
-            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+            AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.scribble_switch_off_msg);
+            alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
@@ -317,20 +335,16 @@ public class PhotoFiltering extends AppCompatActivity
                     mOriginalImageViewFragment.clearScribble();
                 }
             });
-            builder.setNegativeButton("no", new DialogInterface.OnClickListener()
+            alertDialog.setNegativeButton("no", new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    Switch scribble = (Switch) findViewById(R.id.scribble_switch);
-                    scribble.setChecked(true);
+                    mScribbleSwitch.setChecked(true);
                 }
             });
-            builder.setCancelable(false);
-            builder.create().show();
-        } else
-        {
-            mOriginalImageViewFragment.turnScribbleOn();
+            alertDialog.setCancelable(false);
+            alertDialog.create().show();
         }
     }
 
@@ -463,11 +477,8 @@ public class PhotoFiltering extends AppCompatActivity
             Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
         }
 
-        //if (mPreFilterButtonFragment.isScribbleOn())
-        if (false) // todo - handle scribble later on
-        {
-            //mFilteredBitmap = CoF.applyFilter(mOriginalBitmap, mPreset, mOriginalImageViewFragment.getScribbleCoordinates());
-        }
+
+
 
         // begin filtering!!!
         if (mImToProcess != null)
@@ -481,7 +492,117 @@ public class PhotoFiltering extends AppCompatActivity
         // the image loaded from the bitmap is RGBa - convert it to RGB
         Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
 
-        startFiltering();
+
+
+        if (mPreFilterButtonFragment.isScribbleOn())
+        {
+            startScribbling();
+
+        }
+        else
+        {
+            startFiltering();
+        }
+
+    }
+
+    private void startScribbling()
+    {
+        try
+        {
+
+            final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "SCRIBBLE", "Please wait...", true);
+            ringProgressDialog.setCancelable(false);
+            ringProgressDialog.setCanceledOnTouchOutside(false);
+            Thread filterThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    String TAG = "launcherDialogTag";
+                    try
+                    {
+                        Path scribblePath = mOriginalImageViewFragment.getScribblePath();
+                        int height = mOriginalImageViewFragment.getImageViewHeight();
+                        int width = mOriginalImageViewFragment.getImageViewWidth();
+                        Mat scribbleMat = new Mat(new Size(width, height), CvType.CV_8UC1);
+                        byte[][] scribbleArr = new byte[height][width];
+
+                        PathMeasure pm = new PathMeasure(scribblePath, false);
+                        //Set<Point> points = new HashSet<>();
+                        float contourLength, distance;
+                        int numPoints, x, y;
+                        float[] position = new float[2];
+                        do {
+                            contourLength = pm.getLength();
+                            numPoints = (int) (contourLength/0.01) + 1;
+                            for (int i = 0; i < numPoints; i++) {
+                                distance = (i * contourLength) / (numPoints - 1);
+                                if (pm.getPosTan(distance, position, null)) {
+                                    x = (int)position[1];
+                                    y = (int)position[0];
+                                    if (x < 0 || x >= height || y < 0 || y >= width) {
+                                        continue;
+                                    }
+                                    scribbleArr[x][y] = (byte)255;
+
+                                }
+                            }
+                        } while (pm.nextContour());
+
+                        byte[] flattened = Bytes.concat(scribbleArr);
+                        scribbleMat.put(0,0, flattened);
+
+                        Mat resizedMat = new Mat();
+
+                        Imgproc.resize(scribbleMat, resizedMat, new Size(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()));
+                        Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, new Size(3,3));
+                        Imgproc.dilate(resizedMat, resizedMat, SE, new Point(-1,-1), 3);
+
+                        Mat scribbleMatRGB = new Mat();
+                        Imgproc.cvtColor(resizedMat, scribbleMatRGB, Imgproc.COLOR_GRAY2BGRA);
+                        Core.compare(scribbleMatRGB, new Scalar(0), scribbleMatRGB, Core.CMP_GT);
+
+
+
+                        mFilteredBitmap = Bitmap.createBitmap(scribbleMatRGB.cols(), scribbleMatRGB.rows(), Bitmap.Config.RGB_565);
+                        Utils.matToBitmap(scribbleMatRGB, mFilteredBitmap, true);
+
+                        // Create the filtered image view.
+                        if (mFilteredImageViewFragment == null)
+                        {
+                            mFilteredImageViewFragment = new ImageViewFragment();
+                        }
+                        mFilteredImageViewFragment.setImage(mFilteredBitmap);
+
+                        Log.i(TAG, "Filtering finished");
+                    } catch (Exception e)
+                    {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+
+
+                    ringProgressDialog.dismiss();
+
+                    // Create the post filtering fragment of buttons if it is the first time
+                    if (mPostFilterButtonFragment == null)
+                    {
+                        mPostFilterButtonFragment = new PostFilteringButtonsFragment();
+                    }
+                    // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
+                    transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+                    transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
+                    transaction.commit();
+                }
+            });
+            filterThread.start();
+
+        } catch (Exception e)
+        {
+            Log.e(TAG, "startFiltering: ERROR - " + e.getMessage(), e);
+        }
 
     }
 
@@ -561,9 +682,8 @@ public class PhotoFiltering extends AppCompatActivity
             super.onBackPressed();
             return;
         }
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("WARNING");
-        alertDialog.setMessage(R.string.back_pressed_msg);
+
+        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.back_pressed_msg);
         // Add the buttons
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener()
         {
@@ -576,9 +696,7 @@ public class PhotoFiltering extends AppCompatActivity
 
         alertDialog.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener()
         {
-            public void onClick(DialogInterface dialog, int id)
-            {
-            }
+            public void onClick(DialogInterface dialog, int id) {}
         });
 
         alertDialog.setCancelable(false);

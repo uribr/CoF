@@ -384,7 +384,9 @@ public class CoF {
         }
 
         assert filteredImage != null;
-        Mat[] filtImChans = new Mat[filteredImage.channels()];
+        List<Mat> filtImChans = new ArrayList<>(filteredImage.channels());
+
+        //Mat[] filtImChans = new Mat[filteredImage.channels()];
 
         Mat innerPab = new Mat();
         modMatChannels(im2Filter, pab, innerPab);
@@ -410,18 +412,20 @@ public class CoF {
         // kernel size for the gaussian filter
         Size kerSize = new Size(winSize, winSize);
 
+        Mat cim = null;
+        Mat mVals = null;
+
         // smooth per channel
         for (int iChannel = 0; iChannel < im2Filter.channels(); iChannel++) {
 
             Log.d(TAG, "coFilter: smoothing channel " + (iChannel + 1));
-            Mat cim = channels2Filter.get(iChannel);
-            Mat mVals = channels2Collect.get(iChannel);
+            cim = channels2Filter.get(iChannel);
+            mVals = channels2Collect.get(iChannel);
 
             byte[] mValsArr = new byte[(int) mVals.total()];
             mVals.get(0, 0, mValsArr);
 
             Mat wpl = new Mat(mVals.size(), CvType.CV_32FC1);
-            float[] wplArr = new float[mValsArr.length]; // weight per level arr
 
             Mat pabCurrChan = channelsPab.get(iChannel);
 
@@ -441,7 +445,6 @@ public class CoF {
             for (int iLevel = 0; iLevel < nBins; iLevel++) {
 
                 Core.compare(mVals, new Scalar(iLevel), cmpMat, Core.CMP_EQ);
-                //cmpMat.convertTo(cmpMat, CvType.CV_32FC1, 1.0 / 255.0); // binary matrix
 
                 pabCurrChan.get(iLevel, 0, LUT);
 
@@ -452,23 +455,16 @@ public class CoF {
 
                 // take only necessary pixels
                 tmp.copyTo(W, cmpMat);
-                //Mat W = tmp.mul(cmpMat);
 
                 Imgproc.accumulate(W, sumW);
-                //tmp.release();
+
                 Core.multiply(wpl, cim, tmp);
-                //tmp = wpl.mul(cim);
+
                 Imgproc.GaussianBlur(tmp, tmp, kerSize, sigma, sigma);
                 tmp.copyTo(S, cmpMat);
-                //Mat S = tmp.mul(cmpMat);
+
                 Imgproc.accumulate(S, sumS);
 
-                //cmpMat.release();
-                //cmpMat.setTo(new Scalar(0));
-                //tmp.release();
-                //tmp.setTo(new Scalar(0));
-                //W.release();
-                //S.release();
                 System.gc();
             }
             cmpMat.release();
@@ -477,19 +473,18 @@ public class CoF {
             S.release();
 
             Core.add(sumW, new Scalar(Float.MIN_NORMAL), sumW);
-            filtImChans[iChannel] = new Mat();
+            filtImChans.add(iChannel,new Mat());
+            //filtImChans[iChannel] = new Mat();
 
-            Core.divide(sumS, sumW, filtImChans[iChannel]);
-
+            Core.divide(sumS, sumW, filtImChans.get(iChannel));
 
             sumS.release();
             sumW.release();
             pabCurrChan.release();
             wpl.release();
-            mVals.release();
-            cim.release();
+
         }
-        Core.merge(Arrays.asList(filtImChans), filteredImage);
+        Core.merge(filtImChans, filteredImage);
 
         for (Mat m : channels2Collect) {
             m.release();
@@ -503,6 +498,13 @@ public class CoF {
 
         for (Mat m : filtImChans) {
             m.release();
+        }
+
+        if (cim != null) {
+            cim.release();
+        }
+        if (mVals != null) {
+            mVals.release();
         }
 
     }

@@ -39,6 +39,7 @@
     <string name="SetAsDefaultCheckBoxTxt">Set as default preset</string>
     <string name="choose_an_app">Choose an app:</string>
     <string name="back_pressed_msg">You did not save or share your filtered image.\nAre you sure you want to go back?\nThe filtered image will be lost!</string>
+    <string name="scribble_switch_off_msg">This action will delete all scribble points created so far.\nAre you sure you want to continue?</string>
 
 
     <string name="title_activity_filter_preferences">Settings</string>
