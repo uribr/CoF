@@ -90,6 +90,7 @@ public class PhotoFiltering extends AppCompatActivity
 
     private Mat mImToProcess;
     private Mat mFilteredImage;
+    private Mat mScribbleImage;
     private Mat mMaskToCollect;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this)
@@ -358,7 +359,7 @@ public class PhotoFiltering extends AppCompatActivity
     }
 
     @SuppressLint("StaticFieldLeak")
-    private class FilteringAsyncTask extends AsyncTask<Void, String, Void> {
+    private class FilteringAsyncTask extends AsyncTask<Boolean, String, Void> {
 
         final String TAG = "FilteringAsyncTask";
         ProgressDialog mProgressDialog;
@@ -376,7 +377,7 @@ public class PhotoFiltering extends AppCompatActivity
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Void doInBackground(Boolean... booleans) {
 
             try
             {
@@ -423,13 +424,15 @@ public class PhotoFiltering extends AppCompatActivity
                 CoF.pabToPmi(pab, pmi);
                 pab.release();
 
-                Mat imToProcessCopy = mImToProcess.clone();
+                boolean isScribbleMode = booleans[0];
+                Mat imToProcessCopy = isScribbleMode ? mScribbleImage.clone() : mImToProcess.clone();
+                assert imToProcessCopy != null;
                 System.gc();
                 sw.reset();
                 sw.start();
                 for (int i = 0; i < iterCnt; i++) {
                     Log.d(TAG, "doInBackground: cofilter iteration no. " + (i+1) + "/" + iterCnt);
-                    publishProgress("Filtering - Iteration no.: " + (i+1) + "/" + iterCnt);
+                    publishProgress("Filtering - Iteration no. " + (i+1) + "/" + iterCnt);
                     CoF.coFilter(imToProcessCopy, quantizedIm, mFilteredImage, pmi, winSize, sigma);
                     mFilteredImage.copyTo(imToProcessCopy);
                     System.gc();
@@ -595,15 +598,42 @@ public class PhotoFiltering extends AppCompatActivity
         // todo - generalize
         mMaskToCollect = Mat.ones(mImToProcess.size(), CvType.CV_32FC1);
 
+
+        // todo - change eventually to:
+        // new FilteringAsyncTask().execute(mPreFilterButtonFragment.isScribbleOn());
         if (mPreFilterButtonFragment.isScribbleOn())
         {
-            startScribbling();
+            Path scribblePath = mOriginalImageViewFragment.getScribblePath();
+            int height = mOriginalImageViewFragment.getImageViewHeight();
+            int width = mOriginalImageViewFragment.getImageViewWidth();
+            Mat scribbleMat = new Mat(new Size(width, height), CvType.CV_8UC1);
+            byte[][] scribbleArr = new byte[height][width];
+
+            pathToArray(scribblePath, scribbleArr, height, width);
+            // flatten the 2D array
+            byte[] flattened = Bytes.concat(scribbleArr);
+            // store the array contents in a Mat object
+            scribbleMat.put(0,0, flattened);
+
+
+            if (mScribbleImage != null) {
+                mScribbleImage.release();
+            }
+            mScribbleImage = new Mat();
+            // resize the binary image to the original bitmap's size
+            Imgproc.resize(scribbleMat, mScribbleImage, new Size(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()));
+
+            // perform dilation in order to thicken the white scribble lines (3 iterations)
+            Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, new Size(7,7));
+            Imgproc.dilate(mScribbleImage, mScribbleImage, SE, new Point(-1,-1), 3);
+            //startScribbling();
+            new FilteringAsyncTask().execute(true);
 
         }
         else
         {
             //startFiltering();
-            new FilteringAsyncTask().execute();
+            new FilteringAsyncTask().execute(false);
         }
 
     }
@@ -657,30 +687,11 @@ public class PhotoFiltering extends AppCompatActivity
                     String TAG = "launcherDialogTag";
                     try
                     {
-                        Path scribblePath = mOriginalImageViewFragment.getScribblePath();
-                        int height = mOriginalImageViewFragment.getImageViewHeight();
-                        int width = mOriginalImageViewFragment.getImageViewWidth();
-                        Mat scribbleMat = new Mat(new Size(width, height), CvType.CV_8UC1);
-                        byte[][] scribbleArr = new byte[height][width];
-
-                        pathToArray(scribblePath, scribbleArr, height, width);
-                        // flatten the 2D array
-                        byte[] flattened = Bytes.concat(scribbleArr);
-                        // store the array contents in a Mat object
-                        scribbleMat.put(0,0, flattened);
-
-                        // resize the binary image to the original bitmap's size
-                        Mat resizedMat = new Mat();
-                        Imgproc.resize(scribbleMat, resizedMat, new Size(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()));
-
-                        // perform dilation in order to thicken the white scribble lines (3 iterations)
-                        Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, new Size(3,3));
-                        Imgproc.dilate(resizedMat, resizedMat, SE, new Point(-1,-1), 3);
 
                         // display the image
                         // todo - remove this, for debug only
                         Mat scribbleMatRGB = new Mat();
-                        Imgproc.cvtColor(resizedMat, scribbleMatRGB, Imgproc.COLOR_GRAY2BGRA);
+                        Imgproc.cvtColor(mScribbleImage, scribbleMatRGB, Imgproc.COLOR_GRAY2BGRA);
                         Core.compare(scribbleMatRGB, new Scalar(0), scribbleMatRGB, Core.CMP_GT);
 
 
@@ -696,8 +707,7 @@ public class PhotoFiltering extends AppCompatActivity
                         mFilteredImageViewFragment.setImage(mFilteredBitmap);
                         mIsFiltered = true;
 
-                        scribbleMat.release();
-                        resizedMat.release();
+                        //mScribbleImage.release();
                         scribbleMatRGB.release();
 
                         Log.i(TAG, "Filtering finished");
@@ -867,6 +877,9 @@ public class PhotoFiltering extends AppCompatActivity
         {
             mMaskToCollect.release();
         }
+         if (mScribbleImage != null) {
+            mScribbleImage.release();
+         }
 
         // Clear the current preset preference file
         currentPresetFile.edit().clear().apply();

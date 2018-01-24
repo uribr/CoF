@@ -450,6 +450,7 @@ public class CoF {
         }
         Core.merge(filtImChans, filteredImage);
 
+        // release!!!
         for (Mat m : channels2Collect) {
             m.release();
         }
