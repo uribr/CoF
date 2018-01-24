@@ -23,12 +23,11 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Bytes;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -41,17 +40,16 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
@@ -326,141 +324,243 @@ public class PhotoFiltering extends AppCompatActivity
         }
         else
         {
-            AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.scribble_switch_off_msg);
-            alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    mOriginalImageViewFragment.clearScribble();
-                }
-            });
-            alertDialog.setNegativeButton("no", new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    mScribbleSwitch.setChecked(true);
-                }
-            });
-            alertDialog.setCancelable(false);
-            alertDialog.create().show();
+            showClearScribbleDialog(false);
         }
     }
 
-    private void startFiltering()
-    {
-        try
-        {
-//            try
-//            {
-//                mImToProcess.release();
-//                mImToProcess = Utils.loadResource(this, R.drawable.olive, Imgcodecs.IMREAD_COLOR); // loading as BGR!!!
-//                Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_BGR2RGB);
-//            } catch (IOException e)
-//            {
-//                e.printStackTrace();
-//            }
 
-//            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-//
-//                private ProgressDialog mDialog;
-//
+
+    private void showClearScribbleDialog(final boolean onBackPressed) {
+        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.scribble_switch_off_msg);
+        alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                mOriginalImageViewFragment.clearScribble();
+                if (onBackPressed) {
+                    mIsFiltered = false;
+                    PhotoFiltering.super.onBackPressed();
+                }
+            }
+        });
+        alertDialog.setNegativeButton("no", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                mScribbleSwitch.setChecked(true);
+            }
+        });
+        alertDialog.setCancelable(false);
+        alertDialog.create().show();
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class FilteringAsyncTask extends AsyncTask<Void, String, Void> {
+
+        final String TAG = "FilteringAsyncTask";
+        ProgressDialog mProgressDialog;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressDialog = new ProgressDialog(PhotoFiltering.this);
+            mProgressDialog.setTitle("Applying Co-Occurrence Filter");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try
+            {
+                Log.i(TAG, "doInBackground: Started applying filter");
+                // extract parmeters from params
+                int iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utility.DEFAULT_NUMBER_OF_ITERATIONS;
+                double sigma = mPreset != null ? mPreset.getSigma() : Utility.DEFAULT_SIGMA;
+                int nBins = mPreset != null ? mPreset.getQuantization() : Utility.DEFAULT_QUNTIZATION_LEVEL;
+                int winSize = mPreset != null ? mPreset.getWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
+
+                if (winSize % 2 == 0) {
+                    winSize--;
+                }
+
+                if (mImToProcess.rows() != mFilteredImage.rows() || mImToProcess.cols() != mFilteredImage.cols()) {
+                    Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
+                }
+
+                Mat quantizedIm;
+                Mat pab;
+                Mat pmi;
+                Stopwatch sw = Stopwatch.createUnstarted(); // stopwatch to measure times
+
+                // this matrix will hold the quantization mapping.
+                // we assume there are no more than 256 bins, so we can use byte-typed matrix
+                quantizedIm = new Mat(mImToProcess.size(), CvType.CV_8UC1);
+
+                publishProgress("Quantizing...");
+                sw.reset();
+                sw.start();
+                CoF.quantize(mImToProcess, quantizedIm, nBins);
+                sw.stop();
+                Log.d(TAG, "doInBackground: qunatize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+
+                pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+                publishProgress("Collecting co-occurrence statistics...");
+                sw.reset();
+                sw.start();
+                CoF.collectPab(quantizedIm, mMaskToCollect, pab, nBins, winSize, sigma);
+                sw.stop();
+                Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+
+                pmi = new Mat(pab.size(), pab.type());
+                CoF.pabToPmi(pab, pmi);
+                pab.release();
+
+                Mat imToProcessCopy = mImToProcess.clone();
+                System.gc();
+                sw.reset();
+                sw.start();
+                for (int i = 0; i < iterCnt; i++) {
+                    Log.d(TAG, "doInBackground: cofilter iteration no. " + (i+1) + "/" + iterCnt);
+                    publishProgress("Filtering - Iteration no.: " + (i+1) + "/" + iterCnt);
+                    CoF.coFilter(imToProcessCopy, quantizedIm, mFilteredImage, pmi, winSize, sigma);
+                    mFilteredImage.copyTo(imToProcessCopy);
+                    System.gc();
+                }
+                sw.stop();
+                Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+
+                imToProcessCopy.release();
+                quantizedIm.release();
+                pmi.release();
+
+
+                // convert filterd image to uint8 type
+                mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
+                // save the filtered Mat into Bitmap
+                mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
+                Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+
+                mIsFiltered = true;
+                mIsShared = false;
+                mSavedOnce = false;
+                Log.i(TAG, "Filtering finished");
+
+            } catch (Exception e)
+            {
+                Log.e(TAG, e.getMessage(), e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            mProgressDialog.setMessage(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            // Create the filtered image view.
+            if (mFilteredImageViewFragment == null)
+            {
+                mFilteredImageViewFragment = new ImageViewFragment();
+            }
+            mFilteredImageViewFragment.setImage(mFilteredBitmap);
+
+            mProgressDialog.dismiss();
+
+            // Create the post filtering fragment of buttons if it is the first time
+            if (mPostFilterButtonFragment == null)
+            {
+                mPostFilterButtonFragment = new PostFilteringButtonsFragment();
+            }
+            // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
+            transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+            transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
+            transaction.commit();
+        }
+
+    }
+
+//    private void startFiltering()
+//    {
+//        try
+//        {
+//            final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Applying Co-Occurrence Filter", "Please wait...", true);
+//            ringProgressDialog.setCancelable(false);
+//            ringProgressDialog.setCanceledOnTouchOutside(false);
+//            Thread filterThread = new Thread(new Runnable()
+//            {
 //                @Override
-//                protected void onPreExecute() {
-//                    super.onPreExecute();
-//                    mDialog = new ProgressDialog(PhotoFiltering.this);
-//                    mDialog.setMessage("Please wait...");
-//                    mDialog.setTitle("Applying Co-Occurrence Filter");
-//                    mDialog.setIndeterminate(true);
-//                    mDialog.setCanceledOnTouchOutside(true);
-//                    mDialog.setCancelable(true);
-//                    mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                        @Override
-//                        public void onCancel(DialogInterface dialogInterface) {
+//                public void run()
+//                {
+//                    String TAG = "launcherDialogTag";
+//                    try
+//                    {
 //
+//                        // apply the filter!
+//                        CoF.applyFilter(mImToProcess, mFilteredImage, mPreset);
+//
+//                        // convert filterd image to uint8 type
+//                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
+//
+//                        // save the filtered Mat into Bitmap
+//                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
+//                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+//
+//                        // Create the filtered image view.
+//                        if (mFilteredImageViewFragment == null)
+//                        {
+//                            mFilteredImageViewFragment = new ImageViewFragment();
 //                        }
-//                    });
-//                    mDialog.show();
-//                }
+//                        mFilteredImageViewFragment.setImage(mFilteredBitmap);
 //
-//                @Override
-//                protected Void doInBackground(Void... voids) {
-//                    return null;
-//                }
+//                        mIsFiltered = true;
+//                        mIsShared = false;
+//                        mSavedOnce = false;
 //
-//            }
-
-            final ProgressDialog ringProgressDialog = ProgressDialog.show(this, "Applying Co-Occurrence Filter", "Please wait...", true);
-            ringProgressDialog.setCancelable(false);
-            ringProgressDialog.setCanceledOnTouchOutside(false);
-            Thread filterThread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    String TAG = "launcherDialogTag";
-                    try
-                    {
-
-                        // prepare a new Mat object for the filtered image
-                        if (mFilteredImage != null)
-                        {
-                            mFilteredImage.release();
-                        }
-                        mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
-
-                        // apply the filter!
-                        CoF.applyFilter(mImToProcess, mFilteredImage, mPreset);
-
-                        // convert filterd image to uint8 type
-                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
-
-                        // save the filtered Mat into Bitmap
-                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
-                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
-
-                        // Create the filtered image view.
-                        if (mFilteredImageViewFragment == null)
-                        {
-                            mFilteredImageViewFragment = new ImageViewFragment();
-                        }
-                        mFilteredImageViewFragment.setImage(mFilteredBitmap);
-
-                        mIsFiltered = true;
-                        mIsShared = false;
-                        mSavedOnce = false;
-
-                        Log.i(TAG, "Filtering finished");
-                    } catch (Exception e)
-                    {
-                        Log.e(TAG, e.getMessage(), e);
-                    }
-
-
-                    ringProgressDialog.dismiss();
-
-                    // Create the post filtering fragment of buttons if it is the first time
-                    if (mPostFilterButtonFragment == null)
-                    {
-                        mPostFilterButtonFragment = new PostFilteringButtonsFragment();
-                    }
-                    // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
-                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                    transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
-                    transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
-                    transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
-                    transaction.commit();
-                }
-            });
-            filterThread.start();
-
-        } catch (Exception e)
-        {
-            Log.e(TAG, "startFiltering: ERROR - " + e.getMessage(), e);
-        }
-
-    }
+//                        Log.i(TAG, "Filtering finished");
+//                    } catch (Exception e)
+//                    {
+//                        Log.e(TAG, e.getMessage(), e);
+//                    }
+//
+//
+//                    ringProgressDialog.dismiss();
+//
+//                    // Create the post filtering fragment of buttons if it is the first time
+//                    if (mPostFilterButtonFragment == null)
+//                    {
+//                        mPostFilterButtonFragment = new PostFilteringButtonsFragment();
+//                    }
+//                    // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
+//                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//                    transaction.replace(R.id.filtering_activity_button_container, mPostFilterButtonFragment);
+//                    transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+//                    transaction.addToBackStack(FROM_FILTERING_TO_RESULT);
+//                    transaction.commit();
+//                }
+//            });
+//            filterThread.start();
+//
+//        } catch (Exception e)
+//        {
+//            Log.e(TAG, "startFiltering: ERROR - " + e.getMessage(), e);
+//        }
+//
+//    }
 
 
     /**
@@ -477,22 +577,23 @@ public class PhotoFiltering extends AppCompatActivity
             Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
         }
 
-
-
-
-        // begin filtering!!!
         if (mImToProcess != null)
         {
             mImToProcess.release();
         }
+        if (mFilteredImage != null)
+        {
+            mFilteredImage.release();
+        }
+
         mImToProcess = new Mat();
-
         Utils.bitmapToMat(mOriginalBitmap, mImToProcess);
-
         // the image loaded from the bitmap is RGBa - convert it to RGB
         Imgproc.cvtColor(mImToProcess, mImToProcess, Imgproc.COLOR_RGBA2RGB);
+        mFilteredImage = new Mat(mImToProcess.size(), mImToProcess.type());
 
-
+        // todo - generalize
+        mMaskToCollect = Mat.ones(mImToProcess.size(), CvType.CV_32FC1);
 
         if (mPreFilterButtonFragment.isScribbleOn())
         {
@@ -501,8 +602,42 @@ public class PhotoFiltering extends AppCompatActivity
         }
         else
         {
-            startFiltering();
+            //startFiltering();
+            new FilteringAsyncTask().execute();
         }
+
+    }
+
+    /**
+     *
+      * @param scribblePath the path containing the scribbles drawn by the user
+     * @param scribbleArr a 2D-array (matrix) - will hold 255 in each scribble point.
+     *                    Should be pre-allocated before calling the function.
+     * @param height array height
+     * @param width array width
+     */
+    private void pathToArray(Path scribblePath, byte[][] scribbleArr, int height, int width) {
+
+        PathMeasure pm = new PathMeasure(scribblePath, false);
+        float contourLength, distance;
+        int numPoints, x, y;
+        float[] position = new float[2];
+        do {
+            contourLength = pm.getLength();
+            numPoints = (int) (contourLength/0.01) + 1;
+            for (int i = 0; i < numPoints; i++) {
+                distance = (i * contourLength) / (numPoints - 1);
+                if (pm.getPosTan(distance, position, null)) {
+                    x = (int)position[1];
+                    y = (int)position[0];
+                    if (x < 0 || x >= height || y < 0 || y >= width) {
+                        continue;
+                    }
+                    scribbleArr[x][y] = (byte)255;
+
+                }
+            }
+        } while (pm.nextContour());
 
     }
 
@@ -528,37 +663,22 @@ public class PhotoFiltering extends AppCompatActivity
                         Mat scribbleMat = new Mat(new Size(width, height), CvType.CV_8UC1);
                         byte[][] scribbleArr = new byte[height][width];
 
-                        PathMeasure pm = new PathMeasure(scribblePath, false);
-                        //Set<Point> points = new HashSet<>();
-                        float contourLength, distance;
-                        int numPoints, x, y;
-                        float[] position = new float[2];
-                        do {
-                            contourLength = pm.getLength();
-                            numPoints = (int) (contourLength/0.01) + 1;
-                            for (int i = 0; i < numPoints; i++) {
-                                distance = (i * contourLength) / (numPoints - 1);
-                                if (pm.getPosTan(distance, position, null)) {
-                                    x = (int)position[1];
-                                    y = (int)position[0];
-                                    if (x < 0 || x >= height || y < 0 || y >= width) {
-                                        continue;
-                                    }
-                                    scribbleArr[x][y] = (byte)255;
-
-                                }
-                            }
-                        } while (pm.nextContour());
-
+                        pathToArray(scribblePath, scribbleArr, height, width);
+                        // flatten the 2D array
                         byte[] flattened = Bytes.concat(scribbleArr);
+                        // store the array contents in a Mat object
                         scribbleMat.put(0,0, flattened);
 
+                        // resize the binary image to the original bitmap's size
                         Mat resizedMat = new Mat();
-
                         Imgproc.resize(scribbleMat, resizedMat, new Size(mOriginalBitmap.getWidth(), mOriginalBitmap.getHeight()));
+
+                        // perform dilation in order to thicken the white scribble lines (3 iterations)
                         Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, new Size(3,3));
                         Imgproc.dilate(resizedMat, resizedMat, SE, new Point(-1,-1), 3);
 
+                        // display the image
+                        // todo - remove this, for debug only
                         Mat scribbleMatRGB = new Mat();
                         Imgproc.cvtColor(resizedMat, scribbleMatRGB, Imgproc.COLOR_GRAY2BGRA);
                         Core.compare(scribbleMatRGB, new Scalar(0), scribbleMatRGB, Core.CMP_GT);
@@ -574,6 +694,11 @@ public class PhotoFiltering extends AppCompatActivity
                             mFilteredImageViewFragment = new ImageViewFragment();
                         }
                         mFilteredImageViewFragment.setImage(mFilteredBitmap);
+                        mIsFiltered = true;
+
+                        scribbleMat.release();
+                        resizedMat.release();
+                        scribbleMatRGB.release();
 
                         Log.i(TAG, "Filtering finished");
                     } catch (Exception e)
@@ -677,12 +802,19 @@ public class PhotoFiltering extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
+        // if we're in scribble mode and the image is not filtered - warn the user
+        if (mScribbleSwitch != null && mScribbleSwitch.isChecked() && !mIsFiltered) {
+            showClearScribbleDialog(true);
+            return;
+        }
+        // if the image is not filtered, or already saved or shared - go back gracefully
         if (!mIsFiltered || mSavedOnce || mIsShared)
         {
             super.onBackPressed();
             return;
         }
 
+        // here the image is filtered and wasn't saved or shared - warn the user:
         AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.back_pressed_msg);
         // Add the buttons
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener()

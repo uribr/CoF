@@ -31,106 +31,106 @@ public class CoF {
     private static final double TERM_CRITERIA_EPSILON = 1.0;
 
 
-    public static void applyFilter(Mat imToProcess, Mat filteredImage, Preset params) {
-        Mat maskToCollect = Mat.ones(imToProcess.size(), CvType.CV_32FC1);
-        applyFilter(imToProcess, filteredImage, maskToCollect, params);
-        maskToCollect.release();
-    }
+//    public static void applyFilter(Mat imToProcess, Mat filteredImage, Preset params) {
+//        Mat maskToCollect = Mat.ones(imToProcess.size(), CvType.CV_32FC1);
+//        applyFilter(imToProcess, filteredImage, maskToCollect, params);
+//        maskToCollect.release();
+//    }
 
 
-    public static void applyFilter(Mat imToProcess, Mat filteredImage, Mat maskToCollect, Preset params) {
-        Log.i(TAG, "applyFilter: Started applying filter");
-
-        // extract parmeters from params
-        int iterCnt = Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-        int winSize = Utility.DEFAULT_WINDOW_SIZE;
-        double sigma = Utility.DEFAULT_SIGMA;
-        int nBins = Utility.DEFAULT_QUNTIZATION_LEVEL;
-        if (params != null) {
-            iterCnt = params.getNumberOfIteration();
-            winSize = params.getWindowSize();
-            sigma = params.getSigma();
-            nBins = params.getQuantization();
-        }
-
-        if (winSize % 2 == 0) {
-            winSize--;
-        }
-
-        //int hws = winSize / 2; // half window size, floored
-        if (imToProcess.rows() != filteredImage.rows() || imToProcess.cols() != filteredImage.cols()) {
-            Log.e(TAG, "applyFilter: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
-        }
-
-        Mat idx;
-        Mat pab;
-        Mat rowSum;
-        Mat colSum;
-        Mat pmi;
-        Mat prod;
-        Stopwatch sw = Stopwatch.createUnstarted(); // stopwatch to measure times
-
-
-        // this matrix will hold the quantization mapping.
-        // we assume there are no more than 256 bins, so we can use byte-typed matrix
-        idx = new Mat(imToProcess.size(), CvType.CV_8UC1);
-
-        sw.reset();
-        sw.start();
-        quantize(imToProcess, idx, nBins);
-        sw.stop();
-        Log.d(TAG, "applyFilter: qunatize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-        pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-        sw.reset();
-        sw.start();
-        collectPab(idx, maskToCollect, pab, nBins, winSize, sigma);
-        sw.stop();
-        Log.d(TAG, "applyFilter: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-
-        rowSum = new Mat(); // will be a single column
-        colSum = new Mat(); // will be a single row
-        pmi = new Mat(pab.size(), pab.type());
-
-        Core.reduce(pab, rowSum, 1, Core.REDUCE_SUM);
-        Core.reduce(pab, colSum, 0, Core.REDUCE_SUM);
-
-        prod = new Mat(rowSum.rows(), colSum.cols(), rowSum.type());
-        Core.gemm(rowSum, colSum, 1, new Mat(), 0, prod);
-
-        // release unnecessary Mats:
-        rowSum.release();
-        colSum.release();
-
-        // adding small constant to prevenet division by 0
-        Core.add(prod, new Scalar(Float.MIN_NORMAL), prod);
-
-        Core.divide(pab, prod, pmi);
-
-        prod.release();
-        pab.release();
-
-        Mat imToProcessCopy = imToProcess.clone();
-
-        sw.reset();
-        sw.start();
-        for (int i = 0; i < iterCnt; i++) {
-            Log.d(TAG, "applyFilter: cofilter iteration no. " + (i + 1));
-            coFilter(imToProcessCopy, idx, filteredImage, pmi, winSize, sigma);
-            filteredImage.copyTo(imToProcessCopy);
-            System.gc();
-        }
-        sw.stop();
-        Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-        imToProcessCopy.release();
-
-        // release all inner Mats:
-        idx.release();
-        maskToCollect.release();
-        pmi.release();
-    }
+//    public static void applyFilter(Mat imToProcess, Mat filteredImage, Mat maskToCollect, Preset params) {
+//        Log.i(TAG, "applyFilter: Started applying filter");
+//
+//        // extract parmeters from params
+//        int iterCnt = Utility.DEFAULT_NUMBER_OF_ITERATIONS;
+//        int winSize = Utility.DEFAULT_WINDOW_SIZE;
+//        double sigma = Utility.DEFAULT_SIGMA;
+//        int nBins = Utility.DEFAULT_QUNTIZATION_LEVEL;
+//        if (params != null) {
+//            iterCnt = params.getNumberOfIteration();
+//            winSize = params.getWindowSize();
+//            sigma = params.getSigma();
+//            nBins = params.getQuantization();
+//        }
+//
+//        if (winSize % 2 == 0) {
+//            winSize--;
+//        }
+//
+//        //int hws = winSize / 2; // half window size, floored
+//        if (imToProcess.rows() != filteredImage.rows() || imToProcess.cols() != filteredImage.cols()) {
+//            Log.e(TAG, "applyFilter: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
+//        }
+//
+//        Mat idx;
+//        Mat pab;
+//        Mat rowSum;
+//        Mat colSum;
+//        Mat pmi;
+//        Mat prod;
+//        Stopwatch sw = Stopwatch.createUnstarted(); // stopwatch to measure times
+//
+//
+//        // this matrix will hold the quantization mapping.
+//        // we assume there are no more than 256 bins, so we can use byte-typed matrix
+//        idx = new Mat(imToProcess.size(), CvType.CV_8UC1);
+//
+//        sw.reset();
+//        sw.start();
+//        quantize(imToProcess, idx, nBins);
+//        sw.stop();
+//        Log.d(TAG, "applyFilter: qunatize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//        pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+//        sw.reset();
+//        sw.start();
+//        collectPab(idx, maskToCollect, pab, nBins, winSize, sigma);
+//        sw.stop();
+//        Log.d(TAG, "applyFilter: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//
+//        rowSum = new Mat(); // will be a single column
+//        colSum = new Mat(); // will be a single row
+//        pmi = new Mat(pab.size(), pab.type());
+//
+//        Core.reduce(pab, rowSum, 1, Core.REDUCE_SUM);
+//        Core.reduce(pab, colSum, 0, Core.REDUCE_SUM);
+//
+//        prod = new Mat(rowSum.rows(), colSum.cols(), rowSum.type());
+//        Core.gemm(rowSum, colSum, 1, new Mat(), 0, prod);
+//
+//        // release unnecessary Mats:
+//        rowSum.release();
+//        colSum.release();
+//
+//        // adding small constant to prevenet division by 0
+//        Core.add(prod, new Scalar(Float.MIN_NORMAL), prod);
+//
+//        Core.divide(pab, prod, pmi);
+//
+//        prod.release();
+//        pab.release();
+//
+//        Mat imToProcessCopy = imToProcess.clone();
+//
+//        sw.reset();
+//        sw.start();
+//        for (int i = 0; i < iterCnt; i++) {
+//            Log.d(TAG, "applyFilter: cofilter iteration no. " + (i + 1));
+//            coFilter(imToProcessCopy, idx, filteredImage, pmi, winSize, sigma);
+//            filteredImage.copyTo(imToProcessCopy);
+//            System.gc();
+//        }
+//        sw.stop();
+//        Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//        imToProcessCopy.release();
+//
+//        // release all inner Mats:
+//        idx.release();
+//        maskToCollect.release();
+//        pmi.release();
+//    }
 
     /**
      * @param n - a positive integer
@@ -152,11 +152,11 @@ public class CoF {
 //        quantize(rgbInput, quantizedIm, NUM_BINS_DEFAULT);
 //    }
 
-    private static void quantize(Mat rgbInput, Mat quantizedIm, int k) {
+    public static void quantize(Mat rgbInput, Mat quantizedIm, int k) {
         quantize(rgbInput, quantizedIm, k, SAMPLE_RATE_DEFAULT);
     }
 
-    private static void quantize(Mat rgbInput, Mat quantizedIm, int k, double sampleRate) {
+    public static void quantize(Mat rgbInput, Mat quantizedIm, int k, double sampleRate) {
 
         Log.i(TAG, "quantize: started");
         Mat rgbInput32f;
@@ -283,20 +283,12 @@ public class CoF {
         }
     }
 
-    private static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins) {
+    public static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins) {
         collectPab(im2Collect, mask2Collect, pab, nBins, Utility.DEFAULT_WINDOW_SIZE, Utility.DEFAULT_SIGMA);
     }
 
 
-    /**
-     * @param imToCollect
-     * @param maskToCollect
-     * @param pab           output matrix with the co-occurrence statistics
-     * @param nBins
-     * @param winSize
-     * @param sigma
-     */
-    private static void collectPab(Mat imToCollect, Mat maskToCollect, Mat pab, int nBins, int winSize, double sigma) {
+    public static void collectPab(Mat imToCollect, Mat maskToCollect, Mat pab, int nBins, int winSize, double sigma) {
 
         Log.i(TAG, "collectPab: started");
         if (pab.rows() != nBins || pab.cols() != nBins) {
@@ -345,12 +337,11 @@ public class CoF {
         Scalar s = Core.sumElems(pab);
         Core.divide(pab, s, pab);
         pabt.release();
-        //Core.normalize(pab, pa b, 1, 0, Core.NORM_L1);
     }
 
-    private static void modMatChannels(Mat im2Filter, Mat mat, Mat updatedMat) {
+    private static void modMatChannels(Mat imToFilter, Mat mat, Mat updatedMat) {
         try {
-            if (im2Filter.channels() == 3 * mat.channels()) {
+            if (imToFilter.channels() == 3 * mat.channels()) {
                 // duplicate 3 channels if needed
                 List<Mat> pab3chans = Arrays.asList(mat, mat, mat);
                 Core.merge(pab3chans, updatedMat);
@@ -363,22 +354,18 @@ public class CoF {
 
     }
 
-    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab) {
-        coFilter(im2Filter, im2Collect, filteredImage, pab, Utility.DEFAULT_WINDOW_SIZE, Utility.DEFAULT_SIGMA);
+//    public static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab) {
+//        coFilter(im2Filter, im2Collect, filteredImage, pab, Utility.DEFAULT_WINDOW_SIZE, Utility.DEFAULT_SIGMA);
+//    }
 
-    }
-
-    private static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab, int winSize, double sigma) {
-
-        Log.i(TAG, "coFilter: started");
-
+    public static void coFilter(Mat imToFilter, Mat imToCollect, Mat filteredImage, Mat pab, int winSize, double sigma) {
         // default parameters
-        if (im2Filter.type() == CvType.CV_8UC(im2Filter.channels())) {
-            im2Filter.convertTo(im2Filter, CvType.CV_32FC(im2Filter.channels()));
+        if (imToFilter.type() == CvType.CV_8UC(imToFilter.channels())) {
+            imToFilter.convertTo(imToFilter, CvType.CV_32FC(imToFilter.channels()));
         }
 
         if (filteredImage != null) {
-            filteredImage.convertTo(filteredImage, im2Filter.type());
+            filteredImage.convertTo(filteredImage, imToFilter.type());
         } else {
             Log.e(TAG, "coFilter: filteredImage == null", new NullPointerException());
         }
@@ -386,20 +373,15 @@ public class CoF {
         assert filteredImage != null;
         List<Mat> filtImChans = new ArrayList<>(filteredImage.channels());
 
-        //Mat[] filtImChans = new Mat[filteredImage.channels()];
-
         Mat innerPab = new Mat();
-        modMatChannels(im2Filter, pab, innerPab);
+        modMatChannels(imToFilter, pab, innerPab);
 
         Mat innerIm2Collect = new Mat();
-        modMatChannels(im2Filter, im2Collect, innerIm2Collect);
+        modMatChannels(imToFilter, imToCollect, innerIm2Collect);
 
-        Size sz = im2Filter.size();
-        int nBins = pab.rows();
-
-        // split im2Filter, innerIm2Collect and innerPab  into channels
-        List<Mat> channels2Filter = new ArrayList<>(im2Filter.channels());
-        Core.split(im2Filter, channels2Filter);
+        // split imToFilter, innerIm2Collect and innerPab  into channels
+        List<Mat> channels2Filter = new ArrayList<>(imToFilter.channels());
+        Core.split(imToFilter, channels2Filter);
 
         List<Mat> channelsPab = new ArrayList<>(innerPab.channels());
         Core.split(innerPab, channelsPab);
@@ -412,77 +394,59 @@ public class CoF {
         // kernel size for the gaussian filter
         Size kerSize = new Size(winSize, winSize);
 
+        int nBins = pab.rows();
+        int channelsCnt = imToFilter.channels();
         Mat cim = null;
         Mat mVals = null;
+        Mat pabCurrChan = null;
+        Size sz = channels2Collect.get(0).size();
+        Mat W = Mat.zeros(sz, CvType.CV_32FC1);
+        Mat sumW = Mat.zeros(sz, CvType.CV_32FC1);
+        Mat S = Mat.zeros(sz, CvType.CV_32FC1);
+        Mat sumS = Mat.zeros(sz, CvType.CV_32FC1);
+        Mat wpl = new Mat(sz, CvType.CV_32FC1);
+        Mat cmpMat = new Mat();
+        Mat tmp = new Mat();
+        byte[] mValsArr = new byte[(int) channels2Collect.get(0).total()];
+        // our LUT is the iLevel-th row of the current channel pab matrix
+        float[] LUT = new float[nBins];
 
         // smooth per channel
-        for (int iChannel = 0; iChannel < im2Filter.channels(); iChannel++) {
+        for (int iChannel = 0; iChannel < channelsCnt; iChannel++) {
 
             Log.d(TAG, "coFilter: smoothing channel " + (iChannel + 1));
             cim = channels2Filter.get(iChannel);
             mVals = channels2Collect.get(iChannel);
-
-            byte[] mValsArr = new byte[(int) mVals.total()];
             mVals.get(0, 0, mValsArr);
 
-            Mat wpl = new Mat(mVals.size(), CvType.CV_32FC1);
-
-            Mat pabCurrChan = channelsPab.get(iChannel);
-
-            // our LUT is the iLevel-th row of the current channel pab matrix
-            float[] LUT = new float[pabCurrChan.cols()];
-
-            Mat W = Mat.zeros(mVals.size(), CvType.CV_32FC1);
-            Mat sumW = Mat.zeros(mVals.size(), CvType.CV_32FC1);
-            Mat S = Mat.zeros(mVals.size(), CvType.CV_32FC1);
-            Mat sumS = Mat.zeros(mVals.size(), CvType.CV_32FC1);
-            System.gc();
+            pabCurrChan = channelsPab.get(iChannel);
 
             // per level smoothing
-            Mat cmpMat = new Mat();
-            Mat tmp = new Mat();
-            //Mat W = new Mat();
             for (int iLevel = 0; iLevel < nBins; iLevel++) {
 
                 Core.compare(mVals, new Scalar(iLevel), cmpMat, Core.CMP_EQ);
-
                 pabCurrChan.get(iLevel, 0, LUT);
-
                 applyLUTonData(mVals, LUT, wpl, nBins);
-
                 // smooth wpl
                 Imgproc.GaussianBlur(wpl, tmp, kerSize, sigma, sigma);
-
                 // take only necessary pixels
                 tmp.copyTo(W, cmpMat);
-
                 Imgproc.accumulate(W, sumW);
 
                 Core.multiply(wpl, cim, tmp);
-
                 Imgproc.GaussianBlur(tmp, tmp, kerSize, sigma, sigma);
                 tmp.copyTo(S, cmpMat);
-
                 Imgproc.accumulate(S, sumS);
-
-                System.gc();
             }
-            cmpMat.release();
-            tmp.release();
-            W.release();
-            S.release();
-
             Core.add(sumW, new Scalar(Float.MIN_NORMAL), sumW);
             filtImChans.add(iChannel,new Mat());
-            //filtImChans[iChannel] = new Mat();
 
             Core.divide(sumS, sumW, filtImChans.get(iChannel));
 
-            sumS.release();
-            sumW.release();
-            pabCurrChan.release();
-            wpl.release();
-
+            W.setTo(new Scalar(0));
+            S.setTo(new Scalar(0));
+            sumW.setTo(new Scalar(0));
+            sumS.setTo(new Scalar(0));
         }
         Core.merge(filtImChans, filteredImage);
 
@@ -500,11 +464,22 @@ public class CoF {
             m.release();
         }
 
+        W.release();
+        sumW.release();
+        S.release();
+        sumS.release();
+        wpl.release();
+        cmpMat.release();
+        tmp.release();
+
         if (cim != null) {
             cim.release();
         }
         if (mVals != null) {
             mVals.release();
+        }
+        if (pabCurrChan != null) {
+            pabCurrChan.release();
         }
 
     }
@@ -527,6 +502,7 @@ public class CoF {
         }
 
         Mat cmpMat = new Mat();
+
         for (int i = 0; i < nBins; i++) {
             Core.compare(inputData, new Scalar(i), cmpMat, Core.CMP_EQ);
             outputData.setTo(new Scalar(LUT[i]), cmpMat);
@@ -551,6 +527,26 @@ public class CoF {
         for (int i = 0; i < inputData.length; i++) {
             outputData[i] = LUT[inputData[i]];
         }
+    }
+
+    public static void pabToPmi(Mat pab, Mat pmi) {
+        Mat rowSum = new Mat(); // will be a single column
+        Mat colSum = new Mat(); // will be a single row
+        Core.reduce(pab, rowSum, 1, Core.REDUCE_SUM);
+        Core.reduce(pab, colSum, 0, Core.REDUCE_SUM);
+
+        Mat prod = new Mat(rowSum.rows(), colSum.cols(), rowSum.type());
+        Mat tmp = new Mat();
+        Core.gemm(rowSum, colSum, 1, tmp, 0, prod);
+
+        // adding small constant to prevenet division by 0
+        Core.add(prod, new Scalar(Float.MIN_NORMAL), prod);
+        Core.divide(pab, prod, pmi);
+
+        tmp.release();
+        rowSum.release();
+        colSum.release();
+        prod.release();
     }
 }
 
