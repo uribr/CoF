@@ -15,7 +15,7 @@
         android:layout_marginTop="2dp"
         android:layout_weight="1"
         android:checked="false"
-        android:onClick="onScribbleOn"
+        android:onClick="onScribbleSwitch"
         android:splitTrack="false"
         android:text="@string/Scribble"
         android:textIsSelectable="false"

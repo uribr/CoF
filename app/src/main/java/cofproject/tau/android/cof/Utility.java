@@ -14,8 +14,12 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +46,7 @@ class Utility
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
     static final int DEFAULT_WINDOW_SIZE = 15;
-    static final float DEFAULT_SIGMA = 2 * (float)Math.sqrt(15) + 1;
+    static final float DEFAULT_SIGMA = 2 * (float)Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
     static final int FILTER_SETTINGS_REQUEST_CODE = 2;
     static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
@@ -58,7 +62,15 @@ class Utility
     static final String PRESET_NAME = "preset name";
     static SharedPreferences currentPresetFile;
     static SharedPreferences defaultPresetFile;
-    private static final String TAG = "Utility";
+    static final String TAG = "Utility";
+    static final int SCRIBBLE_THRESHOLD_MAX_VAL = 255;
+    static final int SCRIBBLE_THRESHOLD_INIT_VAL = SCRIBBLE_THRESHOLD_MAX_VAL / 2;
+    static final Size SCRIBBLE_DILATION_WINDOW_SIZE = new Size(7,7);
+    static final int SCRIBBLE_DILATION_ITERATIONS_DEFAULT = 3;
+    static final Scalar ZERO_SCALAR = new Scalar(0);
+
+
+
 
     /**
      * Determines if the name chosen for a preset is at least one
@@ -360,5 +372,29 @@ class Utility
         alertDialog.setTitle(title);
         alertDialog.setMessage(msgID);
         return alertDialog;
+    }
+
+
+    @SafeVarargs
+    static void releaseMats(List<Mat>... matLsts) {
+        for (List<Mat> lst : matLsts) {
+            releaseMats(lst);
+        }
+    }
+
+    private static void releaseMats(List<Mat> lst){
+        for (Mat m : lst) {
+            if (m != null) {
+                m.release();
+            }
+        }
+    }
+
+    static void releaseMats(Mat... lst){
+        for (Mat m : lst) {
+            if (m != null) {
+                m.release();
+            }
+        }
     }
 }

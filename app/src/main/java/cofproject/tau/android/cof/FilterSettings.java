@@ -500,7 +500,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
                             break;
                         case WINDOW_SIZE:
                             mFilteringParametersFragment.setWindowSize(newVal);
-                            mFilteringParametersFragment.setSigma(2 * Math.sqrt(newVal + 1));
+                            mFilteringParametersFragment.setSigma(2 * Math.sqrt(newVal) + 1);
                             break;
                     }
                     // Once the values loaded from the preset have been changed, we display
