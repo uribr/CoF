@@ -52,10 +52,10 @@ import static cofproject.tau.android.cof.Utility.mapSeekbarToSigma;
 import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
 import static cofproject.tau.android.cof.Utility.updatePreset;
 
-public class FilterSettings extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
+public class FilterSettingsActivity extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
 
-    private static final String TAG = "FilterSettings";
+    private static final String TAG = "FilterSettingsActivity";
 
     private SharedPreferences mPresetPref;
     private Preset mPreset;
@@ -104,7 +104,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         }
         setContentView(R.layout.activity_photo_filtering);
         // Create filtering related buttons fragment and
-        transaction.add(R.id.filtering_activity_button_container, new InFilterButtonsFragment());
+        transaction.add(R.id.filtering_activity_button_container, new FilterSettingsButtonsFragment());
         transaction.add(R.id.main_view_container, mFilteringParametersFragment);
         transaction.commit();
 
@@ -223,9 +223,9 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
     }
 
 
-    public void onSaveButtonClick(View view)
+    public void onSavePresetClick(View view)
     {
-        Log.d(TAG, "onSaveButtonClick: entering");
+        Log.d(TAG, "onSavePresetClick: entering");
         // Based on code from: https://www.mkyong.com/android/android-prompt-user-input-dialog-example/
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
@@ -234,7 +234,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
         builder.setView(promptsView);
 
 
-        Log.d(TAG, "onSaveButtonClick: creating widgets");
+        Log.d(TAG, "onSavePresetClick: creating widgets");
         // Add a listener to the user input to check if the name is valid
         // and display an error to the user if it isn't valid.
         final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
@@ -262,7 +262,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             }
         });
 
-        Log.d(TAG, "onSaveButtonClick: adding buttons");
+        Log.d(TAG, "onSavePresetClick: adding buttons");
         // add a button
         builder.setPositiveButton(getString(R.string.save_text), new DialogInterface.OnClickListener()
         {
@@ -315,7 +315,7 @@ public class FilterSettings extends AppCompatActivity implements ParametersFragm
             }
         });
 
-        Log.d(TAG, "onSaveButtonClick: show dialog");
+        Log.d(TAG, "onSavePresetClick: show dialog");
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();

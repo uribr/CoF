@@ -36,8 +36,8 @@
 
             <ImageButton
                 android:id="@+id/img_btn_capture_photo"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
                 android:layout_gravity="center"
                 android:background="@null"
                 android:clickable="false"
@@ -53,7 +53,8 @@
                 android:background="@null"
                 android:clickable="false"
                 android:singleLine="true"
-                android:text="@string/capture_new_photo_button_text">
+                android:text="@string/capture_new_photo_button_text"
+                android:textSize="24sp">
             </TextView>
         </LinearLayout>
 
@@ -73,8 +74,8 @@
 
             <ImageButton
                 android:id="@+id/img_btn_browse_gallery"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
                 android:layout_gravity="center"
                 android:background="@null"
                 android:clickable="false"
@@ -90,7 +91,8 @@
                 android:background="@null"
                 android:clickable="false"
                 android:singleLine="true"
-                android:text="@string/browse_gallery_button_text">
+                android:text="@string/browse_gallery_button_text"
+                android:textSize="24sp">
             </TextView>
         </LinearLayout>
     </LinearLayout>
@@ -102,19 +104,35 @@
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
         android:orientation="vertical"
+        android:background="@android:drawable/btn_default"
+        android:onClick="startInfoActivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@+id/get_image_buttons_layout"
         app:layout_constraintRight_toRightOf="@+id/get_image_buttons_layout"
         app:layout_constraintTop_toBottomOf="@+id/get_image_buttons_layout">
 
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_menu_help"
+            android:layout_gravity="center"/>
 
-        <Button
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:drawableTop="@drawable/ic_menu_help"
-            android:text="@string/about_button_text"
-            android:onClick="startInfoActivity"/>
+            android:text="About"
+            android:textSize="24sp"
+            android:gravity="center"/>
+
+
+        <!--<Button-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:drawableTop="@drawable/ic_menu_help"-->
+            <!--android:onClick="startInfoActivity"-->
+            <!--android:text="@string/about_button_text"-->
+            <!--android:textSize="24sp"/>-->
     </LinearLayout>
 
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/savePresetPromptMsgView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/SavePresetPromptMsg"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="24sp"/>
+
+    <EditText
+        android:id="@+id/savePresetPromptUserInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <requestFocus/>
+
+    </EditText>
+
+    <CheckBox
+        android:id="@+id/relativePresetCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/RelativeCheckBoxTxt"
+        android:textSize="18sp"/>
+
+    <CheckBox
+        android:id="@+id/SetAsDefaultCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/SetAsDefaultCheckBoxTxt"
+        android:textSize="18sp"/>
+
+</LinearLayout>

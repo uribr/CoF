@@ -31,6 +31,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private DottedView mOverlayView;
     private Bitmap mBitmap;
     private View mView;
+    private boolean mFirstLoading;
 
     @Override
     public boolean onTouch(View v, MotionEvent event)
@@ -43,6 +44,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         //mScribbleState = false;
     }
 
@@ -50,6 +52,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     public void onResume()
     {
         super.onResume();
+        mFirstLoading = true;
         if (mBitmap != null)
         {
             setAndResizeImageView();
@@ -68,43 +71,44 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private void setAndResizeImageView()
     {
         // set image in imageview
-        mImageView.setImageBitmap(Utility.getResizedBitmap(mBitmap, 500));
+        mImageView.setImageBitmap(mBitmap);
+        // resize image only in the initial loading
+        if (mFirstLoading) {
 
-        // tighten the ImageView around the image when possible
-        mImageView.post(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                final int actualHeight, actualWidth;
-                final int fragmentHeight = mView.getHeight();
-                final int fragmentWidth = mView.getWidth();
-                final int imageViewHeight = mImageView.getHeight();
-                final int imageViewWidth = mImageView.getWidth();
-                final int bitmapHeight = mBitmap.getHeight();
-                final int bitmapWidth = mBitmap.getWidth();
-                final float density = getContext().getResources().getDisplayMetrics().density;
-                if (imageViewHeight * bitmapWidth <= imageViewWidth * bitmapHeight)
-                {
-                    actualWidth = bitmapWidth * imageViewHeight / bitmapHeight;
-                    actualHeight = imageViewHeight;
+            mFirstLoading = false;
+            // tighten the ImageView around the image when possible
+            mImageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    final int actualHeight, actualWidth;
+//                final int fragmentHeight = mView.getHeight();
+//                final int fragmentWidth = mView.getWidth();
+                    final int imageViewHeight = mImageView.getHeight();
+                    final int imageViewWidth = mImageView.getWidth();
+                    final int bitmapHeight = mBitmap.getHeight();
+                    final int bitmapWidth = mBitmap.getWidth();
+                    //final float density = getContext().getResources().getDisplayMetrics().density;
+                    if (imageViewHeight * bitmapWidth <= imageViewWidth * bitmapHeight) {
+                        actualWidth = bitmapWidth * imageViewHeight / bitmapHeight;
+                        actualHeight = imageViewHeight;
+                    } else {
+                        actualHeight = bitmapHeight * imageViewWidth / bitmapWidth;
+                        actualWidth = imageViewWidth;
+                    }
+
+                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(actualWidth, actualHeight);
+//                int horizontalMargin = ((int)(density * (fragmentWidth - actualWidth) / 2));
+//                int verticalMargin = ((int)(density * (fragmentHeight - actualHeight) / 2));
+//                params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+                    mImageView.setLayoutParams(params);
+                    mImageView.setForegroundGravity(Gravity.CENTER);
+
+
                 }
-                else
-                {
-                    actualHeight = bitmapHeight * imageViewWidth / bitmapWidth;
-                    actualWidth = imageViewWidth;
-                }
+            });
 
-                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(actualWidth, actualHeight);
-                int horizontalMargin = ((int)(density * (fragmentWidth - actualWidth) / 2));
-                int verticalMargin = ((int)(density * (fragmentHeight - actualHeight) / 2));
-                params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
-                mImageView.setLayoutParams(params);
-                mImageView.setForegroundGravity(Gravity.CENTER);
+        }
 
-
-            }
-        });
 
     }
 

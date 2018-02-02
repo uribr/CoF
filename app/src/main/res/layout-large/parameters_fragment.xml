@@ -22,13 +22,13 @@
         android:orientation="horizontal">
 
         <android.support.v7.widget.AppCompatTextView
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
             android:text="@string/preset"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
         <android.support.v7.widget.AppCompatTextView
@@ -39,7 +39,7 @@
             android:gravity="center"
             android:text="@string/default_preset_name"
             android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:theme="@android:style/Theme.Material"/>
 
     </LinearLayout>
@@ -64,13 +64,13 @@
         android:orientation="horizontal">
 
         <android.support.v7.widget.AppCompatTextView
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
             android:text="@string/quantization_level"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
         <android.support.v7.widget.AppCompatTextView
@@ -81,7 +81,7 @@
             android:gravity="center"
             android:text="@string/_32"
             android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"/>
+            android:textSize="26sp"/>
 
     </LinearLayout>
 
@@ -106,13 +106,13 @@
         android:textColor="@color/colorAccent">
 
         <android.support.v7.widget.AppCompatTextView
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
             android:text="@string/window_size"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
         <android.support.v7.widget.AppCompatTextView
@@ -123,7 +123,7 @@
             android:gravity="center"
             android:text="@string/_16"
             android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"/>
+            android:textSize="26sp"/>
 
     </LinearLayout>
 
@@ -149,13 +149,13 @@
         android:textColor="@color/colorAccent">
 
         <android.support.v7.widget.AppCompatTextView
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
             android:text="@string/spatial_u03c3"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
         <android.support.v7.widget.AppCompatTextView
@@ -166,7 +166,7 @@
             android:gravity="center"
             android:text="@string/_1"
             android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"/>
+            android:textSize="26sp"/>
 
     </LinearLayout>
 
@@ -191,13 +191,13 @@
         android:orientation="horizontal">
 
         <android.support.v7.widget.AppCompatTextView
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:gravity="center"
             android:text="@string/number_of_iterations"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
         <android.support.v7.widget.AppCompatTextView
@@ -208,7 +208,7 @@
             android:gravity="center"
             android:text="@string/_1"
             android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"/>
+            android:textSize="26sp"/>
 
     </LinearLayout>
 

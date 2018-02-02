@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -169,7 +167,7 @@ public class MainActivity extends AppCompatActivity
     {
         String tmpStr;
 
-        Intent intent = new Intent(this, PhotoFiltering.class);
+        Intent intent = new Intent(this, PhotoFilteringActivity.class);
         intent.putExtra(getString(R.string.Capture), fromCamera);
         tmpStr = getString(R.string.ScribbleTutorial);
         intent.putExtra(tmpStr, mSharedPreferences.getBoolean(tmpStr, true));

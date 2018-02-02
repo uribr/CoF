@@ -8,12 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class InFilterButtonsFragment extends Fragment
+public class FilterSettingsButtonsFragment extends Fragment
 {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.in_filtering_button_fragment, container, false);
+        View view = inflater.inflate(R.layout.filter_settings_buttons_fragment, container, false);
         return view;
     }
 }

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="visible"
-    tools:context="cofproject.tau.android.cof.PhotoFiltering">
+    tools:context="cofproject.tau.android.cof.PhotoFilteringActivity">
 
     <LinearLayout
         android:id="@+id/containerer"

@@ -41,7 +41,7 @@ class Utility
     static final int MAX_ITERATIONS = 10;
 
     static final String RELATIVE_WINDOW_SIZE = "relative window size";
-    static final int MAX_QUANTIZATION_LEVEL = 255;
+    static final int MAX_QUANTIZATION_LEVEL = 256;
     static final int MIN_QUANTIZATION_LEVEL = 2;
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;

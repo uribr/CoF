@@ -34,16 +34,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PhotoFiltering"
+            android:name=".PhotoFilteringActivity"
             android:label="@string/title_activity_filter_photo"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity">
         </activity>
         <activity
-            android:name=".FilterSettings"
+            android:name=".FilterSettingsActivity"
             android:label="@string/filtersetting_label"
             android:launchMode="singleTask"
-            android:parentActivityName=".PhotoFiltering">
+            android:parentActivityName=".PhotoFilteringActivity">
         </activity>
 
         <provider
