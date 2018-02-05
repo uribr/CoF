@@ -11,9 +11,10 @@
         android:id="@+id/get_image_buttons_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,59 +23,73 @@
             android:id="@+id/capture_photo_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="64dp"
+            android:layout_margin="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="@android:drawable/btn_default"
+            android:backgroundTintMode="src_in"
             android:onClick="onCameraButtonClick"
             android:orientation="vertical"
-            android:weightSum="1"
+            android:layout_weight="0.5"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
                 android:id="@+id/img_btn_capture_photo"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
                 android:layout_gravity="center"
                 android:background="@null"
+                android:clickable="false"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_menu_camera">
             </ImageButton>
 
+            <TextView
+                android:id="@+id/capture_photo_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:clickable="false"
+                android:singleLine="true"
+                android:text="@string/capture_new_photo_button_text">
+            </TextView>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/browse_gallery_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="64dp"
+            android:layout_margin="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
             android:background="@android:drawable/btn_default"
             android:onClick="onGalleryButtonClick"
             android:orientation="vertical"
-            android:weightSum="1"
+            android:layout_weight="0.5"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
                 android:id="@+id/img_btn_browse_gallery"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
                 android:layout_gravity="center"
                 android:background="@null"
+                android:clickable="false"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_gallery"
-                android:onClick="onGalleryButtonClick">
+                android:src="@drawable/ic_menu_gallery">
             </ImageButton>
 
             <TextView
+                android:id="@+id/browse_gallery_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:background="@null"
                 android:clickable="false"
+                android:singleLine="true"
                 android:text="@string/browse_gallery_button_text">
             </TextView>
         </LinearLayout>
@@ -86,7 +101,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
-        android:layout_marginTop="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@+id/get_image_buttons_layout"
@@ -94,13 +108,13 @@
         app:layout_constraintTop_toBottomOf="@+id/get_image_buttons_layout">
 
 
-
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:drawableTop="@drawable/ic_menu_help"
-            android:text="@string/about_button_text"/>
+            android:text="@string/about_button_text"
+            android:onClick="startInfoActivity"/>
     </LinearLayout>
 
 

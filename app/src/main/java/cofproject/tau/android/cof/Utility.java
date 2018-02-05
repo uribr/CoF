@@ -34,7 +34,7 @@ import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 
 class Utility
 {
-    static final int MAX_PRESET_NAME_LENGTH = 21;
+    private static final int MAX_PRESET_NAME_LENGTH = 21;
     static final int SIGMA_SEEKBAR_LENGTH = 100;
     static final float MAX_SIGMA = 100;
     static final float ZERO_SIGMA = ((float) 0.001);
@@ -52,14 +52,23 @@ class Utility
     static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     static final String HAS_PRESET = "has preset";
-    static final String WINDOW_SIZE = "window_size";
-    static final String SIGMA = "sigma";
+
+    private static final String PRESET_NAME = "preset name";
+    // general
+    static final String QUANTIZATION = "quantization";
+    //CoF
+    static final String STAT_WINDOW_SIZE = "stat_window_size";
+    static final String STAT_SIGMA = "stat_sigma";
+    //static final String FILT_WINDOW_SIZE = "filt_window_size";
+    //static final String FILT_SIGMA = "filt_sigma";
+    static final String ITERATIONS = "iterations";
+    //FB-CoF
+    //static final String FILT_WINDOW_SIZE_FB = "filt_window_size_fb";
+    //static final String ITERATIONS_FB = "iterations_fb";
+
     static final String LANDSCAPE = "landscape";
     static final String IS_RELATIVE = "is relative";
-    static final String ITERATIONS = "iterations";
-    static final String QUANTIZATION = "quantization";
     static final String IMG_SIZE = "image size";
-    static final String PRESET_NAME = "preset name";
     static SharedPreferences currentPresetFile;
     static SharedPreferences defaultPresetFile;
     static final String TAG = "Utility";
@@ -108,8 +117,8 @@ class Utility
     {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PRESET_NAME, preset.getName());
-        editor.putFloat(SIGMA, preset.getSigma().floatValue());
-        editor.putInt(WINDOW_SIZE, preset.getWindowSize(imgSize));
+        editor.putFloat(STAT_SIGMA, preset.getStatSigma().floatValue());
+        editor.putInt(STAT_WINDOW_SIZE, preset.getWindowSize(imgSize));
         editor.putInt(ITERATIONS, preset.getNumberOfIteration());
         editor.putInt(QUANTIZATION, preset.getQuantization());
         editor.putBoolean(IS_RELATIVE, preset.isRelative());
@@ -125,9 +134,9 @@ class Utility
     static Preset loadPreset(SharedPreferences prefs)
     {
         return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
-                prefs.getFloat(SIGMA, DEFAULT_SIGMA),
+                prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
                 prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
-                prefs.getInt(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+                prefs.getInt(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
                 prefs.getBoolean(IS_RELATIVE, false),
                 prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
     }
@@ -163,7 +172,7 @@ class Utility
 //            // No default preset found, generating an hardcoded default preset
 //            mPreset = Preset.createPreset(mImgSize);
 //            storePreset(mPreset);
-//            if (mImgSize < mPreset.getWindowSize())
+//            if (mImgSize < mPreset.getStatWindowSize())
 //            {
 //                mPreset = Preset.createPreset(mImgSize);
 //                Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
@@ -184,14 +193,14 @@ class Utility
 //    {
 //        intent.putExtra(PRESET_NAME, preset.getName());
 //        intent.putExtra(HAS_PRESET ,new JSONObject(preset.presetToMap()).toString());
-////        intent.putExtra(SIGMA, preset.getSigma());
+////        intent.putExtra(STAT_SIGMA, preset.getStatSigma());
 ////        if (preset.isRelative())
 ////        {
-////            intent.putExtra(WINDOW_SIZE, preset.getWindowSize(imgSize));
+////            intent.putExtra(STAT_WINDOW_SIZE, preset.getStatWindowSize(imgSize));
 ////        }
 ////        else
 ////        {
-////            intent.putExtra(WINDOW_SIZE, preset.getWindowSize());
+////            intent.putExtra(STAT_WINDOW_SIZE, preset.getStatWindowSize());
 ////        }
 ////        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
 ////        intent.putExtra(QUANTIZATION, preset.getQuantization());
@@ -250,8 +259,8 @@ class Utility
 //        }
 //        return new Preset(intent.getStringExtra(PRESET_NAME), map);
 ////                Preset(intent.getStringExtra(PRESET_NAME),
-////                intent.getDoubleExtra(SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
-////                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+////                intent.getDoubleExtra(STAT_SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
+////                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
 ////                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
 ////                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
 //    }

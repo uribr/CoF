@@ -23,11 +23,6 @@ public class DottedView extends View {
     private float mX, mY;
 
 
-//    public DottedView(Context context) {
-//        super(context);
-//        init();
-//    }
-
     public DottedView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         //init();
@@ -42,10 +37,11 @@ public class DottedView extends View {
         mScribbleState = false;
     }
 
-//    public DottedView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//        init();
-//    }
+    public void drawPath(Path path) {
+        mPath = path;
+        invalidate();
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -65,18 +61,6 @@ public class DottedView extends View {
     public void setScribbleState(boolean scribbleState) {
         mScribbleState = scribbleState;
     }
-
-//    private void init() {
-//        mPaint = new Paint();
-//        mPaint.setAntiAlias(true);
-//        mPaint.setColor(Color.BLUE);
-//        mPaint.setStyle(Paint.Style.STROKE);
-//        mPaint.setStrokeJoin(Paint.Join.ROUND);
-//        mPaint.setStrokeWidth(PAINT_STROKE_WIDTH);
-//
-//        mPath = new Path();
-//        mScribbleState = false;
-//    }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override

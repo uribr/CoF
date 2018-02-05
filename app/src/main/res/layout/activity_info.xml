@@ -18,7 +18,7 @@
                 android:id="@+id/infoTextView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/activity_info_text_size"/>
 
         </LinearLayout>
     </ScrollView>

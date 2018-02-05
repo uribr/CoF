@@ -3,64 +3,99 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/pre_filtering_buttons_height"
               android:orientation="horizontal">
 
-    <Switch
+    <!--<Switch-->
+        <!--android:id="@+id/scribble_switch"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_margin="2dp"-->
+        <!--android:layout_marginBottom="2dp"-->
+        <!--android:layout_marginTop="2dp"-->
+        <!--android:layout_weight="1"-->
+        <!--android:switchMinWidth="@dimen/pre_filtering_switch_min_width"-->
+        <!--android:onClick="onScribbleSwitch"-->
+        <!--android:splitTrack="false"-->
+        <!--android:text="@string/Scribble"-->
+        <!--android:textIsSelectable="false"-->
+        <!--android:textSize="@dimen/pre_filtering_text_size"-->
+        <!--android:thumbTint="@android:color/darker_gray"-->
+        <!--android:trackTint="@android:color/holo_blue_light"-->
+        <!--android:visibility="visible"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent"/>-->
+
+    <android.support.v7.widget.SwitchCompat
         android:id="@+id/scribble_switch"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="2dp"
         android:layout_marginBottom="2dp"
         android:layout_marginTop="2dp"
         android:layout_weight="1"
-        android:checked="false"
+        android:switchMinWidth="@dimen/pre_filtering_switch_min_width"
         android:onClick="onScribbleSwitch"
         android:splitTrack="false"
         android:text="@string/Scribble"
         android:textIsSelectable="false"
-        android:textSize="12sp"
-        android:thumbTint="@android:color/darker_gray"
-        android:trackTint="@android:color/holo_blue_light"
+        android:textSize="@dimen/pre_filtering_text_size"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:checked="true"/>
+        app:layout_constraintTop_toTopOf="parent"/>
+    <!--android:thumbTint="@android:color/darker_gray"-->
+    <!--android:trackTint="@android:color/holo_blue_light"-->
 
-    <Button
-        android:id="@+id/apply_filter_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:onClick="onApplyFilterClick"
-        android:text="@string/apply_filter_text"
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        android:visibility="visible"/>
 
-    <ImageButton
-        android:id="@+id/change_parameters_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:onClick="onFilterSettingsClick"
-        android:text="@string/parameters_input"
-        android:textAllCaps="false"
-        android:textSize="12sp"
-        android:visibility="visible"
-        app:srcCompat="@android:drawable/ic_menu_manage"/>
 
-    <ImageButton
-        android:id="@+id/help_btn"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:onClick="onHelpClick"
-        android:text="@string/help_button_text"
-        android:textAllCaps="false"
-        app:srcCompat="@android:drawable/ic_menu_help"/>
+        android:background="@android:drawable/btn_default"
+        android:onClick="onApplyFilterClick">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Apply"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textSize="@dimen/pre_filtering_text_size"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:onClick="onFilterSettingsClick">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_manage"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:onClick="onHelpClick">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_help"/>
+
+    </LinearLayout>
 
 
 </LinearLayout>

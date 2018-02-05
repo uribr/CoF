@@ -43,16 +43,18 @@
 
 
     <string name="title_activity_filter_preferences">Settings</string>
-    <string name="quantization_level">Quantization Level</string>
+    <string name="quantization_levels">Quantization Levels</string>
     <string name="select_a_preset">Select a preset</string>
     <string name="select_spatial_u03c3_value">Select spatial σ value:</string>
     <string name="load_preset">Load Preset</string>
-    <string name="preset">Preset</string>
+    <string name="preset">Preset Name</string>
     <string name="default_preset_name">Default</string>
     <string name="_32">32</string>
-    <string name="window_size">Window Size</string>
+    <string name="stats_window_size">Statistics Collection Window Size</string>
+    <string name="filtering_window_size">Filtering Window Size</string>
     <string name="_16">16</string>
-    <string name="spatial_u03c3">Spatial σ</string>
+    <string name="statistics_collection_sigma">Statistics Collection σ</string>
+    <string name="filtering_sigma">Filtering σ</string>
     <string name="number_of_iterations">Number of iterations</string>
     <string name="_1">1</string>
     <string name="filtersetting_label">Settings</string>

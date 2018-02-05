@@ -42,7 +42,7 @@ import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.SIGMA_SEEKBAR_LENGTH;
 import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
-import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utility.convertJSONString2Map;
 import static cofproject.tau.android.cof.Utility.defaultPresetFile;
 import static cofproject.tau.android.cof.Utility.isNameValid;
@@ -75,6 +75,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setTitle("Settings");
         Log.d(TAG, "onCreate: entering");
         mIsADialogOpen = false;
         mPresets = new ArrayList<>();
@@ -328,7 +329,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
 
     @SuppressLint("ApplySharedPref")
-    public void onDelteButtonPreset(View view)
+    public void onDeleteButtonPreset(View view)
     {
         Log.i(TAG, "onDelteButtonPress: onClick event");
         // Default preset cannot be deleted but it can be overridden.
@@ -388,7 +389,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                 case R.id.window_size_layout:
                     Log.d(TAG, "onSettingClick: window size layout");
                     showNumberPickerDialog("Choose window size", mImgSize,
-                            mFilteringParametersFragment.getWindowSize(), WINDOW_SIZE);
+                            mFilteringParametersFragment.getWindowSize(), STAT_WINDOW_SIZE);
                     break;
                 default:
                     Log.d(TAG, "onSettingClick: no button chosen");
@@ -413,7 +414,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         Log.d(TAG, "showPresetSpinnerDialog: populating the spinner");
         List<String> array = new ArrayList<>(loadPresetsNameList());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, array);
         spinnerReselect.setAdapter(adapter);
 
         Log.d(TAG, "showPresetSpinnerDialog: adding buttons");
@@ -498,7 +499,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                         case ITERATIONS:
                             mFilteringParametersFragment.setIterationCount(newVal);
                             break;
-                        case WINDOW_SIZE:
+                        case STAT_WINDOW_SIZE:
                             mFilteringParametersFragment.setWindowSize(newVal);
                             mFilteringParametersFragment.setSigma(2 * Math.sqrt(newVal) + 1);
                             break;

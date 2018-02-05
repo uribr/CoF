@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
@@ -21,6 +22,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
@@ -46,7 +48,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
@@ -83,7 +87,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
     private Uri mURI;
     private boolean mIsFiltered;
     private boolean mIsShared;
-    private Switch mScribbleSwitch;
+    private SwitchCompat mScribbleSwitch;
 
     private int mScribbleThreshold;
     private Mat mImToFilter;
@@ -173,6 +177,25 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_photo_filtering);
+        // todo - handle code dup
+        if (mIsFiltered) {
+            mFilteredImageViewFragment = new ImageViewFragment();
+            PostFilteringButtonsFragment fragment = new PostFilteringButtonsFragment();
+            getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, fragment).commit();
+            getFragmentManager().beginTransaction().add(R.id.main_view_container, mFilteredImageViewFragment).commit();
+            mFilteredImageViewFragment.setImage(mFilteredBitmap);
+        } else {
+            mOriginalImageViewFragment = new ImageViewFragment();
+            mPreFilterButtonFragment = new PreFilteringButtonsFragment();
+            getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, mPreFilterButtonFragment).commit();
+            getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
+            mOriginalImageViewFragment.setImage(mOriginalBitmap);
+        }
+    }
 
     @Override
     public void configSeekBar(SeekBar seekBar) {
@@ -259,7 +282,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         if (mURI != null) {
                             // storePreset image
                             mOriginalBitmap = Utility.getBitmap(this, mURI);
-
+//
 //                            List<Mat> mats = new ArrayList<>(4);
 //                            int[] colors = new int[]{50,100,150,200};
 //                            for(int i = 0; i < 4; i++) {
@@ -433,9 +456,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                     //todo - split parameters extraction according to filtering mode
                     // extract parmeters from params
                     int iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-                    double sigma = mPreset != null ? mPreset.getSigma() : Utility.DEFAULT_SIGMA;
+                    double sigma = mPreset != null ? mPreset.getStatSigma() : Utility.DEFAULT_SIGMA;
                     int nBins = mPreset != null ? mPreset.getQuantization() : Utility.DEFAULT_QUNTIZATION_LEVEL;
-                    int winSize = mPreset != null ? mPreset.getWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
+                    int winSize = mPreset != null ? mPreset.getStatWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
 
                     if (winSize % 2 == 0) {
                         winSize--;
@@ -477,7 +500,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         sw.reset();
                         sw.start();
                         for (int i = 0; i < 3; i++) {
-                            //CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPmi, bgPmi, winSize);
+                            //CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPmi, bgPmi, 15);
                             CoF.coFilter(cpy, mImToCollect, mFilteredImage, fgPmi, 15, 2 * Math.sqrt(15) + 1);
                             mFilteredImage.copyTo(cpy);
                             System.gc();
@@ -585,7 +608,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
             transaction.addToBackStack(strToBackStack);
             transaction.commit();
-
             mProgressDialog.dismiss();
         }
 

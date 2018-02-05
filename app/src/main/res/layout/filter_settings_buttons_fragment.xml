@@ -2,31 +2,69 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/filter_settings_buttons_height"
               android:orientation="horizontal">
-
-    <ImageButton
-        android:id="@+id/deletePreset"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:onClick="onDelteButtonPreset"
-        app:srcCompat="@android:drawable/ic_menu_delete"/>
+        android:background="@android:drawable/btn_default"
+        android:onClick="onDeleteButtonPreset">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_menu_delete"/>
+    </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/save_preset_btn"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:onClick="onSavePresetClick"
-        app:srcCompat="@android:drawable/ic_menu_save"/>
+        android:background="@android:drawable/btn_default"
+        android:onClick="onSavePresetClick">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_menu_save"/>
+    </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/help_btn"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:onClick="onHelpClick"
-        app:srcCompat="@android:drawable/ic_menu_help"/>
+        android:background="@android:drawable/btn_default"
+        android:onClick="onHelpClick">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_menu_help"/>
+    </LinearLayout>
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/deletePreset"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:onClionDeleteButtonPreseteset"-->
+    <!--app:srcCompat="@android:drawable/ic_menu_delete"/>-->
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/save_preset_btn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:onClipnSavePresetClicklick"-->
+    <!--app:srcCompat="@android:drawable/ic_menu_save"/>-->
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/help_btn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_weight="1"-->
+    <!--android:onClick="onHelpClick"-->
+    <!--app:srcCompat="@android:drawable/ic_menu_help"/>-->
 
 </LinearLayout>

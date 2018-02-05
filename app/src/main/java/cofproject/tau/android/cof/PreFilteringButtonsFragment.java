@@ -2,6 +2,7 @@ package cofproject.tau.android.cof;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class PreFilteringButtonsFragment extends Fragment
 
     public boolean isScribbleOn()
     {
-        return ((Switch) mView.findViewById(R.id.scribble_switch)).isChecked();
+        return ((SwitchCompat) mView.findViewById(R.id.scribble_switch)).isChecked();
     }
 
 }

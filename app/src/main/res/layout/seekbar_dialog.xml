@@ -24,7 +24,7 @@
         android:layout_weight="2"
         android:gravity="center"
         android:textColor="@android:color/darker_gray"
-        android:textSize="16sp"
+        android:textSize="@dimen/seekbar_dialog_text_size"
         android:layout_width="0dp"/>
 
 

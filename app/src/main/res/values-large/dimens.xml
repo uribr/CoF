@@ -1,0 +1,49 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!--activity_main-->
+    <dimen name="box_size">180dp</dimen>
+    <dimen name="activity_main_text_size">24sp</dimen>
+    <dimen name="activity_main_icon_size">50dp</dimen>
+
+    <!--activity_info-->
+    <dimen name="activity_info_text_size">28sp</dimen>
+
+    <!--result_buttons_fragment-->
+    <dimen name="result_buttons_fragment_height">80dp</dimen>
+
+    <!--scribble_mask_threshold_fragment-->
+    <dimen name="scribble_mask_threshold_fragment_header_size">26sp</dimen>
+    <dimen name="scribble_mask_threshold_fragment_btn_text_size">20sp</dimen>
+    <dimen name="scribble_mask_threshold_fragment_btn_layout_margin">4dp</dimen>
+    <dimen name="scribble_mask_threshold_fragment_btn_layout_height">80dp</dimen>
+
+    <!--parameters_fragment-->
+    <dimen name="preference_height">100dp</dimen>
+    <dimen name="preference_text_width">250dp</dimen>
+    <dimen name="preference_text_size">26sp</dimen>
+    <dimen name="preference_header_margin">8dp</dimen>
+
+    <!--filter_settings_buttons_fragment-->
+    <dimen name="filter_settings_buttons_height">80dp</dimen>
+
+    <!--pre_filtering_buttons_fragment-->
+    <dimen name="pre_filtering_buttons_height">80dp</dimen>
+    <dimen name="pre_filtering_text_size">24sp</dimen>
+    <dimen name="pre_filtering_switch_min_width">70dp</dimen>
+
+    <!--prompt-->
+    <dimen name="prompt_header_text_size">24sp</dimen>
+    <dimen name="prompt_checkbox_text_size">18sp</dimen>
+
+    <!--seekbar_dialog-->
+    <dimen name="seekbar_dialog_text_size">20sp</dimen>
+
+    <!--spinner_item-->
+    <dimen name="spinner_item_text_size">30sp</dimen>
+</resources>

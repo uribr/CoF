@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:text="Scribble mask threshold"
         android:textAlignment="center"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/scribble_mask_threshold_fragment_header_size"/>
 
     <SeekBar
         android:id="@+id/scribble_threshold_seekbar"
@@ -22,32 +22,32 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/scribble_mask_threshold_fragment_btn_layout_height"
         android:orientation="horizontal">
         <!--android:gravity="center">-->
 
         <Button
             android:id="@+id/continue_scribble_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Continue"
             android:textAllCaps="false"
-            android:textSize="12sp"
+            android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
             android:visibility="visible"
             android:layout_weight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/scribble_mask_threshold_fragment_btn_layout_margin"
             android:onClick="onContinueScribbleClick"/>
 
         <Button
             android:id="@+id/cancel_scribble_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Cancel"
             android:textAllCaps="false"
-            android:textSize="12sp"
+            android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
             android:visibility="visible"
             android:layout_weight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/scribble_mask_threshold_fragment_btn_layout_margin"
             android:onClick="onCancelClick"/>
 
 

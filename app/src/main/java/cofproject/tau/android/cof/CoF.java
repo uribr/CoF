@@ -47,8 +47,8 @@ public class CoF {
 //        int nBins = Utility.DEFAULT_QUNTIZATION_LEVEL;
 //        if (params != null) {
 //            iterCnt = params.getNumberOfIteration();
-//            winSize = params.getWindowSize();
-//            sigma = params.getSigma();
+//            winSize = params.getStatWindowSize();
+//            sigma = params.getStatSigma();
 //            nBins = params.getQuantization();
 //        }
 //
@@ -619,14 +619,25 @@ public class CoF {
         Core.reduce(pab, rowSum, 1, Core.REDUCE_SUM);
         Core.reduce(pab, colSum, 0, Core.REDUCE_SUM);
 
-        Mat prod = new Mat(rowSum.rows(), colSum.cols(), rowSum.type());
+        Mat prod = new Mat(pab.size(), pab.type());
         Mat tmp = new Mat();
         Core.gemm(rowSum, colSum, 1, tmp, 0, prod);
 
-        // adding small constant to prevenet division by 0
+        // adding small constant to prevent division by 0
         Core.add(prod, new Scalar(Float.MIN_NORMAL), prod);
         Core.divide(pab, prod, pmi);
 
+        Mat pmiDiagonal = pmi.diag();
+        int nBins = pmi.rows();
+        float[] diag = new float[nBins];
+        pmiDiagonal.get(0,0,diag);
+        for(int i = 0; i < nBins; i++){
+            if (diag[i] == 0) {
+                pmi.put(i,i,1);
+            }
+        }
+
+        pmiDiagonal.release();
         tmp.release();
         rowSum.release();
         colSum.release();

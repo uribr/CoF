@@ -10,8 +10,8 @@ import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.RELATIVE_WINDOW_SIZE;
-import static cofproject.tau.android.cof.Utility.SIGMA;
-import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utility.STAT_SIGMA;
+import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
 
 /**
  * Created by Uri on 27/11/2017.
@@ -20,55 +20,81 @@ import static cofproject.tau.android.cof.Utility.WINDOW_SIZE;
 public class Preset
 {
     static final String DEFAULT_PRESET_NAME = "Default";
-    private static final int PARAMETER_LIMIT = 8;
-    private static final String DELIMITER = ",";
     private static final String TAG = "Preset";
+
     private String mName;
     private double mRelativeWindowSize;
-    private double mSigma;
-    private int mWindowSize;
-    private int mQuantizationLevels;
-    private int mNumberOfIteration;
     private boolean mRelative;
+    // general
+    private int mQuantizationLevels;
+    //CoF
+    private int mStatWindowSize;
+    private double mStatSigma;
+    //private int mFiltWindowSize;
+    //private double mFiltSigma;
 
-    Preset(String name, float sigma, int numberOfIteration, int windowSize, int imageSize, boolean relative, int quantization)
+    private int mNumberOfIteration;
+    //FB-CoF
+    //private int mFiltWindowSizeFB;
+    //private int mNumberOfIterationFB;
+
+
+    Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, int imageSize, boolean relative, int quantization)
     {
-        this.setRelativeWindowSize(windowSize, imageSize);
-        this.setSigma(sigma);
+        this.setRelativeWindowSize(statWindowSize, imageSize);
+        this.setSigma(statSigma);
         this.setNumberOfIteration(numberOfIteration);
         this.setQuantizationLevel(quantization);
-        this.setWindowSize(windowSize, imageSize);
+        this.setWindowSize(statWindowSize, imageSize);
         mName = name;
         mRelative = relative;
     }
 
-    Preset(String name, float sigma, int numberOfIteration, int windowSize, boolean relative, int quantization)
+    Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, boolean relative, int quantization)
     {
-        mSigma = sigma;
-        mNumberOfIteration = numberOfIteration;
-        mQuantizationLevels = quantization;
-        mWindowSize = windowSize;
         mName = name;
         mRelative = relative;
+        mQuantizationLevels = quantization;
+        mStatWindowSize = statWindowSize;
+        mStatSigma = statSigma;
+        mNumberOfIteration = numberOfIteration;
     }
+
+    //todo = uncomment
+//    public Preset(String name, boolean relative, int quantizationLevels, int statWindowSize, double statSigma, int filtWindowSize, double filtSigma, int numberOfIteration, int filtWindowSizeFB, int numberOfIterationFB) {
+//        mName = name;
+//        mRelative = relative;
+//        mQuantizationLevels = quantizationLevels;
+//        mStatWindowSize = statWindowSize;
+//        mStatSigma = statSigma;
+//        mFiltWindowSize = filtWindowSize;
+//        mFiltSigma = filtSigma;
+//        mNumberOfIteration = numberOfIteration;
+//        mFiltWindowSizeFB = filtWindowSizeFB;
+//        mNumberOfIterationFB = numberOfIterationFB;
+//    }
 
     Preset(String name, Map<String, String> map)
     {
-        mWindowSize = Integer.parseInt(map.get(WINDOW_SIZE));
-        mSigma = Double.parseDouble(map.get(SIGMA));
-        mNumberOfIteration = Integer.parseInt(map.get(ITERATIONS));
-        mQuantizationLevels = Integer.parseInt(map.get(QUANTIZATION));
+        mName = name;
         mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
         mRelativeWindowSize = Double.parseDouble(map.get(RELATIVE_WINDOW_SIZE));
-        mName = name;
+
+        mQuantizationLevels = Integer.parseInt(map.get(QUANTIZATION));
+        mStatWindowSize = Integer.parseInt(map.get(STAT_WINDOW_SIZE));
+        mStatSigma = Double.parseDouble(map.get(STAT_SIGMA));
+        mNumberOfIteration = Integer.parseInt(map.get(ITERATIONS));
+
+
+
     }
 
 //    Preset(String name, String params)
 //    {
 //        String[] paramsArr = params.split(DELIMITER, PARAMETER_LIMIT);
 //        mRelativeWindowSize = Double.parseDouble(paramsArr[0]);
-//        mWindowSize = Integer.parseInt(paramsArr[1]);
-//        mSigma = Double.parseDouble(paramsArr[2]);
+//        mStatWindowSize = Integer.parseInt(paramsArr[1]);
+//        mStatSigma = Double.parseDouble(paramsArr[2]);
 //        mNumberOfIteration = Integer.parseInt(paramsArr[3]);
 //        mQuantizationLevels = Integer.parseInt(paramsArr[4]);
 //        mRelative = Boolean.parseBoolean(paramsArr[5]);
@@ -84,9 +110,11 @@ public class Preset
 
     public boolean validate()
     {
-        return !(mWindowSize <= 0 || mWindowSize <= 0 || mSigma == 0
-                || mNumberOfIteration == 0 || mName.isEmpty()
-                || (mRelativeWindowSize == 0.0 && mRelative));
+        return !(mStatWindowSize <= 0 ||
+                mStatSigma == 0 ||
+                mNumberOfIteration == 0 ||
+                mName.isEmpty() ||
+                (mRelativeWindowSize == 0.0 && mRelative));
 
     }
 
@@ -105,7 +133,7 @@ public class Preset
         }
     }
 
-    public void setRelativeWindowSize(int windowSize, int imageSize)
+    private void setRelativeWindowSize(int windowSize, int imageSize)
     {
         if (windowSize <= imageSize && windowSize > 0)
         {
@@ -113,14 +141,14 @@ public class Preset
         }
     }
 
-    public Double getRelativeWindowSize()
+    private Double getRelativeWindowSize()
     {
         return mRelativeWindowSize;
     }
 
     public Integer getWindowSize(int size)
     {
-        if (mRelative || mWindowSize > size)
+        if (mRelative || mStatWindowSize > size)
         {
             int res = (int) (mRelativeWindowSize * (double) (size));
             if (res == 0)
@@ -135,43 +163,43 @@ public class Preset
         }
         else
         {
-            return mWindowSize;
+            return mStatWindowSize;
         }
     }
 
-    public Integer getWindowSize()
+    public Integer getStatWindowSize()
     {
-        return mWindowSize;
+        return mStatWindowSize;
     }
 
-    public void setWindowSize(int windowSize, int imgSize)
+    private void setWindowSize(int windowSize, int imgSize)
     {
         if (windowSize <= imgSize && windowSize > 0)
         {
-            mWindowSize = windowSize;
+            mStatWindowSize = windowSize;
         }
     }
 
-    public Double getSigma()
+    public Double getStatSigma()
     {
-        return mSigma;
+        return mStatSigma;
     }
 
-    public Integer getIntergerPartSigma()
-    {
-        return (int) Math.floor(mSigma);
-    }
+//    public Integer getIntergerPartSigma()
+//    {
+//        return (int) Math.floor(mStatSigma);
+//    }
+//
+//    public Integer getFractionalPartSigma()
+//    {
+//        return (int) ((mStatSigma - Math.floor(mStatSigma)) * 100);
+//    }
 
-    public Integer getFractionalPartSigma()
-    {
-        return (int) ((mSigma - Math.floor(mSigma)) * 100);
-    }
-
-    public boolean setSigma(double sigma)
+    private boolean setSigma(double sigma)
     {
         if (sigma <= MAX_SIGMA && sigma > 0)
         {
-            this.mSigma = sigma;
+            this.mStatSigma = sigma;
             return true;
         }
         return false;
@@ -182,7 +210,7 @@ public class Preset
         return mNumberOfIteration;
     }
 
-    public boolean setNumberOfIteration(int numberOfIteration)
+    private boolean setNumberOfIteration(int numberOfIteration)
     {
         if (numberOfIteration <= 10 && numberOfIteration > 0)
         {
@@ -197,7 +225,7 @@ public class Preset
         return mQuantizationLevels;
     }
 
-    public boolean setQuantizationLevel(int quantizationLevel)
+    private boolean setQuantizationLevel(int quantizationLevel)
     {
         if (quantizationLevel >= MIN_QUANTIZATION_LEVEL && quantizationLevel <= MAX_QUANTIZATION_LEVEL)
         {
@@ -223,9 +251,9 @@ public class Preset
 
         String sb = String.valueOf(mRelativeWindowSize) +
                 ',' +
-                mWindowSize +
+                mStatWindowSize +
                 ',' +
-                mSigma +
+                mStatSigma +
                 ',' +
                 mNumberOfIteration +
                 ',' +
@@ -239,8 +267,8 @@ public class Preset
     public Map<String, String> presetToMap()
     {
         Map<String, String> map = new HashMap<>();
-        map.put(WINDOW_SIZE, getWindowSize().toString());
-        map.put(SIGMA, getSigma().toString());
+        map.put(STAT_WINDOW_SIZE, getStatWindowSize().toString());
+        map.put(STAT_SIGMA, getStatSigma().toString());
         map.put(ITERATIONS, getNumberOfIteration().toString());
         map.put(QUANTIZATION, getQuantization().toString());
         map.put(RELATIVE_WINDOW_SIZE, getRelativeWindowSize().toString());

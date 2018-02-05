@@ -16,20 +16,20 @@ import java.io.InputStreamReader;
 public class InfoActivity extends AppCompatActivity {
 
     private static final String TAG = "InfoActivity";
-    private TextView mTextView;
     private StringBuilder mStringBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
+        setTitle("About");
 
         mStringBuilder = new StringBuilder();
         getInfoText();
 
-        mTextView = findViewById(R.id.infoTextView);
-        mTextView.setText(Html.fromHtml(mStringBuilder.toString()));
-        mTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        TextView textView = findViewById(R.id.infoTextView);
+        textView.setText(Html.fromHtml(mStringBuilder.toString()));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
 

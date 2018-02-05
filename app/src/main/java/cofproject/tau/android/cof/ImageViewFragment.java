@@ -1,24 +1,18 @@
 package cofproject.tau.android.cof;
 
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
-import java.util.List;
+import android.widget.LinearLayout;
 
 /**
  * Created by Uri on 31/10/2017.
@@ -72,6 +66,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     {
         // set image in imageview
         mImageView.setImageBitmap(mBitmap);
+
         // resize image only in the initial loading
         if (mFirstLoading) {
 
@@ -152,6 +147,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
      */
     public Path getScribblePath() {
         return mOverlayView.getPath();
+    }
+
+    public void drawPathOnView(Path path) {
+        mOverlayView.drawPath(path);
     }
 
     public ImageView getImageView()
