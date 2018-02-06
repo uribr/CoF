@@ -6,28 +6,6 @@
               android:layout_height="@dimen/pre_filtering_buttons_height"
               android:orientation="horizontal">
 
-    <!--<Switch-->
-        <!--android:id="@+id/scribble_switch"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_margin="2dp"-->
-        <!--android:layout_marginBottom="2dp"-->
-        <!--android:layout_marginTop="2dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:switchMinWidth="@dimen/pre_filtering_switch_min_width"-->
-        <!--android:onClick="onScribbleSwitch"-->
-        <!--android:splitTrack="false"-->
-        <!--android:text="@string/Scribble"-->
-        <!--android:textIsSelectable="false"-->
-        <!--android:textSize="@dimen/pre_filtering_text_size"-->
-        <!--android:thumbTint="@android:color/darker_gray"-->
-        <!--android:trackTint="@android:color/holo_blue_light"-->
-        <!--android:visibility="visible"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"/>-->
-
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/scribble_switch"
         android:layout_width="wrap_content"
@@ -47,10 +25,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-    <!--android:thumbTint="@android:color/darker_gray"-->
-    <!--android:trackTint="@android:color/holo_blue_light"-->
-
-
 
     <LinearLayout
         android:layout_width="wrap_content"

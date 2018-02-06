@@ -3,7 +3,7 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/result_buttons_fragment_height"
+              android:layout_height="@dimen/post_filtering_buttons_fragment_height"
               android:baselineAligned="false">
 
     <LinearLayout
@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
+        android:layout_marginStart="@dimen/post_filtering_btn_margin"
         android:onClick="onSaveResultClick">
         <ImageView
             android:layout_width="match_parent"
@@ -24,6 +25,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
+        android:layout_marginEnd="@dimen/post_filtering_btn_margin"
         android:onClick="onShareClick">
         <ImageView
             android:layout_width="match_parent"

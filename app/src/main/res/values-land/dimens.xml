@@ -1,0 +1,6 @@
+<resources>
+
+    <!--post_filtering_buttons_fragment-->
+    <dimen name="post_filtering_btn_margin">140dp</dimen>
+
+</resources>

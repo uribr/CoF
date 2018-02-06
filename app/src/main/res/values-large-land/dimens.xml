@@ -1,0 +1,17 @@
+<resources>
+
+
+    <!--pre_filtering_buttons_fragment-->
+    <dimen name="pre_filtering_buttons_height">60dp</dimen>
+
+
+    <dimen name="post_filtering_buttons_fragment_height">60dp</dimen>
+    <!--<dimen name="pre_filtering_text_size">24sp</dimen>-->
+    <!--<dimen name="pre_filtering_switch_min_width">70dp</dimen>-->
+
+    <dimen name="scribble_mask_threshold_fragment_header_size">18sp</dimen>
+
+    <!--post_filtering_buttons_fragment-->
+    <dimen name="post_filtering_btn_margin">140dp</dimen>
+
+</resources>

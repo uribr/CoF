@@ -29,10 +29,10 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".PhotoFilteringActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -40,11 +40,18 @@
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity">
         </activity>
+
         <activity
             android:name=".FilterSettingsActivity"
             android:label="@string/filtersetting_label"
             android:launchMode="singleTask"
             android:parentActivityName=".PhotoFilteringActivity">
+        </activity>
+
+        <activity
+            android:name=".InfoActivity"
+            android:label="About"
+            android:parentActivityName=".MainActivity">
         </activity>
 
         <provider
@@ -56,11 +63,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths"/>
         </provider>
-
-        <activity android:name=".InfoActivity">
-        </activity>
-        <activity android:name=".PreferencesActivity">
-        </activity>
     </application>
 
 </manifest>

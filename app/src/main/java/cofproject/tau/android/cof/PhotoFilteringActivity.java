@@ -500,8 +500,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         sw.reset();
                         sw.start();
                         for (int i = 0; i < 3; i++) {
-                            //CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPmi, bgPmi, 15);
-                            CoF.coFilter(cpy, mImToCollect, mFilteredImage, fgPmi, 15, 2 * Math.sqrt(15) + 1);
+                            CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPmi, bgPmi, 15);
+                            //CoF.coFilter(cpy, mImToCollect, mFilteredImage, fgPmi, 15, 2 * Math.sqrt(15) + 1);
                             mFilteredImage.copyTo(cpy);
                             System.gc();
                         }

@@ -123,16 +123,6 @@
             android:text="About"
             android:textSize="@dimen/activity_main_text_size"
             android:gravity="center"/>
-
-
-        <!--<Button-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:drawableTop="@drawable/ic_menu_help"-->
-        <!--android:onClick="startInfoActivity"-->
-        <!--android:text="@string/about_button_text"-->
-        <!--android:textSize="@dimen/activity_main_text_size"/>-->
     </LinearLayout>
 
 

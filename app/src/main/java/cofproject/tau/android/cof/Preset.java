@@ -13,10 +13,6 @@ import static cofproject.tau.android.cof.Utility.RELATIVE_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utility.STAT_SIGMA;
 import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
 
-/**
- * Created by Uri on 27/11/2017.
- */
-
 public class Preset
 {
     static final String DEFAULT_PRESET_NAME = "Default";
