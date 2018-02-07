@@ -77,6 +77,7 @@ public class ParametersFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        Log.d(TAG, "onCreateView: creating parameters fragment view");
         View view = inflater.inflate(R.layout.parameters_fragment, container, false);
         //mLayoutIds = Arrays.asList(R.id.current_deviation_value, R.id.current_iteration_value, R.id.current_preset_name, R.id.current_quantization_level, R.id.current_window_size);
         mCurrentPresetName = view.findViewById(R.id.current_preset_name);

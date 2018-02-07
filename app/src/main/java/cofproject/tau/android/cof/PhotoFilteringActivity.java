@@ -10,7 +10,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Path;
@@ -26,7 +25,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.common.base.Stopwatch;
@@ -48,14 +46,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static cofproject.tau.android.cof.ButtonsFragment.BUTTONS_FRAGMENT_KEY;
 import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
-import static cofproject.tau.android.cof.Utility.LANDSCAPE;
 import static cofproject.tau.android.cof.Utility.currentPresetFile;
 import static cofproject.tau.android.cof.Utility.defaultPresetFile;
 import static cofproject.tau.android.cof.Utility.loadCurrentPreset;
@@ -74,20 +70,22 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
     private static final int GALLERY_REQUEST_CODE = 1;
 
     private int mImgHeight, mImgWidth;
-    private boolean mIsLandscape;
+    //private boolean mIsLandscape;
     private boolean mSavedOnce;
     private Bitmap mOriginalBitmap;
     private Bitmap mFilteredBitmap;
-    private PreFilteringButtonsFragment mPreFilterButtonFragment;
-    private ImageViewFragment mOriginalImageViewFragment;
-    private ImageViewFragment mFilteredImageViewFragment;
-    private SharedPreferences mCurrentPreset;
-    private SharedPreferences mDefaultPreset;
+    //private PreFilteringButtonsFragment mPreFilterButtonFragment;
+    private ImageViewFragment mImageViewFragment;
+    //private ImageViewFragment mFilteredImageViewFragment;
+//    private SharedPreferences mCurrentPreset;
+//    private SharedPreferences mDefaultPreset;
     private Preset mPreset;
     private Uri mURI;
     private boolean mIsFiltered;
     private boolean mIsShared;
     private SwitchCompat mScribbleSwitch;
+
+    private FilteringMode mFilteringMode;
 
     private int mScribbleThreshold;
     private Mat mImToFilter;
@@ -132,10 +130,19 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
 //        }
         setContentView(R.layout.activity_photo_filtering);
         mScribbleThreshold = Utility.SCRIBBLE_THRESHOLD_INIT_VAL;
+        mFilteringMode = FilteringMode.REGULAR_FILTERING;
 
         // Create filtering related buttons fragment and
-        mPreFilterButtonFragment = new PreFilteringButtonsFragment();
-        getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, mPreFilterButtonFragment).commit();
+        //mPreFilterButtonFragment = new PreFilteringButtonsFragment();
+
+        //Bundle args = new Bundle();
+        //args.putInt(BUTTONS_FRAGMENT_KEY, R.layout.pre_filtering_buttons_fragment);
+        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.pre_filtering_buttons_fragment);
+        //buttonsFragment.setArguments(args);
+        getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, buttonsFragment).commit();
+
+
+        //getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, new PreFilteringButtonsFragment()).commit();
 
         // Create a new folder for images in the applications directory
         // Create and send a camera/gallery intent
@@ -181,20 +188,30 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         setContentView(R.layout.activity_photo_filtering);
-        // todo - handle code dup
-        if (mIsFiltered) {
-            mFilteredImageViewFragment = new ImageViewFragment();
-            PostFilteringButtonsFragment fragment = new PostFilteringButtonsFragment();
-            getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, fragment).commit();
-            getFragmentManager().beginTransaction().add(R.id.main_view_container, mFilteredImageViewFragment).commit();
-            mFilteredImageViewFragment.setImage(mFilteredBitmap);
-        } else {
-            mOriginalImageViewFragment = new ImageViewFragment();
-            mPreFilterButtonFragment = new PreFilteringButtonsFragment();
-            getFragmentManager().beginTransaction().add(R.id.filtering_activity_button_container, mPreFilterButtonFragment).commit();
-            getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
-            mOriginalImageViewFragment.setImage(mOriginalBitmap);
-        }
+
+        mImageViewFragment = new ImageViewFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        Bitmap relevantBitmap = mIsFiltered ? mFilteredBitmap : mOriginalBitmap;
+        int layoutId = mIsFiltered ? R.layout.post_filtering_buttons_fragment : R.layout.pre_filtering_buttons_fragment;
+        //Bundle args = new Bundle();
+        //args.putInt(BUTTONS_FRAGMENT_KEY, layoutId);
+
+//        if (mIsFiltered) {
+//            //buttonsFragment = new PostFilteringButtonsFragment();
+//            args.putInt(BUTTONS_FRAGMENT_KEY, R.layout.post_filtering_buttons_fragment);
+//            //relevantBitmap = mFilteredBitmap;
+//        } else {
+//            //buttonsFragment = new PreFilteringButtonsFragment();
+//            args.putInt(BUTTONS_FRAGMENT_KEY, R.layout.pre_filtering_buttons_fragment);
+//            //relevantBitmap = mOriginalBitmap;
+//        }
+        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(layoutId);
+        //buttonsFragment.setArguments(args);
+        transaction.replace(R.id.filtering_activity_button_container, buttonsFragment);
+        transaction.replace(R.id.main_view_container, mImageViewFragment);
+        transaction.commit();
+        mImageViewFragment.setImage(relevantBitmap);
     }
 
     @Override
@@ -315,16 +332,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                             }
 
                             // Initialize image view fragment that will hold the image.
-                            if (mOriginalImageViewFragment == null) {
-                                mOriginalImageViewFragment = new ImageViewFragment();
+                            if (mImageViewFragment == null) {
+                                mImageViewFragment = new ImageViewFragment();
                             }
                             // Add the image fragment to the container.
-                            getFragmentManager().beginTransaction().add(R.id.main_view_container, mOriginalImageViewFragment).commit();
-                            mOriginalImageViewFragment.setImage(mOriginalBitmap);
+                            getFragmentManager().beginTransaction().add(R.id.main_view_container, mImageViewFragment).commit();
+                            mImageViewFragment.setImage(mOriginalBitmap);
 
-                            if (mIsLandscape) {
-                                onFilterSettingsClick(new View(this));
-                            }
+//                            if (mIsLandscape) {
+//                                onFilterSettingsClick(new View(this));
+//                            }
                             return;
                         }
                     } catch (Exception e) {
@@ -351,7 +368,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         Intent intent = new Intent(this, FilterSettingsActivity.class);
 
         // Notify the activity if we're in landscape mode.
-        intent.putExtra(LANDSCAPE, mIsLandscape);
+        //intent.putExtra(LANDSCAPE, mIsLandscape);
         intent.putExtra(IMG_SIZE, Math.min(mImgHeight, mImgWidth));
         startActivityForResult(intent, FILTER_SETTINGS_REQUEST_CODE);
     }
@@ -365,7 +382,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             mScribbleSwitch = view.findViewById(R.id.scribble_switch);
         }
         if (mScribbleSwitch.isChecked()) {
-            mOriginalImageViewFragment.turnScribbleOn();
+            mImageViewFragment.turnScribbleOn();
+            mFilteringMode = FilteringMode.SCRIBBLE_INITIALIZATION;
         } else {
             showClearScribbleDialog(false);
         }
@@ -377,11 +395,11 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mOriginalImageViewFragment.clearScribble();
+                mImageViewFragment.clearScribble(false);
+                mFilteringMode = FilteringMode.REGULAR_FILTERING;
                 if (onBackPressed) {
                     mIsFiltered = false;
                     PhotoFilteringActivity.super.onBackPressed();
-
                 }
 
             }
@@ -410,6 +428,12 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         Core.compare(mFilteredScribble, threshold, mForegroundMask, Core.CMP_GE);
         // compare foreground mask to 0 to get the background mask
         Core.compare(mFilteredScribble, threshold, mBackgroundMask, Core.CMP_LT);
+
+        // erode the background mask (to reduce the number of FG pixels in it)
+        int seWinSize = (int) Math.round(255.0/ mScribbleThreshold);
+        Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_ERODE, new Size(seWinSize, seWinSize) );
+        Imgproc.erode(mBackgroundMask, mBackgroundMask, SE);
+        SE.release();
 
         // convert masks to 32-bit float, 1/0 matrix
         mForegroundMask.convertTo(mForegroundMask, CvType.CV_32FC1, 1.0 / 255.0);
@@ -474,8 +498,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                     if (scribbleMode == FilteringMode.SCRIBBLE_FOREGROUND_BACKGROUND) {
                         Mat fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
                         Mat bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-                        Mat fgPmi = new Mat(fgPab.size(), fgPab.type());
-                        Mat bgPmi = new Mat(bgPab.size(), bgPab.type());
 
                         publishProgress("Collecting foreground statistics...");
                         sw.reset();
@@ -483,8 +505,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
                         sw.stop();
                         Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-                        CoF.pabToPmi(fgPab, fgPmi);
-
 
                         publishProgress("Collecting background statistics...");
                         sw.reset();
@@ -492,7 +512,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
                         sw.stop();
                         Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-                        CoF.pabToPmi(bgPab, bgPmi);
+                        Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
+
 
                         Mat cpy = mImToFilter.clone();
 
@@ -500,18 +521,15 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         sw.reset();
                         sw.start();
                         for (int i = 0; i < 3; i++) {
-                            CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPmi, bgPmi, 15);
-                            //CoF.coFilter(cpy, mImToCollect, mFilteredImage, fgPmi, 15, 2 * Math.sqrt(15) + 1);
+                            CoF.FBCoFilter(cpy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
                             mFilteredImage.copyTo(cpy);
                             System.gc();
                         }
 
                         sw.stop();
                         Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-                        Utility.releaseMats(fgPab, bgPab, fgPmi, bgPmi, cpy);
+                        Utility.releaseMats(fgPab, bgPab,cpy);
                         break;
-
                     }
                     publishProgress("Quantizing...");
                     sw.reset();
@@ -577,8 +595,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             // Create the filtered image view.
-            if (mFilteredImageViewFragment == null) {
-                mFilteredImageViewFragment = new ImageViewFragment();
+            if (mImageViewFragment == null) {
+                mImageViewFragment = new ImageViewFragment();
             }
             Fragment relevantFragment;
             String strToBackStack;
@@ -591,13 +609,13 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                 relevantFragment = new ScribbleMaskThresholdFragment();
                 strToBackStack = FROM_SCRIBBLE_TO_THRESHOLD;
             } else {
-                mFilteredImageViewFragment.setImage(mFilteredBitmap);
+                mImageViewFragment.setImage(mFilteredBitmap);
                 mIsFiltered = true;
                 mIsShared = false;
                 mSavedOnce = false;
 
                 // Create the post filtering fragment
-                relevantFragment = new PostFilteringButtonsFragment();
+                relevantFragment = ButtonsFragment.newInstance(R.layout.post_filtering_buttons_fragment);
                 strToBackStack = FROM_FILTERING_TO_RESULT;
 
             }
@@ -605,14 +623,13 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(R.id.filtering_activity_button_container, relevantFragment);
-            transaction.replace(R.id.main_view_container, mFilteredImageViewFragment);
+            transaction.replace(R.id.main_view_container, mImageViewFragment);
             transaction.addToBackStack(strToBackStack);
             transaction.commit();
             mProgressDialog.dismiss();
         }
 
     }
-
 
 
     /**
@@ -639,16 +656,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         // we assume there are no more than 256 bins, so we can use byte-typed matrix
         mImToCollect = new Mat(mImToFilter.size(), CvType.CV_8UC1);
 
-        FilteringMode mode = mPreFilterButtonFragment.isScribbleOn() ?
+        FilteringMode mode = mImageViewFragment.isScribbleOn() ?
                 FilteringMode.SCRIBBLE_INITIALIZATION : FilteringMode.REGULAR_FILTERING;
         new FilteringAsyncTask().execute(mode);
     }
 
     private void generateScribbleImage() {
 
-        Path scribblePath = mOriginalImageViewFragment.getScribblePath();
-        int height = mOriginalImageViewFragment.getImageViewHeight();
-        int width = mOriginalImageViewFragment.getImageViewWidth();
+        Path scribblePath = mImageViewFragment.getScribblePath();
+        int height = mImageViewFragment.getImageViewHeight();
+        int width = mImageViewFragment.getImageViewWidth();
         Mat scribbleMat = new Mat(new Size(width, height), CvType.CV_8UC1);
 
         pathToMat(scribblePath, scribbleMat, height, width);
@@ -679,11 +696,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
 
         mFilteredBitmap = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(tmp, mFilteredBitmap, true);
-        // Create the filtered image view.
-        if (mFilteredImageViewFragment == null) {
-            mFilteredImageViewFragment = new ImageViewFragment();
-        }
-        mFilteredImageViewFragment.setImage(mFilteredBitmap);
+        // update the image view.
+        mImageViewFragment.clearScribble(true);
+        mImageViewFragment.setImage(mFilteredBitmap);
 
         mask.release();
         tmp.release();
@@ -794,6 +809,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         }
         // if the image is not filtered, or already saved or shared - go back gracefully
         if (!mIsFiltered || mSavedOnce || mIsShared) {
+            if (mIsFiltered) {
+                mImageViewFragment.setImage(mOriginalBitmap);
+            }
             super.onBackPressed();
             return;
         }
@@ -804,14 +822,15 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 mIsFiltered = false;
-                //mOriginalImageViewFragment.setImage(mOriginalBitmap);
+                ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.pre_filtering_buttons_fragment);
+                getFragmentManager().beginTransaction().replace(R.id.filtering_activity_button_container, buttonsFragment).commit();
+                mImageViewFragment.setImage(mOriginalBitmap);
                 PhotoFilteringActivity.super.onBackPressed();
             }
         });
 
         alertDialog.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
+            public void onClick(DialogInterface dialog, int id) {}
         });
 
         alertDialog.setCancelable(false);

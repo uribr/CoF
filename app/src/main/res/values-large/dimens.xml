@@ -25,7 +25,6 @@
 
     <!--parameters_fragment-->
     <dimen name="preference_height">100dp</dimen>
-    <dimen name="preference_text_width">250dp</dimen>
     <dimen name="preference_text_size">26sp</dimen>
     <dimen name="preference_header_margin">8dp</dimen>
 

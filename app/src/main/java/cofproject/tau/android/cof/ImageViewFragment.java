@@ -24,6 +24,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private MyImageView mImageView;
     private Bitmap mBitmap;
     private boolean mFirstLoading;
+    private boolean mScribbleOn;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -96,10 +97,15 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
 
 
+    public boolean isScribbleOn() {
+        return mScribbleOn;
+    }
+
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.image_view_fragment, container, false);
+        mScribbleOn = false;
         mImageView = view.findViewById(R.id.image_view);
         mImageView.setImageBitmap(mBitmap);
         return view;
@@ -107,16 +113,18 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
 
     public void turnScribbleOn()
     {
+        mScribbleOn = true;
         mImageView.setScribbleState(true);
     }
 
     /**
      * Remove all the scribbled coordinates and drawings
      */
-    public void clearScribble()
+    public void clearScribble(boolean newScribbleState)
     {
+        mScribbleOn = newScribbleState;
         mImageView.clearScribble();
-        mImageView.setScribbleState(false);
+        mImageView.setScribbleState(newScribbleState);
     }
 
     /**

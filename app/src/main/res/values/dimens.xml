@@ -30,7 +30,7 @@
     <dimen name="preference_header_margin">4dp</dimen>
 
     <!--filter_settings_buttons_fragment-->
-    <dimen name="filter_settings_buttons_height">52dp</dimen>
+    <dimen name="filter_settings_buttons_height">50dp</dimen>
 
     <!--pre_filtering_buttons_fragment-->
     <dimen name="pre_filtering_buttons_height">50dp</dimen>

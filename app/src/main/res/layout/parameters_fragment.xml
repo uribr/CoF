@@ -4,306 +4,338 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/settings_list"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/preset_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/preference_height"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onSettingClick"
-        android:orientation="horizontal">
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="@dimen/preference_text_width"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:gravity="center"
-            android:text="@string/preset"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/current_preset_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:gravity="center"
-            android:text="@string/default_preset_name"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/preference_text_size"
-            android:theme="@android:style/Theme.Material"/>
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/settings_list"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/preset_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/preference_header_margin"
-            android:gravity="center_vertical"
-            android:text="General"
-
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/quantization_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/preference_height"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onSettingClick"
-        android:orientation="horizontal">
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="@dimen/preference_text_width"
-            android:layout_height="wrap_content"
-            android:clickable="false"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/quantization_levels"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
+            android:onClick="onSettingClick"
+            android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/current_quantization_level"
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/preset"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_preset_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/default_preset_name"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"
+                android:theme="@android:style/Theme.Material"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="false"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/_32"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/preference_text_size"/>
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/preference_header_margin"
+                android:gravity="center"
+                android:text="General"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
+        </LinearLayout>
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="CoF Basic Settings"
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:layout_margin="@dimen/preference_header_margin"
-            android:textSize="@dimen/preference_text_size"/>
+            android:layout_height="wrap_content">
 
-    </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
-
-    <LinearLayout
-        android:id="@+id/window_size_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/preference_height"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onSettingClick"
-        android:orientation="horizontal"
-        android:showDividers="beginning|middle"
-        android:textColor="@color/colorAccent">
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="@dimen/preference_text_width"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:gravity="center"
-            android:text="@string/stats_window_size"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/current_stat_window_size"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="false"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/quantization_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/_16"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/preference_text_size"/>
+            android:onClick="onSettingClick"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/quantization_levels"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_quantization_level"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_32"
+                android:textColor="@android:color/darker_gray"
+                android:layout_weight="1"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
 
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/deviation_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/preference_height"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onSettingClick"
-        android:orientation="horizontal"
-        android:textColor="@color/colorAccent">
 
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="@dimen/preference_text_width"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:gravity="center"
-            android:text="@string/statistics_collection_sigma"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/current_stat_deviation_value"
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="false"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/_1"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/preference_text_size"/>
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/preference_header_margin"
+                android:gravity="center"
+                android:text="CoF Basic Settings"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
+        </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
 
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/iteration_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/preference_height"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onSettingClick"
-        android:orientation="horizontal">
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="@dimen/preference_text_width"
-            android:layout_height="wrap_content"
-            android:clickable="false"
+        <LinearLayout
+            android:id="@+id/window_size_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/number_of_iterations"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/preference_text_size"
-            android:textStyle="bold"/>
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:showDividers="beginning|middle"
+            android:textColor="@color/colorAccent">
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/current_iteration_value"
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/stats_window_size"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_stat_window_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_16"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/deviation_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/statistics_collection_sigma"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_stat_deviation_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/iteration_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/number_of_iterations"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_iteration_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="false"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:focusable="true"
             android:gravity="center"
-            android:text="@string/_1"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="@dimen/preference_text_size"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/preference_header_margin"
+                android:gravity="center"
+                android:text="FB-CoF Settings"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimary"
-        android:clickable="false"/>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="FB-CoF Settings"
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:layout_margin="@dimen/preference_header_margin"
-            android:textSize="@dimen/preference_text_size"/>
-
-    </LinearLayout>
-
-</LinearLayout>
 </ScrollView>

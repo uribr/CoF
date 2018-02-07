@@ -9,9 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,15 +35,14 @@ import java.util.Vector;
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 import static cofproject.tau.android.cof.Utility.IMG_SIZE;
 import static cofproject.tau.android.cof.Utility.ITERATIONS;
-import static cofproject.tau.android.cof.Utility.LANDSCAPE;
 import static cofproject.tau.android.cof.Utility.MAX_ITERATIONS;
 import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utility.QUANTIZATION;
 import static cofproject.tau.android.cof.Utility.SIGMA_SEEKBAR_LENGTH;
-import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
 import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
 import static cofproject.tau.android.cof.Utility.convertJSONString2Map;
 import static cofproject.tau.android.cof.Utility.defaultPresetFile;
 import static cofproject.tau.android.cof.Utility.isNameValid;
@@ -66,7 +64,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     private int mImgSize;
     private List<String> mPresets;
 
-    private boolean mIsLandscape;
+    //private boolean mIsLandscape;
 
     private void onRemovedPreset(String name)
     {
@@ -81,9 +79,8 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "onCreate: entering");
         mIsADialogOpen = false;
         mPresets = new ArrayList<>();
-        mFilteringParametersFragment = new ParametersFragment();
         Intent intent = this.getIntent();
-        mIsLandscape = intent.getBooleanExtra(LANDSCAPE, false);
+        //mIsLandscape = intent.getBooleanExtra(LANDSCAPE, false);
         mImgSize = intent.getIntExtra(IMG_SIZE, 0);
         if (mImgSize == 0)
         {
@@ -95,19 +92,22 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         mPreset = loadCurrentPreset();
 
         Log.d(TAG, "onCreate: adding fragments");
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (mIsLandscape)
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            mFilteringParametersFragment = new ParametersFragment();
-        }
-        else
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+
+//        if (mIsLandscape)
+//        {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            mFilteringParametersFragment = new ParametersFragment();
+//        }
+//        else
+//        {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
         setContentView(R.layout.activity_photo_filtering);
+        mFilteringParametersFragment = new ParametersFragment();
         // Create filtering related buttons fragment and
-        transaction.add(R.id.filtering_activity_button_container, new FilterSettingsButtonsFragment());
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
+        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
         transaction.add(R.id.main_view_container, mFilteringParametersFragment);
         transaction.commit();
 
@@ -116,12 +116,33 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_photo_filtering);
+        if (mFilteringParametersFragment.getPresetName().equals(UNSAVED_PRESET_NAME) || mPreset == null)
+        {
+            createPresetFromUserSettings(UNSAVED_PRESET_NAME, false, false);
+        }
+        // Update current preset
+        updateCurrentPreset();
+        mFilteringParametersFragment = new ParametersFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
+        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
+        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
+        transaction.commit();
+
+
+    }
+
+    @Override
     public void onBackPressed()
     {
         Intent intent = new Intent();
 
         // If the current preset is null, create it.
-        Log.d(TAG, "onPause: setting return value");
+        Log.d(TAG, "onBackPressed: started");
         if (mFilteringParametersFragment.getPresetName().equals(UNSAVED_PRESET_NAME) || mPreset == null)
         {
             createPresetFromUserSettings(UNSAVED_PRESET_NAME, false, false);

@@ -33,6 +33,9 @@ public class ScribbleMaskThresholdFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        if (container != null ){
+            container.removeAllViews();
+        }
         mView = inflater.inflate(R.layout.scribble_mask_threshold_fragment, container, false);
         mSeekBar = mView.findViewById(R.id.scribble_threshold_seekbar);
         mListener.configSeekBar(mSeekBar);
