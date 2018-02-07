@@ -35,11 +35,11 @@ import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 class Utility
 {
     private static final int MAX_PRESET_NAME_LENGTH = 21;
+
     static final int SIGMA_SEEKBAR_LENGTH = 100;
     static final float MAX_SIGMA = 100;
     static final float ZERO_SIGMA = ((float) 0.001);
     static final int MAX_ITERATIONS = 10;
-
     static final String RELATIVE_WINDOW_SIZE = "relative window size";
     static final int MAX_QUANTIZATION_LEVEL = 256;
     static final int MIN_QUANTIZATION_LEVEL = 2;

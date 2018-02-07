@@ -57,13 +57,13 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
 
     private void setAndResizeImageView()
     {
-        Log.d(TAG, "setAndResizeImageView: setting new image");
+
         // set image in imageview
         mImageView.setImageBitmap(mBitmap);
 
         // resize image only in the initial loading
         if (mFirstLoading) {
-            Log.d(TAG, "setAndResizeImageView: resizing");
+            Log.d(TAG, "setAndResizeImageView: setting new image");
 
             mFirstLoading = false;
             // tighten the ImageView around the image when possible

@@ -102,14 +102,14 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 //        {
 //            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        }
-        setContentView(R.layout.activity_photo_filtering);
-        mFilteringParametersFragment = new ParametersFragment();
-        // Create filtering related buttons fragment and
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
-        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
-        transaction.commit();
+        setContentView(R.layout.activity_filter_settings);
+        initFragments();
+//        mFilteringParametersFragment = new ParametersFragment();
+//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
+//        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
+//        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
+//        transaction.commit();
 
         Log.d(TAG, "onCreate: loading shared preference file for presests");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
@@ -118,20 +118,20 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        setContentView(R.layout.activity_photo_filtering);
+        setContentView(R.layout.activity_filter_settings);
         if (mFilteringParametersFragment.getPresetName().equals(UNSAVED_PRESET_NAME) || mPreset == null)
         {
             createPresetFromUserSettings(UNSAVED_PRESET_NAME, false, false);
         }
         // Update current preset
         updateCurrentPreset();
-        mFilteringParametersFragment = new ParametersFragment();
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
-        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
-        transaction.commit();
+        initFragments();
+//        mFilteringParametersFragment = new ParametersFragment();
+//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
+//        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
+//        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
+//        transaction.commit();
 
 
     }
@@ -656,6 +656,15 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "showSeekbarDialog: showing dialog");
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void initFragments() {
+        mFilteringParametersFragment = new ParametersFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
+        transaction.add(R.id.settings_activity_button_container, buttonsFragment);
+        transaction.add(R.id.main_settings_view_container, mFilteringParametersFragment);
+        transaction.commit();
     }
 
 
