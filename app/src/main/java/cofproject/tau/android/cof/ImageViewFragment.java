@@ -111,10 +111,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         return view;
     }
 
-    public void turnScribbleOn()
+    public void setScribbleOn(boolean state)
     {
-        mScribbleOn = true;
-        mImageView.setScribbleState(true);
+        mScribbleOn = state;
+        mImageView.setScribbleState(state);
     }
 
     /**

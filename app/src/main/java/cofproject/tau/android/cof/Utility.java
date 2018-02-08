@@ -376,9 +376,9 @@ class Utility
         return alertDialog;
     }
 
-    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, int msgID) {
+    static AlertDialog.Builder generateBasicAlertDialog(Context context, int msgID) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle(title);
+        alertDialog.setTitle(R.string.alert_dialog_warning);
         alertDialog.setMessage(msgID);
         return alertDialog;
     }

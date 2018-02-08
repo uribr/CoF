@@ -58,13 +58,14 @@ import static cofproject.tau.android.cof.Utility.loadDefaultPreset;
 import static cofproject.tau.android.cof.Utility.updateCurrentPreset;
 
 
-public class PhotoFilteringActivity extends AppCompatActivity implements ScribbleMaskThresholdFragment.OnFinishedCreateView {
+public class PhotoFilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
     private static final String TAG = "PhotoFilteringActivity";
     private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     private static final String FROM_SCRIBBLE_TO_THRESHOLD = "from scribble to threshold";
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
     private static final int GALLERY_REQUEST_CODE = 1;
+    private static final float PATH_RESOLUTION = (float) 0.01;
 
     private int mImgHeight, mImgWidth;
     //private boolean mIsLandscape;
@@ -124,7 +125,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
 //            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        }
         setContentView(R.layout.activity_photo_filtering);
-        mScribbleThreshold = Utility.SCRIBBLE_THRESHOLD_INIT_VAL;
         mFilteringMode = FilteringMode.REGULAR_FILTERING;
 
 
@@ -174,23 +174,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         super.onConfigurationChanged(newConfig);
         setContentView(R.layout.activity_photo_filtering);
         initFragments();
-
-//        mImageViewFragment = new ImageViewFragment();
-//        Bitmap relevantBitmap = mIsFiltered ? mFilteredBitmap : mOriginalBitmap;
-//        int layoutId = mIsFiltered ? R.layout.post_filtering_buttons_fragment : R.layout.pre_filtering_buttons_fragment;
-//        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(layoutId);
-//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-//        transaction.add(R.id.main_view_container, mImageViewFragment);
-//        transaction.commit();
-//        mImageViewFragment.setImage(relevantBitmap);
     }
 
     @Override
     public void configSeekBar(SeekBar seekBar) {
+        if (seekBar == null) {
+            return;
+        }
         seekBar.setMax(Utility.SCRIBBLE_THRESHOLD_MAX_VAL);
-        seekBar.setProgress(Utility.SCRIBBLE_THRESHOLD_INIT_VAL);
-        onChangeScribbleThreshold(seekBar.getProgress());
+        seekBar.setProgress(mScribbleThreshold);
+        onChangeScribbleThreshold(mScribbleThreshold);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -206,6 +199,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+    }
+
+    @Override
+    public void configSwitch(SwitchCompat switchCompat) {
+        if (switchCompat == null) {
+            return;
+        }
+        switchCompat.setChecked(mFilteringMode != FilteringMode.REGULAR_FILTERING);
+        //switchCompat.setChecked(mImageViewFragment.isScribbleOn());
+
     }
 
     private static void addImageToGallery(final String filePath, final Context context) {
@@ -241,7 +244,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             out.flush();
             out.close();
             addImageToGallery(file.getAbsolutePath(), this);
-            Toast.makeText(getApplicationContext(), "Image saved: " + fileName, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Image saved: " + fileName, Toast.LENGTH_SHORT).show();
             mSavedOnce = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -399,6 +402,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                 }
                 break;
             case FILTER_SETTINGS_REQUEST_CODE:
+                if (mImageViewFragment.isScribbleOn()) {
+                    mScribbleSwitch.setChecked(true);
+                }
                 if (data != null) {
                     mPreset = loadCurrentPreset();
                 }
@@ -421,29 +427,41 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
      * @param view
      */
     public void onScribbleSwitch(View view) {
-        if (mScribbleSwitch == null) {
-            mScribbleSwitch = view.findViewById(R.id.scribble_switch);
-        }
+
+        mScribbleSwitch = view.findViewById(R.id.scribble_switch);
         if (mScribbleSwitch.isChecked()) {
-            mImageViewFragment.turnScribbleOn();
+            mImageViewFragment.setScribbleOn(true);
             mFilteringMode = FilteringMode.SCRIBBLE_INITIALIZATION;
         } else {
-            showClearScribbleDialog(false);
+            Path p = mImageViewFragment.getScribblePath();
+            if (p != null && !p.isEmpty()) {
+                showClearScribbleDialog(false);
+            } else {
+                mImageViewFragment.setScribbleOn(false);
+            }
         }
     }
 
 
-    private void showClearScribbleDialog(final boolean onBackPressed) {
-        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.scribble_switch_off_msg);
+    private void showClearScribbleDialog(final boolean backPressed) {
+        int msgId = (backPressed && mFilteringMode == FilteringMode.REGULAR_FILTERING)
+                ? R.string.scribble_back_msg : R.string.scribble_switch_off_msg;
+        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, msgId);
         alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mImageViewFragment.clearScribble(false);
+
                 mFilteringMode = FilteringMode.REGULAR_FILTERING;
-                if (onBackPressed) {
-                    mIsFiltered = false;
+                if (backPressed) {
                     PhotoFilteringActivity.super.onBackPressed();
+                    if (mIsFiltered) {
+                        mImageViewFragment.setImage(mOriginalBitmap);
+                        mImageViewFragment.clearScribble(false);
+                        mIsFiltered = false;
+                    }
+                    return;
                 }
+                mImageViewFragment.clearScribble(false);
 
             }
         });
@@ -495,130 +513,225 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
 
         private final String TAG = "FilteringAsyncTask";
         ProgressDialog mProgressDialog;
-        //FilteringMode scribbleMode;
 
+        private int iterCnt;
+        private int nBins;
+        private int winSize;
+        private double sigma;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            int titleId = mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION ? R.string.scribble_init_title : R.string.applying_cof;
             mProgressDialog = new ProgressDialog(PhotoFilteringActivity.this);
-            mProgressDialog.setTitle("Applying Co-Occurrence Filter");
+            mProgressDialog.setTitle(titleId);
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
             mProgressDialog.setCanceledOnTouchOutside(false);
             mProgressDialog.show();
         }
 
+        private void regularFiltering(Stopwatch sw, Mat imToFilterCopy) {
+            if (mImToFilter.rows() != mFilteredImage.rows() || mImToFilter.cols() != mFilteredImage.cols()) {
+                Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
+            }
+            // clone only if we're in real regular filtering
+            if (imToFilterCopy == null) {
+                imToFilterCopy = mImToFilter.clone();
+            }
+
+            publishProgress("Quantizing...");
+            sw.reset();
+            sw.start();
+            CoF.quantize(mImToFilter, mImToCollect, nBins);
+            sw.stop();
+            Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+
+            Mat pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+            Mat pmi = new Mat(pab.size(), pab.type());
+
+            publishProgress("Collecting Statistics...");
+            sw.reset();
+            sw.start();
+            // collecting with the default all-ones mask
+            CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
+            sw.stop();
+            Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            CoF.pabToPmi(pab, pmi);
+
+            //Mat imToProcessCopy = (scribbleMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
+            System.gc();
+            sw.reset();
+            sw.start();
+            for (int i = 0; i < iterCnt; i++) {
+                Log.d(TAG, "doInBackground: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
+                publishProgress("Filtering - Iteration No. " + (i + 1) + "/" + iterCnt);
+                CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSize, sigma);
+                mFilteredImage.copyTo(imToFilterCopy);
+                System.gc();
+            }
+            sw.stop();
+            Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            Utility.releaseMats(pab, pmi);
+
+            // convert filterd image to uint8 type
+            mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
+            // save the filtered Mat into Bitmap
+            mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
+            Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+        }
+
+        private void fgBgFiltering(Stopwatch sw) {
+            Mat fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+            Mat bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+
+            publishProgress("Collecting foreground statistics...");
+            sw.reset();
+            sw.start();
+            CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
+            sw.stop();
+            Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+
+            publishProgress("Collecting background statistics...");
+            sw.reset();
+            sw.start();
+            CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
+            sw.stop();
+            Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
+
+            Mat imToFilterCopy = mImToFilter.clone();
+
+            publishProgress("Filtering...");
+            sw.reset();
+            sw.start();
+            for (int i = 0; i < 3; i++) { //todo - change hard coded values!
+                Log.d(TAG, "doInBackground: FBCofilter iteration No. " + (i + 1) + "/" + 3);
+                publishProgress("Filtering - Iteration No. " + (i + 1) + "/" + 3);
+                CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
+                mFilteredImage.copyTo(imToFilterCopy);
+                System.gc();
+            }
+
+            sw.stop();
+            Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            Utility.releaseMats(fgPab, bgPab, imToFilterCopy);
+        }
+
+        private void initParams() {
+            //todo - split parameters extraction according to filtering mode
+            // extract parmeters from preset
+            iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utility.DEFAULT_NUMBER_OF_ITERATIONS;
+            sigma = mPreset != null ? mPreset.getStatSigma() : Utility.DEFAULT_SIGMA;
+            nBins = mPreset != null ? mPreset.getQuantization() : Utility.DEFAULT_QUNTIZATION_LEVEL;
+            winSize = mPreset != null ? mPreset.getStatWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
+            if (winSize % 2 == 0) {
+                winSize--;
+            }
+        }
+
+
         @Override
         protected Void doInBackground(Void... voids) {
 
-            //scribbleMode = fm[0];
-            Mat imToFilterCopy = null, pab = null, pmi = null, fgPab = null, bgPab = null;
+            Mat imToFilterCopy = null;
             try {
                 Log.i(TAG, "doInBackground: Started applying filter");
-                //todo - split parameters extraction according to filtering mode
-                // extract parmeters from params
-                int iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-                double sigma = mPreset != null ? mPreset.getStatSigma() : Utility.DEFAULT_SIGMA;
-                int nBins = mPreset != null ? mPreset.getQuantization() : Utility.DEFAULT_QUNTIZATION_LEVEL;
-                int winSize = mPreset != null ? mPreset.getStatWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
-                if (winSize % 2 == 0) {
-                    winSize--;
-                }
+                initParams();
 
                 Stopwatch sw = Stopwatch.createUnstarted(); // stopwatch to measure times
-
-
-
                 switch (mFilteringMode){
                     case SCRIBBLE_INITIALIZATION:
                         // init scribble
-                        publishProgress("Processing scribble info...");
+                        mScribbleThreshold = Utility.SCRIBBLE_THRESHOLD_INIT_VAL;
+                        publishProgress("Processing scribble info…");
                         generateScribbleImage();
                         imToFilterCopy = mScribbleImage.clone();
                         // fall through
                     case REGULAR_FILTERING:
-                        if (mImToFilter.rows() != mFilteredImage.rows() || mImToFilter.cols() != mFilteredImage.cols()) {
-                            Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
-                        }
-                        // clone only if we're in real regular filtering
-                        if (imToFilterCopy == null) {
-                            imToFilterCopy = mImToFilter.clone();
-                        }
-
-                        publishProgress("Quantizing...");
-                        sw.reset();
-                        sw.start();
-                        CoF.quantize(mImToFilter, mImToCollect, nBins);
-                        sw.stop();
-                        Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-                        pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-                        pmi = new Mat(pab.size(), pab.type());
-
-                        publishProgress("Collecting Statistics...");
-                        sw.reset();
-                        sw.start();
-                        // collecting with the default all-ones mask
-                        CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
-                        sw.stop();
-                        Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-                        CoF.pabToPmi(pab, pmi);
-
-                        //Mat imToProcessCopy = (scribbleMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
-                        System.gc();
-                        sw.reset();
-                        sw.start();
-                        for (int i = 0; i < iterCnt; i++) {
-                            Log.d(TAG, "doInBackground: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
-                            publishProgress("Filtering - Iteration No. " + (i + 1) + "/" + iterCnt);
-                            CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSize, sigma);
-                            mFilteredImage.copyTo(imToFilterCopy);
-                            System.gc();
-                        }
-                        sw.stop();
-                        Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-                        // convert filterd image to uint8 type
-                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
-                        // save the filtered Mat into Bitmap
-                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
-                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+                        regularFiltering(sw, imToFilterCopy);
+//                        if (mImToFilter.rows() != mFilteredImage.rows() || mImToFilter.cols() != mFilteredImage.cols()) {
+//                            Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
+//                        }
+//                        // clone only if we're in real regular filtering
+//                        if (imToFilterCopy == null) {
+//                            imToFilterCopy = mImToFilter.clone();
+//                        }
+//
+//                        publishProgress("Quantizing...");
+//                        sw.reset();
+//                        sw.start();
+//                        CoF.quantize(mImToFilter, mImToCollect, nBins);
+//                        sw.stop();
+//                        Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//                        pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+//                        pmi = new Mat(pab.size(), pab.type());
+//
+//                        publishProgress("Collecting Statistics...");
+//                        sw.reset();
+//                        sw.start();
+//                        // collecting with the default all-ones mask
+//                        CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
+//                        sw.stop();
+//                        Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//                        CoF.pabToPmi(pab, pmi);
+//
+//                        //Mat imToProcessCopy = (scribbleMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
+//                        System.gc();
+//                        sw.reset();
+//                        sw.start();
+//                        for (int i = 0; i < iterCnt; i++) {
+//                            Log.d(TAG, "doInBackground: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
+//                            publishProgress("Filtering - Iteration No. " + (i + 1) + "/" + iterCnt);
+//                            CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSize, sigma);
+//                            mFilteredImage.copyTo(imToFilterCopy);
+//                            System.gc();
+//                        }
+//                        sw.stop();
+//                        Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//                        // convert filterd image to uint8 type
+//                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
+//                        // save the filtered Mat into Bitmap
+//                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
+//                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
                         break;
 
                     case FOREGROUND_BACKGROUND:
-                        fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-                        bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-
-                        publishProgress("Collecting foreground statistics...");
-                        sw.reset();
-                        sw.start();
-                        CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
-                        sw.stop();
-                        Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-
-                        publishProgress("Collecting background statistics...");
-                        sw.reset();
-                        sw.start();
-                        CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
-                        sw.stop();
-                        Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-                        Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
-
-
-                        imToFilterCopy = mImToFilter.clone();
-
-                        publishProgress("Filtering...");
-                        sw.reset();
-                        sw.start();
-                        for (int i = 0; i < 3; i++) {
-                            CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
-                            mFilteredImage.copyTo(imToFilterCopy);
-                            System.gc();
-                        }
-
-                        sw.stop();
-                        Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+                        fgBgFiltering(sw);
+//                        fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+//                        bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
+//
+//                        publishProgress("Collecting foreground statistics...");
+//                        sw.reset();
+//                        sw.start();
+//                        CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
+//                        sw.stop();
+//                        Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//
+//                        publishProgress("Collecting background statistics...");
+//                        sw.reset();
+//                        sw.start();
+//                        CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
+//                        sw.stop();
+//                        Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+//                        Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
+//
+//
+//                        imToFilterCopy = mImToFilter.clone();
+//
+//                        publishProgress("Filtering...");
+//                        sw.reset();
+//                        sw.start();
+//                        for (int i = 0; i < 3; i++) {
+//                            CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
+//                            mFilteredImage.copyTo(imToFilterCopy);
+//                            System.gc();
+//                        }
+//
+//                        sw.stop();
+//                        Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
                         break;
                 }
                 Log.i(TAG, "Filtering finished");
@@ -626,7 +739,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             } finally {
-                Utility.releaseMats(imToFilterCopy, pab, pmi, fgPab, bgPab);
+                Utility.releaseMats(imToFilterCopy);
             }
 
             return null;
@@ -641,17 +754,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            // Create the filtered image view.
-            if (mImageViewFragment == null) {
-                mImageViewFragment = new ImageViewFragment();
-            }
-            Fragment relevantFragment;
-            String strToBackStack;
 
+            mIsFiltered = true;
+
+            int relevantLayoutId;
+            String strToBackStack;
             if (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) {
                 Utility.releaseMats(mFilteredScribble);
                 mFilteredScribble = mFilteredImage.clone();
-                relevantFragment = new ScribbleMaskThresholdFragment();
+                //relevantFragment = new ScribbleMaskThresholdFragment();
+                relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
                 strToBackStack = FROM_SCRIBBLE_TO_THRESHOLD;
             } else {
 
@@ -660,18 +772,18 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                 // save the filtered Mat into Bitmap
                 mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
                 Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
-
                 mImageViewFragment.setImage(mFilteredBitmap);
-                mIsFiltered = true;
+
                 mIsShared = false;
                 mSavedOnce = false;
 
                 // Create the post filtering fragment
-                relevantFragment = ButtonsFragment.newInstance(R.layout.post_filtering_buttons_fragment);
+                //relevantFragment = ButtonsFragment.newInstance(R.layout.post_filtering_buttons_fragment);
+                relevantLayoutId = R.layout.post_filtering_buttons_fragment;
                 strToBackStack = FROM_FILTERING_TO_RESULT;
 
             }
-
+            Fragment relevantFragment = ButtonsFragment.newInstance(relevantLayoutId);
             replaceButtonsFragments(relevantFragment, strToBackStack);
 
 //            // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
@@ -769,7 +881,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         float[] position = new float[2];
         do {
             contourLength = pm.getLength();
-            numPoints = (int) (contourLength / 0.01) + 1;
+            numPoints = (int) (contourLength / PATH_RESOLUTION) + 1;
             for (int i = 0; i < numPoints; i++) {
                 distance = (i * contourLength) / (numPoints - 1);
                 if (pm.getPosTan(distance, position, null)) {
@@ -779,7 +891,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
                         continue;
                     }
                     scribbleArr[x][y] = (byte) 255;
-
                 }
             }
         } while (pm.nextContour());
@@ -849,42 +960,65 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Scribbl
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        // if we're in scribble mode and the image is not filtered - warn the user
-        if (mScribbleSwitch != null && mScribbleSwitch.isChecked() && !mIsFiltered) {
-            showClearScribbleDialog(true);
-            return;
-        }
-        // if the image is not filtered, or already saved or shared - go back gracefully
-        if (!mIsFiltered || mSavedOnce || mIsShared) {
-            if (mIsFiltered) {
-                mImageViewFragment.setImage(mOriginalBitmap);
-            }
-            super.onBackPressed();
-            return;
-        }
 
+    private void backPressAlert() {
         // here the image is filtered and wasn't saved or shared - warn the user:
-        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, "WARNING", R.string.back_pressed_msg);
+        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, R.string.back_pressed_msg);
         // Add the buttons
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                mIsFiltered = false;
-                ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.pre_filtering_buttons_fragment);
-                replaceButtonsFragments(buttonsFragment);
-                //getFragmentManager().beginTransaction().replace(R.id.filtering_activity_button_container, buttonsFragment).commit();
-                mImageViewFragment.setImage(mOriginalBitmap);
                 PhotoFilteringActivity.super.onBackPressed();
+                if (mFilteringMode == FilteringMode.REGULAR_FILTERING) {
+                    mIsFiltered = false;
+                    mImageViewFragment.setImage(mOriginalBitmap);
+                } else if (mFilteringMode == FilteringMode.FOREGROUND_BACKGROUND) {
+                    mFilteringMode = FilteringMode.SCRIBBLE_INITIALIZATION;
+                }
             }
         });
 
         alertDialog.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {}
         });
-
         alertDialog.setCancelable(false);
         alertDialog.show();
+    }
+
+    private void onBackPressedRegularFiltering(){
+        if (!mIsFiltered) {
+            super.onBackPressed();
+        } else if (mSavedOnce || mIsShared) {
+            super.onBackPressed();
+            mImageViewFragment.setImage(mOriginalBitmap);
+            mIsFiltered = false;
+        } else {
+            backPressAlert();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        switch (mFilteringMode) {
+            case REGULAR_FILTERING:
+                onBackPressedRegularFiltering();
+                break;
+            case SCRIBBLE_INITIALIZATION:
+                showClearScribbleDialog(true);
+                break;
+            case FOREGROUND_BACKGROUND:
+                if (mSavedOnce || mIsShared) {
+                    mFilteringMode = FilteringMode.REGULAR_FILTERING;
+                    super.onBackPressed();
+                    super.onBackPressed();
+                    mImageViewFragment.setImage(mOriginalBitmap);
+                    mImageViewFragment.setScribbleOn(false);
+                    mIsFiltered = false;
+                } else {
+                    backPressAlert();
+                }
+                break;
+        }
     }
 
     private void replaceButtonsFragments(Fragment fragment){
