@@ -3,6 +3,7 @@ package cofproject.tau.android.cof;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
@@ -22,9 +24,14 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Stopwatch;
@@ -42,20 +49,22 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static cofproject.tau.android.cof.Utility.FILTER_SETTINGS_REQUEST_CODE;
-import static cofproject.tau.android.cof.Utility.IMG_SIZE;
-import static cofproject.tau.android.cof.Utility.currentPresetFile;
-import static cofproject.tau.android.cof.Utility.defaultPresetFile;
-import static cofproject.tau.android.cof.Utility.loadCurrentPreset;
-import static cofproject.tau.android.cof.Utility.loadDefaultPreset;
-import static cofproject.tau.android.cof.Utility.updateCurrentPreset;
+import static cofproject.tau.android.cof.Utilities.FILTER_SETTINGS_REQUEST_CODE;
+import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
+import static cofproject.tau.android.cof.Utilities.currentPresetFile;
+import static cofproject.tau.android.cof.Utilities.defaultPresetFile;
+import static cofproject.tau.android.cof.Utilities.loadCurrentPreset;
+import static cofproject.tau.android.cof.Utilities.loadDefaultPreset;
+import static cofproject.tau.android.cof.Utilities.updateCurrentPreset;
 
 
 public class PhotoFilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
@@ -91,6 +100,11 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     private Mat mBackgroundMask;
     private Mat mImToCollect;
     private Mat mFilteredScribble;
+
+    public void onClearScribbleClick(View view) {
+        Log.i(TAG, "onClearScribbleClick: cleared scribble");
+        mImageViewFragment.clearScribble(true);
+    }
 
 
     private enum FilteringMode {
@@ -137,8 +151,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
         // Create and send a camera/gallery intent
         Intent intent = new Intent();
-
-
         if (extras.getBoolean(getString(R.string.Capture))) {
             File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "tmp_img_" + String.valueOf(System.currentTimeMillis()) + ".jpg");
             mURI = Uri.fromFile(file);
@@ -181,7 +193,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         if (seekBar == null) {
             return;
         }
-        seekBar.setMax(Utility.SCRIBBLE_THRESHOLD_MAX_VAL);
+        seekBar.setMax(Utilities.SCRIBBLE_THRESHOLD_MAX_VAL);
         seekBar.setProgress(mScribbleThreshold);
         onChangeScribbleThreshold(mScribbleThreshold);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -251,94 +263,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         }
     }
 
-
-//    /**
-//     * @param requestCode
-//     * @param resultCode
-//     * @param data
-//     */
-//    //@Override
-//    protected void onActivityResult1(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        do {
-//            if (resultCode == Activity.RESULT_OK) {
-//                if (requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_CAPTURE_REQUEST_CODE) {
-//                    try {
-//                        if (mOriginalBitmap != null) {
-//                            mOriginalBitmap.recycle();
-//                        }
-//                        if (requestCode == GALLERY_REQUEST_CODE) {
-//                            mURI = data.getData();
-//                        }
-//
-//                        if (mURI != null) {
-//                            // storePreset image
-//                            mOriginalBitmap = Utility.getBitmap(this, mURI);
-////
-////                            List<Mat> mats = new ArrayList<>(4);
-////                            int[] colors = new int[]{50,100,150,200};
-////                            for(int i = 0; i < 4; i++) {
-////                                mats.add(new Mat(200,100, CvType.CV_8UC1, new Scalar(colors[i])));
-////                            }
-////                            Mat res = new Mat();
-////                            Core.hconcat(mats, res);
-////                            res.convertTo(res, CvType.CV_32FC1, 1.0/255.0);
-////                            Mat noise = new Mat(res.size(), CvType.CV_32FC1);
-////                            Core.randn(noise, 0, 0.025);
-////                            Core.add(res, noise, res);
-////                            res.convertTo(res,CvType.CV_8UC1, 255);
-////                            Utility.releaseMats(mats);
-////                            mOriginalBitmap = Bitmap.createBitmap(res.cols(), res.rows(), Bitmap.Config.RGB_565);
-////                            Utils.matToBitmap(res, mOriginalBitmap);
-//
-//                            if (requestCode == CAMERA_CAPTURE_REQUEST_CODE) {
-//                                // if our image was taken from the camera - delete it (keep it only in the bitmap)
-//                                File f = new File(mURI.getPath());
-//                                if (f.exists()) {
-//                                    f.delete();
-//                                }
-//                            }
-//
-//                            if (mOriginalBitmap != null) {
-//                                mImgHeight = mOriginalBitmap.getHeight();
-//                                mImgWidth = mOriginalBitmap.getWidth();
-//                            } else {
-//                                Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
-//                            }
-//
-//                            // Initialize image view fragment that will hold the image.
-//                            if (mImageViewFragment == null) {
-//                                mImageViewFragment = new ImageViewFragment();
-//                            }
-//                            // Add the image fragment to the container.
-//                            getFragmentManager().beginTransaction().add(R.id.main_view_container, mImageViewFragment).commit();
-//                            mImageViewFragment.setImage(mOriginalBitmap);
-//
-////                            if (mIsLandscape) {
-////                                onFilterSettingsClick(new View(this));
-////                            }
-//                            return;
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        mPreset = loadDefaultPreset(Math.min(mImgHeight, mImgWidth));
-//
-//                        // Set the default preset as the current preset
-//                        updateCurrentPreset(mPreset, Math.min(mImgHeight, mImgWidth));
-//                    }
-//                } else if (requestCode == FILTER_SETTINGS_REQUEST_CODE) {
-//                    if (data != null) {
-//                        mPreset = loadCurrentPreset();
-//                    }
-//                    return;
-//                }
-//            }
-//        } while (false);
-//        finish();
-//    }
-
-
     /**
      * @param requestCode
      * @param resultCode
@@ -361,7 +285,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                     }
                     if (mURI != null) {
                         // storePreset image
-                        mOriginalBitmap = Utility.getBitmap(this, mURI);
+                        mOriginalBitmap = Utilities.getBitmap(this, mURI);
 
                         // if our image was taken from the camera - delete it (keep it only in the bitmap)
                         File f = new File(mURI.getPath());
@@ -376,22 +300,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                             Log.e(TAG, "onActivityResult: mOriginalBitmap != null", new NullPointerException("mOriginalBitmap != null"));
                         }
                         initFragments();
-
-//                        // Initialize image view fragment that will hold the image.
-//                        if (mImageViewFragment == null) {
-//                            mImageViewFragment = new ImageViewFragment();
-//                        }
-//                        // Add the image fragment to the container.
-//                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//                        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.pre_filtering_buttons_fragment);
-//                        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-//                        transaction.add(R.id.main_view_container, mImageViewFragment);
-//                        transaction.commit();
-//                        mImageViewFragment.setImage(mOriginalBitmap);
-
-//                            if (mIsLandscape) {
-//                                onFilterSettingsClick(new View(this));
-//                            }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -446,7 +354,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     private void showClearScribbleDialog(final boolean backPressed) {
         int msgId = (backPressed && mFilteringMode == FilteringMode.REGULAR_FILTERING)
                 ? R.string.scribble_back_msg : R.string.scribble_switch_off_msg;
-        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, msgId);
+        AlertDialog.Builder alertDialog = Utilities.generateBasicAlertDialog(this, msgId);
         alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -491,6 +399,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         Core.compare(mFilteredScribble, threshold, mBackgroundMask, Core.CMP_LT);
 
         // erode the background mask (to reduce the number of FG pixels in it)
+        if (mScribbleThreshold == 0) {
+            mScribbleThreshold++;
+        }
         int seWinSize = (int) Math.round(255.0/ mScribbleThreshold);
         Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_ERODE, new Size(seWinSize, seWinSize) );
         Imgproc.erode(mBackgroundMask, mBackgroundMask, SE);
@@ -572,7 +483,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             }
             sw.stop();
             Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-            Utility.releaseMats(pab, pmi);
+            Utilities.releaseMats(pab, pmi);
 
             // convert filterd image to uint8 type
             mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
@@ -615,16 +526,16 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
             sw.stop();
             Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-            Utility.releaseMats(fgPab, bgPab, imToFilterCopy);
+            Utilities.releaseMats(fgPab, bgPab, imToFilterCopy);
         }
 
         private void initParams() {
             //todo - split parameters extraction according to filtering mode
             // extract parmeters from preset
-            iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-            sigma = mPreset != null ? mPreset.getStatSigma() : Utility.DEFAULT_SIGMA;
-            nBins = mPreset != null ? mPreset.getQuantization() : Utility.DEFAULT_QUNTIZATION_LEVEL;
-            winSize = mPreset != null ? mPreset.getStatWindowSize() : Utility.DEFAULT_WINDOW_SIZE;
+            iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
+            sigma = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
+            nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUNTIZATION_LEVEL;
+            winSize = mPreset != null ? mPreset.getStatWindowSize() : Utilities.DEFAULT_WINDOW_SIZE;
             if (winSize % 2 == 0) {
                 winSize--;
             }
@@ -643,7 +554,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                 switch (mFilteringMode){
                     case SCRIBBLE_INITIALIZATION:
                         // init scribble
-                        mScribbleThreshold = Utility.SCRIBBLE_THRESHOLD_INIT_VAL;
+                        mScribbleThreshold = Utilities.SCRIBBLE_THRESHOLD_INIT_VAL;
                         publishProgress("Processing scribble info…");
                         generateScribbleImage();
                         imToFilterCopy = mScribbleImage.clone();
@@ -739,7 +650,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             } finally {
-                Utility.releaseMats(imToFilterCopy);
+                Utilities.releaseMats(imToFilterCopy);
             }
 
             return null;
@@ -760,7 +671,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             int relevantLayoutId;
             String strToBackStack;
             if (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) {
-                Utility.releaseMats(mFilteredScribble);
+                Utilities.releaseMats(mFilteredScribble);
                 mFilteredScribble = mFilteredImage.clone();
                 //relevantFragment = new ScribbleMaskThresholdFragment();
                 relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
@@ -810,7 +721,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             Log.e(TAG, "onApplyFilterClick: mOriginalBitmap == null", new NullPointerException("mOriginalBitmap == null"));
         }
 
-        Utility.releaseMats(mImToFilter, mImToCollect, mFilteredImage);
+        Utilities.releaseMats(mImToFilter, mImToCollect, mFilteredImage);
 
         mImToFilter = new Mat();
         Utils.bitmapToMat(mOriginalBitmap, mImToFilter);
@@ -835,17 +746,17 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
         pathToMat(scribblePath, scribbleMat, height, width);
 
-        Utility.releaseMats(mScribbleImage);
+        Utilities.releaseMats(mScribbleImage);
 
         mScribbleImage = new Mat();
         // resize the binary image to the original image size
         Imgproc.resize(scribbleMat, mScribbleImage, mImToFilter.size());
 
         // perform dilation in order to thicken the white scribble lines
-        Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, Utility.SCRIBBLE_DILATION_WINDOW_SIZE);
-        Imgproc.dilate(mScribbleImage, mScribbleImage, SE, new Point(-1, -1), Utility.SCRIBBLE_DILATION_ITERATIONS_DEFAULT);
+        Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, Utilities.SCRIBBLE_DILATION_WINDOW_SIZE);
+        Imgproc.dilate(mScribbleImage, mScribbleImage, SE, new Point(-1, -1), Utilities.SCRIBBLE_DILATION_ITERATIONS_DEFAULT);
 
-        Utility.releaseMats(scribbleMat, SE);
+        Utilities.releaseMats(scribbleMat, SE);
     }
 
     void onChangeScribbleThreshold(int threshold) {
@@ -863,7 +774,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         mImageViewFragment.clearScribble(true);
         mImageViewFragment.setImage(mFilteredBitmap);
 
-        Utility.releaseMats(mask, tmp);
+        Utilities.releaseMats(mask, tmp);
     }
 
     /**
@@ -899,13 +810,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         byte[] flattened = Bytes.concat(scribbleArr);
         // store the array contents in a Mat object
         scribbleMat.put(0, 0, flattened);
-    }
-
-    /**
-     * @param view
-     */
-    public void onHelpClick(View view) {
-        //TODO - show a tutorial of the application that should be used when the user first reache a new screen. Note that the tutorial is screen-dependent
     }
 
 
@@ -963,7 +867,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
     private void backPressAlert() {
         // here the image is filtered and wasn't saved or shared - warn the user:
-        AlertDialog.Builder alertDialog = Utility.generateBasicAlertDialog(this, R.string.back_pressed_msg);
+        AlertDialog.Builder alertDialog = Utilities.generateBasicAlertDialog(this, R.string.back_pressed_msg);
         // Add the buttons
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -1050,11 +954,66 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy: started");
-        Utility.releaseMats(mImToFilter, mFilteredImage, mScribbleImage, mImToCollect, mForegroundMask, mBackgroundMask, mFilteredScribble);
+        Utilities.releaseMats(mImToFilter, mFilteredImage, mScribbleImage, mImToCollect, mForegroundMask, mBackgroundMask, mFilteredScribble);
         // Clear the current preset preference file
         currentPresetFile.edit().clear().apply();
         super.onDestroy();
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.help_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void onClickHelpButton(MenuItem item) {
+        Log.i(TAG, "onClickHelpButton: pressed");
+        int relevantLayoutId = -1;
+        String tutorialKey = null;
+
+        switch (mFilteringMode) {
+            case SCRIBBLE_INITIALIZATION:
+                if (mIsFiltered) {
+                    relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
+                    tutorialKey = getString(R.string.scribble_mask_threshold_tutorial_key);
+                    break;
+                }
+            case REGULAR_FILTERING:
+                if (!mIsFiltered) {
+                    relevantLayoutId = R.layout.pre_filtering_buttons_fragment;
+                    tutorialKey = getString(R.string.pre_filtering_tutorial_key);
+                    break;
+                }
+            case FOREGROUND_BACKGROUND: //the image is filtered
+                relevantLayoutId = R.layout.post_filtering_buttons_fragment;
+                tutorialKey = getString(R.string.post_filtering_tutorial_key);
+                break;
+
+        }
+//        if (mIsFiltered) {
+//            relevantLayoutId = R.layout.post_filtering_buttons_fragment;
+//            //tutorialKey = getString(R.string.post_filtering_tutorial_key);
+//        } else {
+//            switch (mFilteringMode) {
+//                case REGULAR_FILTERING:
+//                    relevantLayoutId = R.layout.pre_filtering_buttons_fragment;
+//                    tutorialKey = getString(R.string.pre_filtering_tutorial_key);
+//                    break;
+//                // pre filtering buttons
+//                case SCRIBBLE_INITIALIZATION:
+//                    relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
+//
+//                    break;
+//                // scribble mask threshold
+//                case FOREGROUND_BACKGROUND:
+//                default:
+//                    return; // should not get here
+//            }
+//        }
+        // set the tutorialKey to be true - like the first time
+        getPreferences(MODE_PRIVATE).edit().putBoolean(tutorialKey, true).apply();
+        // re-create the fragment so it will call the tutorial again
+        replaceButtonsFragments(ButtonsFragment.newInstance(relevantLayoutId));
+    }
 }

@@ -30,8 +30,7 @@
     <string name="cancel">Cancel</string>
     <string name="InvalidNameError">A preset name must be alphanumeric and contain at least one letter.</string>
     <string name="PresetsConfigFileName">cofproject.tau.android.cof.FILTER_PRESETS_FILE</string>
-    <string name="ScribbleTutorial">cofproject.tau.android.cof.SCRIBBLE_TUTORIAL</string>
-    <string name="ParametersTutorial">cofproject.tau.android.cof.PARAMETER_TUTORIAL</string>
+
     <string name="Capture">capture</string>
     <string name="SavePresetPromptMsg">Enter a name for this preset:</string>
     <string name="DefaultPresetName">Default</string>
@@ -65,8 +64,34 @@
     <string name="CurrentPresetSharedPreferenceFileName">current preset file name</string>
     <string name="DefaultPresetSharedPreferenceFileName">default preset file name</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--TUTORIALS STUFF-->
+    <string name="main_activity_tutorial_key">cofproject.tau.android.cof.MAIN_ACTIVITY_TUTORIAL</string>
+    <string name="pre_filtering_tutorial_key">cofproject.tau.android.cof.PRE_FILTERING_TUTORIAL</string>
+    <string name="post_filtering_tutorial_key">cofproject.tau.android.cof.POST_FILTERING_TUTORIAL</string>
+    <string name="scribble_mask_threshold_tutorial_key">cofproject.tau.android.cof.SCRIBBLE_MASK_THRESHOLD_TUTORIAL</string>
+    <string name="filter_settings_tutorial_key">cofproject.tau.android.cof.FILTER_SETTINGS_TUTORIAL</string>
+
+    <string name="main_activity_tutorial_title">Welcome to the CoF App!</string>
+    <string name="capture_photo_btn_tutorial">Click here to take a photo</string>
+    <string name="browse_gallery_btn_tutorial">Or click here to choose one from the gallery</string>
+
+
+    <string name="pre_filtering_tutorial_title">Filtering</string>
+    <string name="apply_filter_tutorial_text">Click here to run the CoF/FB-CoF algorithm</string>
+    <string name="scribble_switch_tutorial_text">Toggle the switch to enable scribbling on the image.\nIt will be used for FB-CoF.</string>
+    <string name="clear_scribble_tutorial_text">Click here if you want to clear the scribbles drawn on the image</string>
+    <string name="settings_button_tutorial_text">Click here to change the filter settings.</string>
+
+    <string name="filter_settings_tutorial_title">Filter Settings</string>
+    <string name="save_preset_btn_tutorial">Click here to save your current preset</string>
+    <string name="delete_preset_btn_tutorial">Click here to delete current preset from the preset list</string>
+
+    <string name="scribble_mask_threshold_tutorial_title">Mask Threshold</string>
+    <string name="scribble_seekbar_tutorial">Use the seek-bar to set the threshold for the mask</string>
+
+    <string name="post_filtering_tutorial_title">Yay! The Image is Filtered!</string>
+    <string name="share_or_save_tutorial">You can save the filtered image on your device, or share it with whoever you want!</string>
 
 
 </resources>

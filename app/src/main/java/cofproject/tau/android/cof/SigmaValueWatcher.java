@@ -7,10 +7,10 @@ import android.widget.SeekBar;
 
 import java.util.Locale;
 
-import static cofproject.tau.android.cof.Utility.DEFAULT_SIGMA;
-import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
-import static cofproject.tau.android.cof.Utility.ZERO_SIGMA;
-import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
+import static cofproject.tau.android.cof.Utilities.DEFAULT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
+import static cofproject.tau.android.cof.Utilities.ZERO_SIGMA;
+import static cofproject.tau.android.cof.Utilities.mapSigmaToProgress;
 
 /**
  * Created by Uri on 14/01/2018.

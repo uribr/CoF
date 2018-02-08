@@ -2,6 +2,7 @@ package cofproject.tau.android.cof;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
+import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,10 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 
-class Utility
-{
+class Utilities {
     private static final int MAX_PRESET_NAME_LENGTH = 21;
 
     static final int SIGMA_SEEKBAR_LENGTH = 100;
@@ -46,7 +49,7 @@ class Utility
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
     static final int DEFAULT_WINDOW_SIZE = 15;
-    static final float DEFAULT_SIGMA = 2 * (float)Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
+    static final float DEFAULT_SIGMA = 2 * (float) Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
     static final int FILTER_SETTINGS_REQUEST_CODE = 2;
     static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
@@ -71,14 +74,13 @@ class Utility
     static final String IMG_SIZE = "image size";
     static SharedPreferences currentPresetFile;
     static SharedPreferences defaultPresetFile;
-    static final String TAG = "Utility";
+
+    private static final String TAG = "Utilities";
     static final int SCRIBBLE_THRESHOLD_MAX_VAL = 255;
     static final int SCRIBBLE_THRESHOLD_INIT_VAL = SCRIBBLE_THRESHOLD_MAX_VAL / 2;
-    static final Size SCRIBBLE_DILATION_WINDOW_SIZE = new Size(7,7);
+    static final Size SCRIBBLE_DILATION_WINDOW_SIZE = new Size(7, 7);
     static final int SCRIBBLE_DILATION_ITERATIONS_DEFAULT = 3;
     static final Scalar ZERO_SCALAR = new Scalar(0);
-
-
 
 
     /**
@@ -88,33 +90,26 @@ class Utility
      * @param str
      * @return
      */
-    static boolean isNameValid(String str, boolean canBeDefault)
-    {
+    static boolean isNameValid(String str, boolean canBeDefault) {
         boolean atLeastOneChar = false;
         CharacterIterator cI = new StringCharacterIterator(str);
-        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next())
-        {
-            if (Character.isAlphabetic(c) || Character.isSpaceChar(c))
-            {
+        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next()) {
+            if (Character.isAlphabetic(c) || Character.isSpaceChar(c)) {
                 atLeastOneChar = true;
-            }
-            else if (!Character.isDigit(c))
-            {
+            } else if (!Character.isDigit(c)) {
                 return false;
             }
         }
         return atLeastOneChar && (canBeDefault || !str.equals(Preset.DEFAULT_PRESET_NAME)) && str.length() <= MAX_PRESET_NAME_LENGTH;
     }
 
-    static boolean isNameValid(String str)
-    {
+    static boolean isNameValid(String str) {
         return isNameValid(str, false);
     }
 
 
     @SuppressLint("ApplySharedPref")
-    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize)
-    {
+    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PRESET_NAME, preset.getName());
         editor.putFloat(STAT_SIGMA, preset.getStatSigma().floatValue());
@@ -125,14 +120,12 @@ class Utility
         editor.commit();
     }
 
-    static void updateCurrentPreset(Preset curPreset, int imgSize)
-    {
+    static void updateCurrentPreset(Preset curPreset, int imgSize) {
         updatePreset(curPreset, currentPresetFile, imgSize);
     }
 
 
-    static Preset loadPreset(SharedPreferences prefs)
-    {
+    static Preset loadPreset(SharedPreferences prefs) {
         return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
                 prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
                 prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
@@ -141,14 +134,12 @@ class Utility
                 prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
     }
 
-    static Preset loadCurrentPreset()
-    {
+    static Preset loadCurrentPreset() {
         return loadPreset(currentPresetFile);
     }
 
 
-    static Preset loadDefaultPreset(int imgSize)
-    {
+    static Preset loadDefaultPreset(int imgSize) {
         return loadPreset(defaultPresetFile);
 //
 //        if(map != null && map.isEmpty())
@@ -208,26 +199,20 @@ class Utility
 //    }
 
 
-    static Map<String, String>  convertJSONString2Map(String JSONString)
-    {
+    static Map<String, String> convertJSONString2Map(String JSONString) {
         JSONObject jsonObject;
         Map<String, String> map = new HashMap<>();
-        try
-        {
+        try {
             jsonObject = new JSONObject(JSONString);
 
             Iterator<String> keysItr = jsonObject.keys();
-            while(keysItr.hasNext())
-            {
+            while (keysItr.hasNext()) {
                 String key = keysItr.next();
                 String value = (String) jsonObject.get(key);
                 map.put(key, value);
             }
             return map;
-        }
-
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
@@ -266,19 +251,16 @@ class Utility
 //    }
 
 
-    static Bitmap getBitmap(Context context, Uri uri)
-    {
+    static Bitmap getBitmap(Context context, Uri uri) {
         InputStream in;
-        try
-        {
+        try {
             final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
             in = context.getContentResolver().openInputStream(uri);
             // Decode image size
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(in, null, options);
-            if (in != null)
-            {
+            if (in != null) {
                 in.close();
             }
             int n = (int) Math.floor(0.5 * Math.log(options.outWidth *
@@ -288,8 +270,7 @@ class Utility
             Log.d(TAG, "scale = " + scale + ", orig-width: " + options.outWidth + ", orig-height: " + options.outHeight);
             Bitmap bitmap;
             in = context.getContentResolver().openInputStream(uri);
-            if (scale > 1)
-            {
+            if (scale > 1) {
                 // scale to max possible inSampleSize that still yields an image larger than target
                 options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = false;
@@ -308,35 +289,29 @@ class Utility
                 bitmap.recycle();
                 bitmap = scaledBitmap;
                 System.gc();
-            } else
-            {
+            } else {
                 bitmap = BitmapFactory.decodeStream(in);
             }
-            if (in != null)
-            {
+            if (in != null) {
                 in.close();
             }
             Log.d(TAG, "bitmap size - width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
             return bitmap;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
             return null;
         }
     }
 
 
-    public static Bitmap getResizedBitmap(Bitmap image, int maxSize)
-    {
+    public static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
         float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1)
-        {
+        if (bitmapRatio > 1) {
             width = maxSize;
             height = (int) (width / bitmapRatio);
-        } else
-        {
+        } else {
             height = maxSize;
             width = (int) (height * bitmapRatio);
         }
@@ -346,25 +321,24 @@ class Utility
     /**
      * A static method for verifying if there is an activity that accepts the intent provided
      * within the context of ctx
+     *
      * @param ctx
      * @param intent
      * @return
      */
-    public static boolean isIntentAvailable(Context ctx, Intent intent)
-    {
+    public static boolean isIntentAvailable(Context ctx, Intent intent) {
         final PackageManager mgr = ctx.getPackageManager();
         List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
     }
 
     @NonNull
-    static Double mapSeekbarToSigma(int progress)
-    {
+    static Double mapSeekbarToSigma(int progress) {
         //Log.d(TAG, "mapSeekbarToSigma: entering");
         return ((double) (progress)) * (1 / MAX_SIGMA);
     }
-    static Integer mapSigmaToProgress(double sigma)
-    {
+
+    static Integer mapSigmaToProgress(double sigma) {
         //Log.d(TAG, "mapSigmaToProgress: entering");
         return ((int) (sigma * MAX_SIGMA));
     }
@@ -391,7 +365,7 @@ class Utility
         }
     }
 
-    private static void releaseMats(List<Mat> lst){
+    private static void releaseMats(List<Mat> lst) {
         for (Mat m : lst) {
             if (m != null) {
                 m.release();
@@ -399,11 +373,46 @@ class Utility
         }
     }
 
-    static void releaseMats(Mat... lst){
+    static void releaseMats(Mat... lst) {
         for (Mat m : lst) {
             if (m != null) {
                 m.release();
             }
         }
+    }
+
+    static class ShowcaseViewParams {
+        int viewId;
+        int textId;
+
+        ShowcaseViewParams(int viewId, int textId) {
+            this.viewId = viewId;
+            this.textId = textId;
+        }
+    }
+
+
+    static void showTutorial(Activity activity, int titleId, int numOfViews, List<ShowcaseViewParams> showcaseViewParams) {
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(100); // half second between each showcase view
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity);
+        sequence.setConfig(config);
+        View view;
+        String title = activity.getString(titleId);
+        String content;
+        String dismissText = "Next";
+        ShowcaseViewParams currParams;
+
+        for(int i = 0; i < numOfViews; i++) {
+            currParams = showcaseViewParams.get(i);
+            view = activity.findViewById(currParams.viewId);
+            content = activity.getString(currParams.textId);
+            if (i == numOfViews - 1) {
+                dismissText = "Got It!";
+            }
+            sequence.addSequenceItem(view,title,content,dismissText);
+        }
+        //sequence.singleUse(sequenceKey);
+        sequence.start();
     }
 }

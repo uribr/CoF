@@ -3,4 +3,6 @@
     <!--post_filtering_buttons_fragment-->
     <dimen name="post_filtering_btn_margin">140dp</dimen>
 
+    <dimen name="pre_filtering_text_size">12sp</dimen>
+
 </resources>

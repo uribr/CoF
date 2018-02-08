@@ -4,21 +4,10 @@
               android:layout_width="match_parent"
               android:layout_height="@dimen/filter_settings_buttons_height"
               android:orientation="horizontal">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@android:drawable/btn_default"
-        android:onClick="onDeleteButtonPreset">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_delete"/>
-    </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/save_preset_btn"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
@@ -31,17 +20,33 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/delete_preset_btn"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
-        android:onClick="onHelpClick">
+        android:onClick="onDeleteButtonPreset">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_help"/>
+            android:src="@android:drawable/ic_menu_delete"/>
     </LinearLayout>
+
+
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:background="@android:drawable/btn_default"-->
+        <!--android:onClick="onHelpClick">-->
+        <!--<ImageView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:src="@android:drawable/ic_menu_help"/>-->
+    <!--</LinearLayout>-->
 
     <!--<ImageButton-->
     <!--android:id="@+id/deletePreset"-->

@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    </head>
+    <body>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+        <h3>Photo Filtering</h3>
+
+        <p>In the bottom of this screen there are 4 buttons:</p>
+
+
+
+        <ul>
+            <li><b>The Scrrible Switch</b> - toggle this switch in order to enable scribble drawing on the image. Draw scribble on foreground objects in order to create a foreground mask for the statistics collection phase.</li>
+            <li><b>Clear Scrrible</b> - press this button if you want to delete the scribbles you've drawn so far.</li>
+            <li><b>Settings</b> (the <i class="material-icons">build</i> icon) - press this button to set the different parameters of the filter.</li>
+            <li><b>Apply Filter</b> - press this button when you're ready to go - if the scribble switch is off, it will run the CoF algorithm using the default mask (collecting co-occurrence statistics from the whole image). If the scribble switch is on, it will create a mask from the scribble. In the next step you will set the mask as tight as you like, and then the FB-CoF algorithm will take place.</li>
+        </ul>
+    </body>
+</html>

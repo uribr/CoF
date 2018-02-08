@@ -33,6 +33,8 @@ dependencies {
     })
 
     compile 'com.google.guava:guava:23.6-android'
+    compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
+
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.1.0'

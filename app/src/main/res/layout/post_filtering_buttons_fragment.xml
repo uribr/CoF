@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="@dimen/post_filtering_buttons_fragment_height"
-              android:baselineAligned="false">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/post_filtering_buttons_layout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/post_filtering_buttons_fragment_height"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/post_filtering_btn_margin"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
-        android:layout_marginStart="@dimen/post_filtering_btn_margin"
         android:onClick="onSaveResultClick">
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -23,10 +25,11 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/post_filtering_btn_margin"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
-        android:layout_marginEnd="@dimen/post_filtering_btn_margin"
         android:onClick="onShareClick">
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

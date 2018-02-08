@@ -8,11 +8,9 @@
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/scribble_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_margin="2dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginTop="2dp"
+
         android:layout_weight="1"
         android:switchMinWidth="@dimen/pre_filtering_switch_min_width"
         android:onClick="onScribbleSwitch"
@@ -27,7 +25,8 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/apply_filter_btn"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
@@ -37,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Apply"
+            android:text="Apply Filter"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textSize="@dimen/pre_filtering_text_size"
@@ -46,7 +45,28 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/clear_scribble_btn"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:drawable/btn_default"
+        android:onClick="onClearScribbleClick">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Clear Scribble"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textSize="@dimen/pre_filtering_text_size"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/settings_btn"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:drawable/btn_default"
@@ -58,18 +78,7 @@
             android:src="@android:drawable/ic_menu_manage"/>
 
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@android:drawable/btn_default"
-        android:onClick="onHelpClick">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@android:drawable/ic_menu_help"/>
 
-    </LinearLayout>
 
 
 </LinearLayout>

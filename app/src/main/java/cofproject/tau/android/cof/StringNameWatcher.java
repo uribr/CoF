@@ -37,7 +37,7 @@ public class StringNameWatcher implements TextWatcher
     @Override
     public void afterTextChanged(Editable s)
     {
-        if (!Utility.isNameValid(s.toString(), mCheckBox.isChecked()))
+        if (!Utilities.isNameValid(s.toString(), mCheckBox.isChecked()))
         {
             mTarget.setError("Preset name must be alphanumeric and contain at least one letter.");
         }

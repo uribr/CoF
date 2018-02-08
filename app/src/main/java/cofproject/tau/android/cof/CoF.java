@@ -42,10 +42,10 @@ public class CoF {
 //        Log.i(TAG, "applyFilter: Started applying filter");
 //
 //        // extract parmeters from params
-//        int iterCnt = Utility.DEFAULT_NUMBER_OF_ITERATIONS;
-//        int winSize = Utility.DEFAULT_WINDOW_SIZE;
-//        double sigma = Utility.DEFAULT_SIGMA;
-//        int nBins = Utility.DEFAULT_QUNTIZATION_LEVEL;
+//        int iterCnt = Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
+//        int winSize = Utilities.DEFAULT_WINDOW_SIZE;
+//        double sigma = Utilities.DEFAULT_SIGMA;
+//        int nBins = Utilities.DEFAULT_QUNTIZATION_LEVEL;
 //        if (params != null) {
 //            iterCnt = params.getNumberOfIteration();
 //            winSize = params.getStatWindowSize();
@@ -281,7 +281,7 @@ public class CoF {
     }
 
 //    public static void collectPab(Mat im2Collect, Mat mask2Collect, Mat pab, int nBins) {
-//        collectPab(im2Collect, mask2Collect, pab, nBins, Utility.DEFAULT_WINDOW_SIZE, Utility.DEFAULT_SIGMA);
+//        collectPab(im2Collect, mask2Collect, pab, nBins, Utilities.DEFAULT_WINDOW_SIZE, Utilities.DEFAULT_SIGMA);
 //    }
 
     public static void collectPab(Mat imToCollect, Mat pab, int nBins, int winSize, double sigma) {
@@ -315,14 +315,14 @@ public class CoF {
             for (int j = 0; j < nBins; j++) {
 
                 Core.compare(imToCollect, new Scalar(j), cmpMat, Core.CMP_EQ);
-                tmp.setTo(Utility.ZERO_SCALAR);
+                tmp.setTo(Utilities.ZERO_SCALAR);
 
                 // copy only values matching to level i indices
                 w.copyTo(tmp, cmpMat);
                 Scalar sc = Core.sumElems(tmp);
                 pabArr[iLevel][j] = (float) sc.val[0];
             }
-            masked.setTo(Utility.ZERO_SCALAR);
+            masked.setTo(Utilities.ZERO_SCALAR);
         }
         cmpMat.release();
         masked.release();
@@ -358,7 +358,7 @@ public class CoF {
     }
 
 //    public static void coFilter(Mat im2Filter, Mat im2Collect, Mat filteredImage, Mat pab) {
-//        coFilter(im2Filter, im2Collect, filteredImage, pab, Utility.DEFAULT_WINDOW_SIZE, Utility.DEFAULT_SIGMA);
+//        coFilter(im2Filter, im2Collect, filteredImage, pab, Utilities.DEFAULT_WINDOW_SIZE, Utilities.DEFAULT_SIGMA);
 //    }
 
     public static void coFilter(Mat imToFilter, Mat imToCollect, Mat filteredImage, Mat pab, int winSize, double sigma) {
@@ -440,14 +440,14 @@ public class CoF {
 
             Core.divide(sumS, sumW, filtImChans.get(iChannel));
 
-            sumW.setTo(Utility.ZERO_SCALAR);
-            sumS.setTo(Utility.ZERO_SCALAR);
+            sumW.setTo(Utilities.ZERO_SCALAR);
+            sumS.setTo(Utilities.ZERO_SCALAR);
         }
         Core.merge(filtImChans, filteredImage);
 
         // release!!!
-        Utility.releaseMats(channels2Collect, channels2Filter, channelsPab, filtImChans);
-        Utility.releaseMats(W, sumW, S, sumS, wpl, cmpMat, cim, mVals, pabCurrChan);
+        Utilities.releaseMats(channels2Collect, channels2Filter, channelsPab, filtImChans);
+        Utilities.releaseMats(W, sumW, S, sumS, wpl, cmpMat, cim, mVals, pabCurrChan);
 
     }
 
@@ -521,14 +521,14 @@ public class CoF {
 //
 //            Core.divide(sumS, sumW, filtImChans.get(iChannel));
 //
-//            sumW.setTo(Utility.ZERO_SCALAR);
-//            sumS.setTo(Utility.ZERO_SCALAR);
+//            sumW.setTo(Utilities.ZERO_SCALAR);
+//            sumS.setTo(Utilities.ZERO_SCALAR);
 //        }
 //        Core.merge(filtImChans, filteredImage);
 //
 //        // release!!!
-//        Utility.releaseMats(channelsToFilter, filtImChans);
-//        Utility.releaseMats(W, sumW, S, sumS, fgWpl, cmpMat, cim, tmp);
+//        Utilities.releaseMats(channelsToFilter, filtImChans);
+//        Utilities.releaseMats(W, sumW, S, sumS, fgWpl, cmpMat, cim, tmp);
 //
 //    }
 
@@ -616,14 +616,14 @@ public class CoF {
 
             Core.divide(sumS, sumW, filtImChans.get(iChannel));
 
-            sumW.setTo(Utility.ZERO_SCALAR);
-            sumS.setTo(Utility.ZERO_SCALAR);
+            sumW.setTo(Utilities.ZERO_SCALAR);
+            sumS.setTo(Utilities.ZERO_SCALAR);
         }
         Core.merge(filtImChans, filteredImage);
 
         // release!!!
-        Utility.releaseMats(channelsToFilter, filtImChans);
-        Utility.releaseMats(W, sumW, S, sumS, fgWpl, bgWpl, wfg, wbg, cmpMat, cim, tmp);
+        Utilities.releaseMats(channelsToFilter, filtImChans);
+        Utilities.releaseMats(W, sumW, S, sumS, fgWpl, bgWpl, wfg, wbg, cmpMat, cim, tmp);
     }
 
     public static void FBCoFilter(Mat imToFilter, Mat imToCollect, Mat filteredImage, Mat fgPab, Mat bgPab, int winSize) {
@@ -709,14 +709,14 @@ public class CoF {
 
             Core.divide(sumS, sumW, filtImChans.get(iChannel));
 
-            sumW.setTo(Utility.ZERO_SCALAR);
-            sumS.setTo(Utility.ZERO_SCALAR);
+            sumW.setTo(Utilities.ZERO_SCALAR);
+            sumS.setTo(Utilities.ZERO_SCALAR);
         }
         Core.merge(filtImChans, filteredImage);
 
         // release!!!
-        Utility.releaseMats(channelsToFilter, filtImChans);
-        Utility.releaseMats(W, sumW, S, sumS, fgWpl, bgWpl, wfg, wbg, cmpMat, cim, tmp);
+        Utilities.releaseMats(channelsToFilter, filtImChans);
+        Utilities.releaseMats(W, sumW, S, sumS, fgWpl, bgWpl, wfg, wbg, cmpMat, cim, tmp);
     }
 
     private static void applyLUTonData(Mat inputData, float[] LUT, Mat outputData, int nBins) {

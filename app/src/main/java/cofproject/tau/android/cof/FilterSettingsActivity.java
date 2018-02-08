@@ -12,8 +12,10 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -33,24 +35,24 @@ import java.util.Map;
 import java.util.Vector;
 
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
-import static cofproject.tau.android.cof.Utility.IMG_SIZE;
-import static cofproject.tau.android.cof.Utility.ITERATIONS;
-import static cofproject.tau.android.cof.Utility.MAX_ITERATIONS;
-import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
-import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.QUANTIZATION;
-import static cofproject.tau.android.cof.Utility.SIGMA_SEEKBAR_LENGTH;
-import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
-import static cofproject.tau.android.cof.Utility.UNSAVED_PRESET_NAME;
-import static cofproject.tau.android.cof.Utility.convertJSONString2Map;
-import static cofproject.tau.android.cof.Utility.defaultPresetFile;
-import static cofproject.tau.android.cof.Utility.isNameValid;
-import static cofproject.tau.android.cof.Utility.loadCurrentPreset;
-import static cofproject.tau.android.cof.Utility.loadDefaultPreset;
-import static cofproject.tau.android.cof.Utility.mapSeekbarToSigma;
-import static cofproject.tau.android.cof.Utility.mapSigmaToProgress;
-import static cofproject.tau.android.cof.Utility.updatePreset;
+import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
+import static cofproject.tau.android.cof.Utilities.ITERATIONS;
+import static cofproject.tau.android.cof.Utilities.MAX_ITERATIONS;
+import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
+import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
+import static cofproject.tau.android.cof.Utilities.SIGMA_SEEKBAR_LENGTH;
+import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.UNSAVED_PRESET_NAME;
+import static cofproject.tau.android.cof.Utilities.convertJSONString2Map;
+import static cofproject.tau.android.cof.Utilities.defaultPresetFile;
+import static cofproject.tau.android.cof.Utilities.isNameValid;
+import static cofproject.tau.android.cof.Utilities.loadCurrentPreset;
+import static cofproject.tau.android.cof.Utilities.loadDefaultPreset;
+import static cofproject.tau.android.cof.Utilities.mapSeekbarToSigma;
+import static cofproject.tau.android.cof.Utilities.mapSigmaToProgress;
+import static cofproject.tau.android.cof.Utilities.updatePreset;
 
 public class FilterSettingsActivity extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
@@ -104,12 +106,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 //        }
         setContentView(R.layout.activity_filter_settings);
         initFragments();
-//        mFilteringParametersFragment = new ParametersFragment();
-//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
-//        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-//        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
-//        transaction.commit();
 
         Log.d(TAG, "onCreate: loading shared preference file for presests");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
@@ -126,14 +122,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         // Update current preset
         updateCurrentPreset();
         initFragments();
-//        mFilteringParametersFragment = new ParametersFragment();
-//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//        ButtonsFragment buttonsFragment = ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment);
-//        transaction.add(R.id.filtering_activity_button_container, buttonsFragment);
-//        transaction.add(R.id.main_view_container, mFilteringParametersFragment);
-//        transaction.commit();
-
-
     }
 
     @Override
@@ -150,7 +138,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         // Update current preset
         updateCurrentPreset();
-//        Utility.insertPresetToDataInent(mPreset, intent, mImgSize);
+//        Utilities.insertPresetToDataInent(mPreset, intent, mImgSize);
         setResult(Activity.RESULT_OK, intent);
         super.onBackPressed();
     }
@@ -165,24 +153,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         }
         return super.onOptionsItemSelected(item);
     }
-
-//    @Override
-//    protected void onPause()
-//    {
-//        super.onPause();
-//        Intent intent = new Intent();
-//
-//        // If the current preset is null, create it.
-//        Log.d(TAG, "onPause: setting return value");
-//        if (mFilteringParametersFragment.getPresetName().equals(UNSAVED_PRESET_NAME) || mPreset == null)
-//        {
-//            createPresetFromUserSettings(UNSAVED_PRESET_NAME, false, false);
-//        }
-//
-//        // Insert preset to the intent.
-//        Utility.insertPresetToDataInent(mPreset, intent, mImgSize);
-//        setResult(Activity.RESULT_OK, intent);
-//    }
 
     private List<String> loadPresetsNameList()
     {
@@ -224,18 +194,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     {
         Log.d(TAG, "loadPreset: entering");
         mFilteringParametersFragment.applyPreset(mPreset);
-//        try
-//        {
-//            if (mPreset == null)
-//            {
-//                mPreset = loadDefaultPreset(mImgSize);
-//            }
-//            mFilteringParametersFragment.applyPreset(mPreset);
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
     }
 
     public void loadPreset(String name)
@@ -487,7 +445,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
     private void updateCurrentPreset()
     {
-        Utility.updateCurrentPreset(mPreset, mImgSize);
+        Utilities.updateCurrentPreset(mPreset, mImgSize);
     }
 
     private void showNumberPickerDialog(String msg, int maxValue, int currentValue, String tag)
@@ -667,6 +625,21 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         transaction.commit();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.help_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    public void onClickHelpButton(MenuItem item) {
+        String tutorialKey = getString(R.string.filter_settings_tutorial_key);
+        getPreferences(MODE_PRIVATE).edit().putBoolean(tutorialKey, true).apply();
+        // re-create the buttons fragment
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.settings_activity_button_container,
+                        ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment))
+                .commit();
+    }
 }
 

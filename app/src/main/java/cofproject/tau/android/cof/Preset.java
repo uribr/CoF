@@ -3,15 +3,15 @@ package cofproject.tau.android.cof;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cofproject.tau.android.cof.Utility.IS_RELATIVE;
-import static cofproject.tau.android.cof.Utility.ITERATIONS;
-import static cofproject.tau.android.cof.Utility.MAX_QUANTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.MAX_SIGMA;
-import static cofproject.tau.android.cof.Utility.MIN_QUANTIZATION_LEVEL;
-import static cofproject.tau.android.cof.Utility.QUANTIZATION;
-import static cofproject.tau.android.cof.Utility.RELATIVE_WINDOW_SIZE;
-import static cofproject.tau.android.cof.Utility.STAT_SIGMA;
-import static cofproject.tau.android.cof.Utility.STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.IS_RELATIVE;
+import static cofproject.tau.android.cof.Utilities.ITERATIONS;
+import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
+import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.STAT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
 
 public class Preset
 {
