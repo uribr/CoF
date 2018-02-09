@@ -117,13 +117,13 @@
         <ImageView
             android:layout_width="@dimen/activity_main_icon_size"
             android:layout_height="@dimen/activity_main_icon_size"
-            android:src="@drawable/ic_menu_help"
+            android:src="@android:drawable/ic_menu_info_details"
             android:layout_gravity="center"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="About"
+            android:text="@string/info_button_text"
             android:textSize="@dimen/activity_main_text_size"
             android:gravity="center"/>
     </LinearLayout>

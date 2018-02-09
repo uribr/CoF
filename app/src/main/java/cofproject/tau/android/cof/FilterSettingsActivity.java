@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -361,7 +360,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                     showNumberPickerDialog("Choose number of iterations:", MAX_ITERATIONS,
                             mFilteringParametersFragment.getIter(), ITERATIONS);
                     break;
-                case R.id.deviation_layout:
+                case R.id.stat_deviation_layout:
                     Log.d(TAG, "onSettingClick: deviation layout");
                     showSeekbarDialog();
                     break;
@@ -371,7 +370,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             MIN_QUANTIZATION_LEVEL, mFilteringParametersFragment.getQuantizationLevel(),
                             QUANTIZATION);
                     break;
-                case R.id.window_size_layout:
+                case R.id.stat_window_size_layout:
                     Log.d(TAG, "onSettingClick: window size layout");
                     showNumberPickerDialog("Choose window size", mImgSize,
                             mFilteringParametersFragment.getWindowSize(), STAT_WINDOW_SIZE);

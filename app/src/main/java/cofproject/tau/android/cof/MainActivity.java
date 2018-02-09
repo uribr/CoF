@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 tryShowTutorial();
             }
-        }, 500);
+        }, 300);
     }
 
     private void tryShowTutorial() {

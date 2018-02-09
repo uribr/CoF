@@ -1,28 +1,16 @@
 <resources>
     <string name="app_name">CoF</string>
     <string name="main_activity_label">Co-Occurrence Filter</string>
-    <string name="about_button_text">About</string>
-    <string name="setting_button_text">Settings</string>
     <string name="capture_new_photo_button_text">Capture New Photo</string>
     <string name="browse_gallery_button_text">Browse Device Gallery</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_filter_photo">Filtering</string>
+    <string name="info_button_text">About</string>
 
 
-    <string name="filter_parameter_name">Spatial \u03C3</string>
-    <string name="window_size_text">Window Size</string>
-
-    <string name="Iterations">Iterations</string>
-    <string name="Scribble"> Scribble</string>
+    <string name="scribble_switch_text"> Scribble</string>
     <string name="Preset">Preset</string>
 
-    <string name="parameters_input">Change Parameters</string>
-    <string name="help_button_text">Help</string>
     <string name="save_text">Save</string>
-    <string name="share_text">Share</string>
-    <string name="load_preset_text">Load</string>
-    <string name="apply_filter_text">Apply</string>
-    <string name="apply_button_text">Apply</string>
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -41,16 +29,19 @@
     <string name="scribble_switch_off_msg">This action will restore the original image.\nAre you sure you want to continue?</string>
     <string name="scribble_back_msg">This action will take you back to the main screen.\nAre you sure you want to continue?</string>
     <string name="alert_dialog_warning">WARNING</string>
-    <string name="scribble_init_title">Initializing Scribble Mask</string>
-    <string name="applying_cof">Applying Co-Occurrence Filter</string>
 
 
+
+    <!--filter settings / parameters fragment strings-->
     <string name="title_activity_filter_preferences">Settings</string>
+    <string name="params_preset_name">Preset Name</string>
+    <string name="params_general_title">General</string>
+    <string name="params_basic_settings_title">CoF Basic Settings</string>
+    <string name="params_fb_cof_settings_title">FB-CoF Settings</string>
     <string name="quantization_levels">Quantization Levels</string>
     <string name="select_a_preset">Select a preset</string>
     <string name="select_spatial_u03c3_value">Select spatial σ value:</string>
     <string name="load_preset">Load Preset</string>
-    <string name="preset">Preset Name</string>
     <string name="default_preset_name">Default</string>
     <string name="_32">32</string>
     <string name="stats_window_size">Statistics Collection Window Size</string>
@@ -94,6 +85,20 @@
 
     <string name="post_filtering_tutorial_title">Yay! The Image is Filtered!</string>
     <string name="share_or_save_tutorial">You can save the filtered image on your device, or share it with whoever you want!</string>
+
+    <string name="apply_filter_btn_text">Apply Filter</string>
+    <string name="clear_scribble_btn_text">Clear Scribble</string>
+
+    <!--filtering messages-->
+    <string name="scribble_init_title">Initializing Scribble Mask</string>
+    <string name="applying_cof_title">Applying Co-Occurrence Filter</string>
+    <string name="applying_fb_cof_title">Applying FB-CoF</string>
+    <string name="filtering_phase_qunatization">Quantizing…</string>
+    <string name="filtering_phase_collect_Pab">Collecting Statistics…</string>
+    <string name="filtering_phase_iter_count">Filtering - Iteration No. </string>
+    <string name="filtering_phase_collect_fg_Pab">Collecting foreground statistics…</string>
+    <string name="filtering_phase_collect_bg_Pab">Collecting background statistics…</string>
+    <string name="filtering_phase_processing_scribble">Processing scribble info…</string>
 
 
 </resources>

@@ -121,7 +121,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="About"
+            android:text="@string/info_button_text"
             android:textSize="@dimen/activity_main_text_size"
             android:gravity="center"/>
     </LinearLayout>

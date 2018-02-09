@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.Map;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 
@@ -406,6 +408,9 @@ class Utilities {
         for(int i = 0; i < numOfViews; i++) {
             currParams = showcaseViewParams.get(i);
             view = activity.findViewById(currParams.viewId);
+            if (view == null){
+                view = new View(activity);
+            }
             content = activity.getString(currParams.textId);
             if (i == 1) { // remove the title in the second showcase
                 title = "";
@@ -413,7 +418,30 @@ class Utilities {
             if (i == numOfViews - 1) {
                 dismissText = "Got It!";
             }
-            sequence.addSequenceItem(view,title,content,dismissText);
+            MaterialShowcaseView.Builder msv = new MaterialShowcaseView.Builder(activity)
+                                        .setTarget(view)
+                                        .setDismissText(dismissText)
+                                        .setTitleText(title)
+                                        .setContentText(content)
+                                        .setDismissOnTouch(true);
+
+            if (currParams.viewId == R.id.post_filtering_buttons_layout){
+                msv.withRectangleShape();
+            }
+            sequence.addSequenceItem(msv.build());
+//            if (currParams.viewId == R.id.post_filtering_buttons_layout){
+//                sequence.addSequenceItem(
+//                        new MaterialShowcaseView.Builder(activity)
+//                                .setTarget(view)
+//                                .setDismissText(dismissText)
+//                                .setTitleText(title)
+//                                .setContentText(content)
+//                                .setDismissOnTouch(true)
+//                                .withRectangleShape()
+//                                .build());
+//            } else {
+//                sequence.addSequenceItem(view, title, content, dismissText);
+//            }
         }
         //sequence.singleUse(sequenceKey);
         sequence.start();

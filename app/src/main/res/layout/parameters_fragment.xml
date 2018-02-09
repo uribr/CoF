@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_height="match_parent">
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/settings_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,24 +28,24 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
-                android:text="@string/preset"
+                android:text="@string/params_preset_name"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"
                 android:textStyle="bold"/>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_preset_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/default_preset_name"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"
                 android:theme="@android:style/Theme.Material"/>
 
         </LinearLayout>
@@ -70,24 +70,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/preference_header_margin"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:text="General"
+                android:text="@string/params_general_title"
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/preference_text_size"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
+                android:textStyle="bold"/>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
 
         </LinearLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </android.support.constraint.ConstraintLayout>
 
         <View
             android:layout_width="match_parent"
@@ -111,23 +106,23 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/quantization_levels"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"
                 android:textStyle="bold"/>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_quantization_level"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/_32"
                 android:textColor="@android:color/darker_gray"
-                android:layout_weight="1"
                 android:textSize="@dimen/preference_text_size"/>
 
         </LinearLayout>
@@ -137,8 +132,6 @@
             android:layout_height="1dp"
             android:background="@color/colorPrimary"
             android:clickable="false"/>
-
-
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -154,12 +147,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/preference_header_margin"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:text="CoF Basic Settings"
+                android:text="@string/params_basic_settings_title"
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/preference_text_size"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
+                android:textStyle="bold"/>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -174,7 +168,7 @@
             android:clickable="false"/>
 
         <LinearLayout
-            android:id="@+id/window_size_layout"
+            android:id="@+id/stat_window_size_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
             android:layout_weight="1"
@@ -190,24 +184,24 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/stats_window_size"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"
                 android:textStyle="bold"/>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_stat_window_size"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/_16"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"/>
+                android:textSize="@dimen/preference_text_size"/>
 
         </LinearLayout>
 
@@ -220,7 +214,7 @@
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/deviation_layout"
+            android:id="@+id/stat_deviation_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
             android:layout_weight="1"
@@ -235,24 +229,24 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/statistics_collection_sigma"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"
                 android:textStyle="bold"/>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_stat_deviation_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/_1"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"/>
+                android:textSize="@dimen/preference_text_size"/>
 
         </LinearLayout>
 
@@ -262,6 +256,94 @@
             android:background="@color/colorPrimary"
             android:clickable="false"/>
 
+        <LinearLayout
+            android:id="@+id/filt_window_size_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:showDividers="beginning|middle"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/filtering_window_size"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_filt_window_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_16"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/filt_deviation_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/filtering_sigma"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_filt_deviation_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
 
 
         <LinearLayout
@@ -280,24 +362,24 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/number_of_iterations"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
+                android:textStyle="bold"/>
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_iteration_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/_1"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/preference_text_size"
-                android:layout_weight="1"/>
+                android:textSize="@dimen/preference_text_size"/>
 
         </LinearLayout>
 
@@ -306,7 +388,6 @@
             android:layout_height="1dp"
             android:background="@color/colorPrimary"
             android:clickable="false"/>
-
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -321,13 +402,14 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:layout_margin="@dimen/preference_header_margin"
                 android:gravity="center"
-                android:text="FB-CoF Settings"
+                android:text="@string/params_fb_cof_settings_title"
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/preference_text_size"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
+                android:textStyle="bold"/>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -335,7 +417,94 @@
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
 
+
+        <LinearLayout
+            android:id="@+id/window_size_layout_fb"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:showDividers="beginning|middle"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/filtering_window_size"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_fb_filt_window_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_16"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/iteration_layout_fb"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/number_of_iterations"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_fb_iteration_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

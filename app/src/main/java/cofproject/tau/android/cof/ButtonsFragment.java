@@ -77,6 +77,7 @@ public class ButtonsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Activity activity = getActivity();
         SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         String tutorialKey = null;
         Boolean firstTime = false;
