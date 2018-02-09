@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,14 +36,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setTitle(R.string.main_activity_label);
 
+        //tryShowTutorial();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                tryShowTutorial();
+            }
+        }, 500);
+    }
+
+    private void tryShowTutorial() {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         String tutorialKey = getString(R.string.main_activity_tutorial_key);
         Boolean firstTime = preferences.getBoolean(tutorialKey,true);
         if (firstTime) {
-            List<ShowcaseViewParams> params = new ArrayList<>(2);
+            List<ShowcaseViewParams> params = new ArrayList<>();
             params.add(new ShowcaseViewParams(R.id.capture_photo_layout, R.string.capture_photo_btn_tutorial));
             params.add(new ShowcaseViewParams(R.id.browse_gallery_layout, R.string.browse_gallery_btn_tutorial));
-            showTutorial(this, R.string.main_activity_tutorial_title, 2, params);
+            params.add(new ShowcaseViewParams(R.id.help_button, R.string.help_button_tutorial));
+            showTutorial(this, R.string.main_activity_tutorial_title, params.size(), params);
             preferences.edit().putBoolean(tutorialKey, false).apply();
         }
     }
@@ -54,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.help_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
 
@@ -212,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickHelpButton(MenuItem item) {
         String tutorialKey = getString(R.string.main_activity_tutorial_key);
         getPreferences(MODE_PRIVATE).edit().putBoolean(tutorialKey, true).apply();
-        this.recreate();
+        tryShowTutorial();
     }
 
 //    public void onClickHelpButton(MenuItem item) {

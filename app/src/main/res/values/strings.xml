@@ -75,6 +75,8 @@
     <string name="main_activity_tutorial_title">Welcome to the CoF App!</string>
     <string name="capture_photo_btn_tutorial">Click here to take a photo</string>
     <string name="browse_gallery_btn_tutorial">Or click here to choose one from the gallery</string>
+    <string name="help_button_tutorial">Press on this help button at anytime you need a reminder about the actions of the different buttons.
+    It will appear on the next screens as well.</string>
 
 
     <string name="pre_filtering_tutorial_title">Filtering</string>

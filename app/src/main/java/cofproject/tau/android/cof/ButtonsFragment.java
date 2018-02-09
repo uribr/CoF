@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,9 +22,9 @@ import static cofproject.tau.android.cof.Utilities.*;
 
 public class ButtonsFragment extends Fragment {
 
-    public static final String BUTTONS_FRAGMENT_KEY = "KEY";
-
     private static final String TAG = "ButtonsFragment";
+    private static final String BUTTONS_FRAGMENT_KEY = "KEY";
+
     private View mView;
     private int mLayoutId;
     private ButtonsFragmentListener mListener;
@@ -33,7 +34,9 @@ public class ButtonsFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (ButtonsFragmentListener) context;
+            if (!(context instanceof FilterSettingsActivity)) {
+                mListener = (ButtonsFragmentListener) context;
+            }
         } catch (final  ClassCastException e) {
             Log.e(TAG, "onAttach: " + context.toString() +
                     " - must implement listener", e);
@@ -54,17 +57,18 @@ public class ButtonsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (mListener != null) {
+            switch (mLayoutId) {
+                case R.layout.pre_filtering_buttons_fragment:
+                    SwitchCompat switchCompat = mView.findViewById(R.id.scribble_switch);
+                    mListener.configSwitch(switchCompat);
+                    break;
+                case R.layout.scribble_mask_threshold_fragment:
+                    SeekBar seekBar = mView.findViewById(R.id.scribble_threshold_seekbar);
+                    mListener.configSeekBar(seekBar);
+                    break;
 
-        switch (mLayoutId) {
-            case R.layout.pre_filtering_buttons_fragment:
-                SwitchCompat switchCompat = mView.findViewById(R.id.scribble_switch);
-                mListener.configSwitch(switchCompat);
-                break;
-            case R.layout.scribble_mask_threshold_fragment:
-                SeekBar seekBar = mView.findViewById(R.id.scribble_threshold_seekbar);
-                mListener.configSeekBar(seekBar);
-                break;
-
+            }
         }
     }
 
@@ -73,8 +77,7 @@ public class ButtonsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Activity activity = getActivity();
-        SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         String tutorialKey = null;
         Boolean firstTime = false;
         int numOfViews = 0;
@@ -123,7 +126,7 @@ public class ButtonsFragment extends Fragment {
             for (int i = 0; i < numOfViews; i++) {
                 params.add(new ShowcaseViewParams(viewIds[i], textIds[i]));
             }
-            showTutorial(activity, titleId, numOfViews, params);
+            showTutorial(getActivity(), titleId, numOfViews, params);
             preferences.edit().putBoolean(tutorialKey, false).apply();
         }
     }

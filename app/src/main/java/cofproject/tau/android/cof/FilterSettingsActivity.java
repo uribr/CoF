@@ -343,13 +343,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         }
     }
 
-
-    public void onHelpClick(View view)
-    {
-        Log.d(TAG, "onHelpClick: onClick event");
-        //TODO - show a tutorial of the application that should be used when the user first reache a new screen. Note that the tutorial is screen-dependent
-    }
-
     public void onSettingClick(View view)
     {
         Log.d(TAG, "onSettingClick: onClick event");

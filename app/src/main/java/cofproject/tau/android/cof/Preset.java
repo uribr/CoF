@@ -245,7 +245,7 @@ public class Preset
     public String toString()
     {
 
-        String sb = String.valueOf(mRelativeWindowSize) +
+        return String.valueOf(mRelativeWindowSize) +
                 ',' +
                 mStatWindowSize +
                 ',' +
@@ -256,7 +256,6 @@ public class Preset
                 mQuantizationLevels +
                 ',' +
                 mRelative;
-        return sb;
     }
 
 

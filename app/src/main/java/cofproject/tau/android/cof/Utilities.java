@@ -407,6 +407,9 @@ class Utilities {
             currParams = showcaseViewParams.get(i);
             view = activity.findViewById(currParams.viewId);
             content = activity.getString(currParams.textId);
+            if (i == 1) { // remove the title in the second showcase
+                title = "";
+            }
             if (i == numOfViews - 1) {
                 dismissText = "Got It!";
             }
