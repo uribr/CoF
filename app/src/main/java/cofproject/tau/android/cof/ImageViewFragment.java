@@ -14,10 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-/**
- * Created by Uri on 31/10/2017.
- */
 
+/**
+ * The fragment holds the different images throughout the filtering process
+ */
 public class ImageViewFragment extends Fragment implements View.OnTouchListener
 {
     private static final String TAG = "ImageViewFragment";
@@ -46,6 +46,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         }
     }
 
+    /**
+     * Sets a new image to the fragment.
+     * @param bmp The new image to be set.
+     */
     public void setImage(Bitmap bmp)
     {
         mBitmap = bmp.copy(bmp.getConfig(), false);
@@ -94,9 +98,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
 
     }
 
-    // Credit: https://stackoverflow.com/questions/47837857/efficiently-drawing-over-an-imageview-that-resides-inside-of-a-fragment-in-respo
-
-
+    /**
+     * A getter method for the mScribbleOn field. Indicates whether the image is in scribble mode.
+     * @return true iff the image is in scribble mode.
+     */
     public boolean isScribbleOn() {
         return mScribbleOn;
     }
@@ -111,6 +116,10 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
         return view;
     }
 
+    /**
+     * A setter for the mScribbleOn field.
+     * @param state The new scribble state of the image.
+     */
     public void setScribbleOn(boolean state)
     {
         mScribbleOn = state;
@@ -118,7 +127,9 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     }
 
     /**
-     * Remove all the scribbled coordinates and drawings
+     * Removes all the scribbled drawings from the image
+     * @param newScribbleState a boolean representing the new scribble state of the image. If it's true,
+     *                         the user can re-draw on the image.
      */
     public void clearScribble(boolean newScribbleState)
     {
@@ -128,21 +139,22 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     }
 
     /**
-     * @return the Path object with the scribble contours
+     * A getter method for the Path object of the image, containing the scribble data.
+     * @return Path object with the scribble data.
      */
     public Path getScribblePath() {
         return mImageView.getPath();
     }
 
-//    public void drawPathOnView(Path path) {
-//        mImageView.drawPath(path);
-//    }
-//
-//    public ImageView getImageView()
-//    {
-//        return mImageView;
-//    }
-
+    /**
+     * Returns the image-view height.
+     * @return The image-view height.
+     */
     public int getImageViewHeight() {return mImageView.getHeight();}
+
+    /**
+     * Returns the image-view width.
+     * @return The image-view width.
+     */
     public int getImageViewWidth() {return mImageView.getWidth();}
 }

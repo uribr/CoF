@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
@@ -34,10 +35,12 @@ import java.util.Map;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
-import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
 
+/**
+ * This class holds variety of utilities used in the application.
+ */
 class Utilities {
     private static final int MAX_PRESET_NAME_LENGTH = 21;
 
@@ -51,6 +54,7 @@ class Utilities {
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
     static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
     static final int DEFAULT_WINDOW_SIZE = 15;
+    static final double DEFAULT_ALPHA = 0.5; // for FB-CoF
     static final float DEFAULT_SIGMA = 2 * (float) Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
     static final int FILTER_SETTINGS_REQUEST_CODE = 2;
@@ -89,8 +93,8 @@ class Utilities {
      * Determines if the name chosen for a preset is at least one
      * character long and isn't the default presets' name.
      *
-     * @param str
-     * @return
+     * @param str The given preset name
+     * @return true iff the given preset name is valid
      */
     static boolean isNameValid(String str, boolean canBeDefault) {
         boolean atLeastOneChar = false;
@@ -127,7 +131,8 @@ class Utilities {
     }
 
 
-    static Preset loadPreset(SharedPreferences prefs) {
+    @NonNull
+    private static Preset loadPreset(SharedPreferences prefs) {
         return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
                 prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
                 prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
@@ -136,11 +141,13 @@ class Utilities {
                 prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
     }
 
+    @NonNull
     static Preset loadCurrentPreset() {
         return loadPreset(currentPresetFile);
     }
 
 
+    @NonNull
     static Preset loadDefaultPreset(int imgSize) {
         return loadPreset(defaultPresetFile);
 //
@@ -201,6 +208,7 @@ class Utilities {
 //    }
 
 
+    @Nullable
     static Map<String, String> convertJSONString2Map(String JSONString) {
         JSONObject jsonObject;
         Map<String, String> map = new HashMap<>();
@@ -253,6 +261,13 @@ class Utilities {
 //    }
 
 
+    /**
+     * Creates a compressed version of the chosen image, in order to save memory space.
+     * @param context The current context (activity)
+     * @param uri The Uri object holding the image data
+     * @return A compresed version of the loaded image
+     */
+    @Nullable
     static Bitmap getBitmap(Context context, Uri uri) {
         InputStream in;
         try {
@@ -306,33 +321,33 @@ class Utilities {
     }
 
 
-    public static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
+//    public static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+//        int width = image.getWidth();
+//        int height = image.getHeight();
+//        float bitmapRatio = (float) width / (float) height;
+//        if (bitmapRatio > 1) {
+//            width = maxSize;
+//            height = (int) (width / bitmapRatio);
+//        } else {
+//            height = maxSize;
+//            width = (int) (height * bitmapRatio);
+//        }
+//        return Bitmap.createScaledBitmap(image, width, height, true);
+//    }
 
-    /**
-     * A static method for verifying if there is an activity that accepts the intent provided
-     * within the context of ctx
-     *
-     * @param ctx
-     * @param intent
-     * @return
-     */
-    public static boolean isIntentAvailable(Context ctx, Intent intent) {
-        final PackageManager mgr = ctx.getPackageManager();
-        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return list.size() > 0;
-    }
+//    /**
+//     * A static method for verifying if there is an activity that accepts the intent provided
+//     * within the context of ctx
+//     *
+//     * @param ctx
+//     * @param intent
+//     * @return
+//     */
+//    public static boolean isIntentAvailable(Context ctx, Intent intent) {
+//        final PackageManager mgr = ctx.getPackageManager();
+//        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+//        return list.size() > 0;
+//    }
 
     @NonNull
     static Double mapSeekbarToSigma(int progress) {
@@ -345,13 +360,20 @@ class Utilities {
         return ((int) (sigma * MAX_SIGMA));
     }
 
-    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, String msg) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(msg);
-        return alertDialog;
-    }
+//    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, String msg) {
+//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+//        alertDialog.setTitle(title);
+//        alertDialog.setMessage(msg);
+//        return alertDialog;
+//    }
 
+    /**
+     * Generates a basic alert dialog with a "WARNING" title and with a message according to the given message ID.
+     * @param context The context (activity)
+     * @param msgID The message ID (in R.strings)
+     * @return an AlertDialog.Builder object with the given message. It is possible to add positive and negative buttons
+     * to it.
+     */
     static AlertDialog.Builder generateBasicAlertDialog(Context context, int msgID) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
         alertDialog.setTitle(R.string.alert_dialog_warning);
@@ -360,6 +382,10 @@ class Utilities {
     }
 
 
+    /**
+     * Releases all the matrices lists in the given list
+     * @param matLsts List of lists of matrices
+     */
     @SafeVarargs
     static void releaseMats(List<Mat>... matLsts) {
         for (List<Mat> lst : matLsts) {
@@ -367,6 +393,10 @@ class Utilities {
         }
     }
 
+    /**
+     * Releases all the matrices in the given list
+     * @param lst A list of matrices
+     */
     private static void releaseMats(List<Mat> lst) {
         for (Mat m : lst) {
             if (m != null) {
@@ -375,6 +405,10 @@ class Utilities {
         }
     }
 
+    /**
+     * Releases all the matrices in the given list
+     * @param lst A list of matrices
+     */
     static void releaseMats(Mat... lst) {
         for (Mat m : lst) {
             if (m != null) {
@@ -383,6 +417,9 @@ class Utilities {
         }
     }
 
+    /**
+     * A class holding the ShowcaseView parameters (view ID and text ID)
+     */
     static class ShowcaseViewParams {
         int viewId;
         int textId;
@@ -394,6 +431,13 @@ class Utilities {
     }
 
 
+    /**
+     * Runs a MaterialShowcaseViwe tutorial sequence in the current activity
+     * @param activity The current activity
+     * @param titleId Tutorial title ID
+     * @param numOfViews Number of tutrial messages
+     * @param showcaseViewParams The different ShowcaseViews parameters objects
+     */
     static void showTutorial(Activity activity, int titleId, int numOfViews, List<ShowcaseViewParams> showcaseViewParams) {
         ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(100); // half second between each showcase view
@@ -429,19 +473,6 @@ class Utilities {
                 msv.withRectangleShape();
             }
             sequence.addSequenceItem(msv.build());
-//            if (currParams.viewId == R.id.post_filtering_buttons_layout){
-//                sequence.addSequenceItem(
-//                        new MaterialShowcaseView.Builder(activity)
-//                                .setTarget(view)
-//                                .setDismissText(dismissText)
-//                                .setTitleText(title)
-//                                .setContentText(content)
-//                                .setDismissOnTouch(true)
-//                                .withRectangleShape()
-//                                .build());
-//            } else {
-//                sequence.addSequenceItem(view, title, content, dismissText);
-//            }
         }
         //sequence.singleUse(sequenceKey);
         sequence.start();

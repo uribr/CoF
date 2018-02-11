@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private Intent genBasicImageProcIntent(boolean fromCamera) {
-        Intent intent = new Intent(this, PhotoFilteringActivity.class);
+        Intent intent = new Intent(this, FilteringActivity.class);
         intent.putExtra(getString(R.string.Capture), fromCamera);
         return intent;
     }

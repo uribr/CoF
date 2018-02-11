@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -59,9 +60,13 @@ import static cofproject.tau.android.cof.Utilities.loadCurrentPreset;
 import static cofproject.tau.android.cof.Utilities.loadDefaultPreset;
 import static cofproject.tau.android.cof.Utilities.updateCurrentPreset;
 
-
-public class PhotoFilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
-    private static final String TAG = "PhotoFilteringActivity";
+/**
+ * In this activity all the filtering process occurs - the image is loaded and then the user is able
+ * to choose parameters, scribble on the image, and filter it using either CoF or FB-CoF.
+ * @see CoF
+ */
+public class FilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
+    private static final String TAG = "FilteringActivity";
     private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     private static final String FROM_SCRIBBLE_TO_THRESHOLD = "from scribble to threshold";
@@ -94,6 +99,10 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     private Mat mImToCollect;
     private Mat mFilteredScribble;
 
+    /**
+     * Clears the scribble inforamtion from the image
+     * @param view The "clear scribble" button
+     */
     public void onClearScribbleClick(View view) {
         Log.i(TAG, "onClearScribbleClick: cleared scribble");
         mImageViewFragment.clearScribble(true);
@@ -131,7 +140,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 //        {
 //            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        }
-        setContentView(R.layout.activity_photo_filtering);
+        setContentView(R.layout.activity_filtering);
         mFilteringMode = FilteringMode.REGULAR_FILTERING;
 
 
@@ -177,7 +186,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        setContentView(R.layout.activity_photo_filtering);
+        setContentView(R.layout.activity_filtering);
         initFragments();
     }
 
@@ -212,8 +221,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             return;
         }
         switchCompat.setChecked(mFilteringMode != FilteringMode.REGULAR_FILTERING);
-        //switchCompat.setChecked(mImageViewFragment.isScribbleOn());
-
     }
 
     private static void addImageToGallery(final String filePath, final Context context) {
@@ -256,11 +263,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         }
     }
 
-    /**
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -314,6 +317,10 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     }
 
 
+    /**
+     * Starts the activity of the filter settings
+     * @param view The filter settings button.
+     */
     public void onFilterSettingsClick(View view) {
         Intent intent = new Intent(this, FilterSettingsActivity.class);
 
@@ -325,7 +332,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
 
     /**
-     * @param view
+     * Toggles the scribble switch.
+     * @param view The scribble switch.
      */
     public void onScribbleSwitch(View view) {
 
@@ -354,7 +362,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
                 mFilteringMode = FilteringMode.REGULAR_FILTERING;
                 if (backPressed) {
-                    PhotoFilteringActivity.super.onBackPressed();
+                    FilteringActivity.super.onBackPressed();
                     if (mIsFiltered) {
                         mImageViewFragment.setImage(mOriginalBitmap);
                         mImageViewFragment.clearScribble(false);
@@ -377,10 +385,18 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
     }
 
+    /**
+     * Cancels the scribble mask thresholding process, restoring the original image.
+     * @param view The cancel button.
+     */
     public void onCancelClick(View view) {
         this.onBackPressed();
     }
 
+    /**
+     * Starts the performance of FB-CoF after thresholding the foreground mask.
+     * @param view The continue button.
+     */
     public void onContinueScribbleClick(View view) {
 
         mForegroundMask = new Mat();
@@ -416,12 +432,20 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
     private class FilteringAsyncTask extends AsyncTask<Void, String, Void> {
 
         private final String TAG = "FilteringAsyncTask";
-        ProgressDialog mProgressDialog;
 
+        private ProgressDialog progressDialog;
+        private Stopwatch stopwatch;
         private int iterCnt;
         private int nBins;
         private int winSize;
         private double sigma;
+
+        //todo - to be wired
+        private int winSizeFilt;
+        private double sigmaFilt;
+        private int winSizeFB;
+        private int iterCntFB;
+
 
         @Override
         protected void onPreExecute() {
@@ -438,46 +462,45 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                     titleId = R.string.applying_fb_cof_title;
                     break;
             }
-            mProgressDialog = new ProgressDialog(PhotoFilteringActivity.this);
-            mProgressDialog.setTitle(titleId);
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.setCanceledOnTouchOutside(false);
-            mProgressDialog.show();
+            // disable the screen fro going to sleep
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            progressDialog = new ProgressDialog(FilteringActivity.this);
+            progressDialog.setTitle(titleId);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
         }
 
-        private void regularFiltering(Stopwatch sw, Mat imToFilterCopy) {
+        private void regularFiltering() {
             if (mImToFilter.rows() != mFilteredImage.rows() || mImToFilter.cols() != mFilteredImage.cols()) {
-                Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
-            }
-            // clone only if we're in real regular filtering
-            if (imToFilterCopy == null) {
-                imToFilterCopy = mImToFilter.clone();
+                Log.d(TAG, "regularFiltering: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
             }
 
             publishProgress(getString(R.string.filtering_phase_qunatization));
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             CoF.quantize(mImToFilter, mImToCollect, nBins);
-            sw.stop();
-            Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            stopwatch.stop();
+            Log.d(TAG, "doInBackground: quantize time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
 
             Mat pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
             Mat pmi = new Mat(pab.size(), pab.type());
 
             publishProgress(getString(R.string.filtering_phase_collect_Pab));
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             // collecting with the default all-ones mask
             CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
-            sw.stop();
-            Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            stopwatch.stop();
+            Log.d(TAG, "doInBackground: collectPab time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             CoF.pabToPmi(pab, pmi);
 
-            //Mat imToProcessCopy = (scribbleMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
+            // clone image to filter according to the filtering mode
+            Mat imToFilterCopy = (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
             System.gc();
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             for (int i = 0; i < iterCnt; i++) {
                 Log.d(TAG, "doInBackground: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
                 publishProgress(getString(R.string.filtering_phase_iter_count) + (i + 1) + "/" + iterCnt);
@@ -485,9 +508,9 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                 mFilteredImage.copyTo(imToFilterCopy);
                 System.gc();
             }
-            sw.stop();
-            Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-            Utilities.releaseMats(pab, pmi);
+            stopwatch.stop();
+            Log.d(TAG, "applyCoF: coFilter time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            Utilities.releaseMats(pab, pmi, imToFilterCopy);
 
             // convert filterd image to uint8 type
             mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
@@ -496,29 +519,29 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
         }
 
-        private void fgBgFiltering(Stopwatch sw) {
+        private void fgBgFiltering() {
             Mat fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
             Mat bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
 
             publishProgress(getString(R.string.filtering_phase_collect_fg_Pab));
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
-            sw.stop();
-            Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            stopwatch.stop();
+            Log.d(TAG, "doInBackground: collectPab (foreground) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
 
             publishProgress(getString(R.string.filtering_phase_collect_bg_Pab));
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
-            sw.stop();
-            Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            stopwatch.stop();
+            Log.d(TAG, "doInBackground: collectPab (background) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
 
             Mat imToFilterCopy = mImToFilter.clone();
 
-            sw.reset();
-            sw.start();
+            stopwatch.reset();
+            stopwatch.start();
             for (int i = 0; i < 3; i++) { //todo - change hard coded values!
                 Log.d(TAG, "doInBackground: FBCofilter iteration No. " + (i + 1) + "/" + 3);
                 publishProgress(getString(R.string.filtering_phase_iter_count) + (i + 1) + "/" + 3);
@@ -527,8 +550,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                 System.gc();
             }
 
-            sw.stop();
-            Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+            stopwatch.stop();
+            Log.d(TAG, "doInBackground: FBCoFilter time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             Utilities.releaseMats(fgPab, bgPab, imToFilterCopy);
         }
 
@@ -547,122 +570,38 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
         @Override
         protected Void doInBackground(Void... voids) {
-
-            Mat imToFilterCopy = null;
             try {
                 Log.i(TAG, "doInBackground: Started applying filter");
                 initParams();
 
-                Stopwatch sw = Stopwatch.createUnstarted(); // stopwatch to measure times
+                stopwatch = Stopwatch.createUnstarted(); // stopwatch to measure times
+                Log.i(TAG, "doInBackground: filtering mode: " + mFilteringMode.name());
                 switch (mFilteringMode){
                     case SCRIBBLE_INITIALIZATION:
                         // init scribble
                         mScribbleThreshold = Utilities.SCRIBBLE_THRESHOLD_INIT_VAL;
                         publishProgress(getString(R.string.filtering_phase_processing_scribble));
                         generateScribbleImage();
-                        imToFilterCopy = mScribbleImage.clone();
                         // fall through
                     case REGULAR_FILTERING:
-                        regularFiltering(sw, imToFilterCopy);
-//                        if (mImToFilter.rows() != mFilteredImage.rows() || mImToFilter.cols() != mFilteredImage.cols()) {
-//                            Log.e(TAG, "doInBackground: imToProcess.size() != filteredImage.size()", new IllegalArgumentException("imToProcess.size() != filteredImage.size()"));
-//                        }
-//                        // clone only if we're in real regular filtering
-//                        if (imToFilterCopy == null) {
-//                            imToFilterCopy = mImToFilter.clone();
-//                        }
-//
-//                        publishProgress("Quantizing...");
-//                        sw.reset();
-//                        sw.start();
-//                        CoF.quantize(mImToFilter, mImToCollect, nBins);
-//                        sw.stop();
-//                        Log.d(TAG, "doInBackground: quantize time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-//
-//                        pab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-//                        pmi = new Mat(pab.size(), pab.type());
-//
-//                        publishProgress("Collecting Statistics...");
-//                        sw.reset();
-//                        sw.start();
-//                        // collecting with the default all-ones mask
-//                        CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
-//                        sw.stop();
-//                        Log.d(TAG, "doInBackground: collectPab time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-//                        CoF.pabToPmi(pab, pmi);
-//
-//                        //Mat imToProcessCopy = (scribbleMode == FilteringMode.SCRIBBLE_INITIALIZATION) ? mScribbleImage.clone() : mImToFilter.clone();
-//                        System.gc();
-//                        sw.reset();
-//                        sw.start();
-//                        for (int i = 0; i < iterCnt; i++) {
-//                            Log.d(TAG, "doInBackground: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
-//                            publishProgress("Filtering - Iteration No. " + (i + 1) + "/" + iterCnt);
-//                            CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSize, sigma);
-//                            mFilteredImage.copyTo(imToFilterCopy);
-//                            System.gc();
-//                        }
-//                        sw.stop();
-//                        Log.d(TAG, "applyCoF: coFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-//
-//                        // convert filterd image to uint8 type
-//                        mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
-//                        // save the filtered Mat into Bitmap
-//                        mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
-//                        Utils.matToBitmap(mFilteredImage, mFilteredBitmap, true);
+                        regularFiltering();
                         break;
-
                     case FOREGROUND_BACKGROUND:
-                        fgBgFiltering(sw);
-//                        fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-//                        bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
-//
-//                        publishProgress("Collecting foreground statistics...");
-//                        sw.reset();
-//                        sw.start();
-//                        CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
-//                        sw.stop();
-//                        Log.d(TAG, "doInBackground: collectPab (foreground) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-//
-//                        publishProgress("Collecting background statistics...");
-//                        sw.reset();
-//                        sw.start();
-//                        CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
-//                        sw.stop();
-//                        Log.d(TAG, "doInBackground: collectPab (background) time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
-//                        Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
-//
-//
-//                        imToFilterCopy = mImToFilter.clone();
-//
-//                        publishProgress("Filtering...");
-//                        sw.reset();
-//                        sw.start();
-//                        for (int i = 0; i < 3; i++) {
-//                            CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
-//                            mFilteredImage.copyTo(imToFilterCopy);
-//                            System.gc();
-//                        }
-//
-//                        sw.stop();
-//                        Log.d(TAG, "doInBackground: FBCoFilter time: " + sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
+                        fgBgFiltering();
                         break;
                 }
                 Log.i(TAG, "doInBackground: Filtering finished");
 
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
-            } finally {
-                Utilities.releaseMats(imToFilterCopy);
             }
-
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            mProgressDialog.setMessage(values[0]);
+            progressDialog.setMessage(values[0]);
         }
 
         @Override
@@ -676,7 +615,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
             if (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) {
                 Utilities.releaseMats(mFilteredScribble);
                 mFilteredScribble = mFilteredImage.clone();
-                //relevantFragment = new ScribbleMaskThresholdFragment();
                 relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
                 strToBackStack = FROM_SCRIBBLE_TO_THRESHOLD;
             } else {
@@ -692,28 +630,23 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                 mSavedOnce = false;
 
                 // Create the post filtering fragment
-                //relevantFragment = ButtonsFragment.newInstance(R.layout.post_filtering_buttons_fragment);
                 relevantLayoutId = R.layout.post_filtering_buttons_fragment;
                 strToBackStack = FROM_FILTERING_TO_RESULT;
 
             }
             Fragment relevantFragment = ButtonsFragment.newInstance(relevantLayoutId);
             replaceButtonsFragments(relevantFragment, strToBackStack);
-
-//            // Replacing the in-filtering fragment of buttons with the post-filtering fragment of buttons.
-//            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//            transaction.replace(R.id.filtering_activity_button_container, relevantFragment);
-//            //transaction.replace(R.id.main_view_container, mImageViewFragment);
-//            transaction.addToBackStack(strToBackStack);
-//            transaction.commit();
-            mProgressDialog.dismiss();
+            // allow the screen to sleep again
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            progressDialog.dismiss();
         }
 
     }
 
 
     /**
-     * @param view
+     * Starts the performance of CoF on the input image
+     * @param view The apply filter button
      */
     public void onApplyFilterClick(View view) {
 
@@ -762,7 +695,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         Utilities.releaseMats(scribbleMat, SE);
     }
 
-    void onChangeScribbleThreshold(int threshold) {
+    private void onChangeScribbleThreshold(int threshold) {
         Mat mask = new Mat();
         Mat tmp = new Mat();
         Core.compare(mFilteredScribble, new Scalar(threshold), mask, Core.CMP_GE);
@@ -817,7 +750,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
 
     /**
-     * @param view
+     * Saves the filtered image
+     * @param view The save image button
      */
     public void onSaveResultClick(View view) {
         Log.i(TAG, "onSaveResultClick:  onClick event");
@@ -831,7 +765,8 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
 
 
     /**
-     * @param view
+     * Starts a sharing intent in order to share the filtered image
+     * @param view The share image button
      */
     public void onShareClick(View view) {
         // CREDIT: https://goo.gl/wQvQeh
@@ -874,7 +809,7 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         // Add the buttons
         alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                PhotoFilteringActivity.super.onBackPressed();
+                FilteringActivity.super.onBackPressed();
                 if (mFilteringMode == FilteringMode.REGULAR_FILTERING) {
                     mIsFiltered = false;
                     mImageViewFragment.setImage(mOriginalBitmap);
@@ -970,6 +905,10 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Runs the app tutorial for the current activity.
+     * @param item The help button
+     */
     public void onClickHelpButton(MenuItem item) {
         Log.i(TAG, "onClickHelpButton: pressed");
         int relevantLayoutId = -1;
@@ -994,26 +933,6 @@ public class PhotoFilteringActivity extends AppCompatActivity implements Buttons
                 break;
 
         }
-//        if (mIsFiltered) {
-//            relevantLayoutId = R.layout.post_filtering_buttons_fragment;
-//            //tutorialKey = getString(R.string.post_filtering_tutorial_key);
-//        } else {
-//            switch (mFilteringMode) {
-//                case REGULAR_FILTERING:
-//                    relevantLayoutId = R.layout.pre_filtering_buttons_fragment;
-//                    tutorialKey = getString(R.string.pre_filtering_tutorial_key);
-//                    break;
-//                // pre filtering buttons
-//                case SCRIBBLE_INITIALIZATION:
-//                    relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
-//
-//                    break;
-//                // scribble mask threshold
-//                case FOREGROUND_BACKGROUND:
-//                default:
-//                    return; // should not get here
-//            }
-//        }
         // set the tutorialKey to be true - like the first time
         getPreferences(MODE_PRIVATE).edit().putBoolean(tutorialKey, true).apply();
         // re-create the fragment so it will call the tutorial again

@@ -30,7 +30,7 @@
 
         </activity>
         <activity
-            android:name=".PhotoFilteringActivity"
+            android:name=".FilteringActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_filter_photo"
             android:launchMode="singleTask"
@@ -41,7 +41,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/filtersetting_label"
             android:launchMode="singleTask"
-            android:parentActivityName=".PhotoFilteringActivity">
+            android:parentActivityName=".FilteringActivity">
         </activity>
         <activity
             android:name=".InfoActivity"

@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Starts the splash activity (intro screen) of the application.
+ */
 public class SplashActivity extends AppCompatActivity {
 
     @Override

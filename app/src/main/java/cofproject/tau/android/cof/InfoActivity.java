@@ -13,6 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * This activity shows some information about the application.
+ */
 public class InfoActivity extends AppCompatActivity {
 
     private static final String TAG = "InfoActivity";

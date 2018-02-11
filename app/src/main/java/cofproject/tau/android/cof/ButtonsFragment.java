@@ -1,12 +1,10 @@
 package cofproject.tau.android.cof;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +15,12 @@ import android.widget.SeekBar;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cofproject.tau.android.cof.Utilities.*;
+import static cofproject.tau.android.cof.Utilities.ShowcaseViewParams;
+import static cofproject.tau.android.cof.Utilities.showTutorial;
 
-
+/**
+ * A Fragment class responsible for the buttons at the bottom of the screen.
+ */
 public class ButtonsFragment extends Fragment {
 
     private static final String TAG = "ButtonsFragment";
@@ -77,7 +78,6 @@ public class ButtonsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Activity activity = getActivity();
         SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         String tutorialKey = null;
         Boolean firstTime = false;
@@ -132,6 +132,11 @@ public class ButtonsFragment extends Fragment {
         }
     }
 
+    /**
+     * A factory creating a new instance of the buttoms fragment, according to a given layout ID.
+     * @param layoutId The layout ID for the wanted buttons fragment.
+     * @return A new buttons fragment instance of the given layout.
+     */
     public static ButtonsFragment newInstance(int layoutId) {
         ButtonsFragment f = new ButtonsFragment();
         Bundle args = new Bundle();
@@ -140,8 +145,22 @@ public class ButtonsFragment extends Fragment {
         return f;
     }
 
+    /**
+     * An interface allowing the filtering activity which uses a button fragment to perform operations based on
+     * its inner data, with a guarantee that the fragment was created.
+     */
     public interface ButtonsFragmentListener{
+
+        /**
+         * Configures the scribble mask threshold seek-bar.
+         * @param seekBar The seek-bar to be configured
+         */
         void configSeekBar(SeekBar seekBar);
+
+        /**
+         * Configures the scribble switch.
+         * @param switchCompat The switch to be configured;
+         */
         void configSwitch(SwitchCompat switchCompat);
     }
 

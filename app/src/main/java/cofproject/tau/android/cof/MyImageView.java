@@ -10,7 +10,9 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-
+/**
+ * A class extending Android's AppCompatImageView, adding drawing abilities.
+ */
 public class MyImageView extends android.support.v7.widget.AppCompatImageView {
     private static final String TAG = "MyImageView";
     private static final int TOUCH_TOLERANCE = 4;
@@ -22,6 +24,11 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
     private float mX, mY;
 
 
+    /**
+     * A constructor for the class, initialing the Paint and Path objects.
+     * @param context
+     * @param attrs
+     */
     public MyImageView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         //init();
@@ -36,10 +43,10 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
         mScribbleState = false;
     }
 
-    public void drawPath(Path path) {
-        mPath = path;
-        invalidate();
-    }
+//    public void drawPath(Path path) {
+//        mPath = path;
+//        invalidate();
+//    }
 
 
     @Override
@@ -48,15 +55,26 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
         canvas.drawPath(mPath, mPaint);
     }
 
+    /**
+     * A getter method for mPath.
+     * @return Gets the scribble path.
+     */
     public Path getPath() {
         return mPath;
     }
 
+    /**
+     * Clears the scribble drawn on the image.
+     */
     public void clearScribble() {
         mPath.reset();
         invalidate();
     }
 
+    /**
+     * Sets the scribble state of the image
+     * @param scribbleState The new scribble state
+     */
     public void setScribbleState(boolean scribbleState) {
         mScribbleState = scribbleState;
     }

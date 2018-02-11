@@ -90,7 +90,7 @@
     <string name="clear_scribble_btn_text">Clear Scribble</string>
 
     <!--filtering messages-->
-    <string name="scribble_init_title">Initializing Scribble Mask</string>
+    <string name="scribble_init_title">Preparing Mask From Scribble</string>
     <string name="applying_cof_title">Applying Co-Occurrence Filter</string>
     <string name="applying_fb_cof_title">Applying FB-CoF</string>
     <string name="filtering_phase_qunatization">Quantizing…</string>
@@ -99,6 +99,8 @@
     <string name="filtering_phase_collect_fg_Pab">Collecting foreground statistics…</string>
     <string name="filtering_phase_collect_bg_Pab">Collecting background statistics…</string>
     <string name="filtering_phase_processing_scribble">Processing scribble info…</string>
+
+    <string name="preset_delete_warning">Are you sure you want to delete the current preset?</string>
 
 
 </resources>

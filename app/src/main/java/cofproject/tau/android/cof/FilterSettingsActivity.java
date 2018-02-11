@@ -167,7 +167,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     }
 
 
-    public boolean storePreset(Preset preset)
+    private boolean storePreset(Preset preset)
     {
         if (preset.validate())
         {
@@ -189,13 +189,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                 mFilteringParametersFragment.getQuantizationLevel());
     }
 
-    public void loadPreset()
-    {
-        Log.d(TAG, "loadPreset: entering");
-        mFilteringParametersFragment.applyPreset(mPreset);
-    }
-
-    public void loadPreset(String name)
+    private void loadPreset(String name)
     {
         Log.d(TAG, "loadPreset: entering");
         if (name.equals(DEFAULT_PRESET_NAME))
@@ -215,9 +209,13 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     }
 
 
+    /**
+     * Opens the save preset dialog, allowing the user to save the current preset
+     * @param view The save preset button
+     */
     public void onSavePresetClick(View view)
     {
-        Log.d(TAG, "onSavePresetClick: entering");
+        Log.i(TAG, "onSavePresetClick: entering");
         // Based on code from: https://www.mkyong.com/android/android-prompt-user-input-dialog-example/
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
@@ -319,29 +317,51 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     }
 
 
+    /**
+     * Deletes the current preset
+     * @param view The delete preset button
+     */
     @SuppressLint("ApplySharedPref")
     public void onDeleteButtonPreset(View view)
     {
-        Log.i(TAG, "onDelteButtonPress: onClick event");
-        // Default preset cannot be deleted but it can be overridden.
+        Log.i(TAG, "onDeleteButtonPreset: onClick event");
         if (!mPreset.getName().equals(getString(R.string.DefaultPresetName)))
         {
-            SharedPreferences.Editor editor = mPresetPref.edit();
-            editor.remove(mPreset.getName());
-            editor.commit();
-            onRemovedPreset(mPreset.getName());
-            Toast.makeText(getApplicationContext(), "Preset deleted.",
-                    Toast.LENGTH_SHORT).show();
-            mFilteringParametersFragment.setPresetName(UNSAVED_PRESET_NAME);
-            Log.d(TAG, "onDelteButtonPress: deleteing preset");
+            AlertDialog.Builder alertDialog = Utilities.generateBasicAlertDialog(this, R.string.preset_delete_warning);
+            alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                String presetName = mPreset.getName();
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    SharedPreferences.Editor editor = mPresetPref.edit();
+                    editor.remove(mPreset.getName());
+                    editor.commit();
+                    onRemovedPreset(presetName);
+                    Toast.makeText(getApplicationContext(), presetName + " was deleted",
+                            Toast.LENGTH_SHORT).show();
+                    mFilteringParametersFragment.setPresetName(UNSAVED_PRESET_NAME);
+                    Log.d(TAG, "onDeleteButtonPress: preset " + presetName + " was deleted");
+
+                }
+            });
+
+            alertDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {}
+            });
+            alertDialog.setCancelable(false);
+            alertDialog.show();
         }
-        else
+        else // Default preset cannot be deleted but it can be overridden.
         {
             Toast.makeText(getApplicationContext(), "Cannot delete default preset",
                     Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Opens the corresponding dialog according to the settings attribute pressd
+     * @param view The pressed settings attribute
+     */
     public void onSettingClick(View view)
     {
         Log.d(TAG, "onSettingClick: onClick event");
@@ -623,6 +643,10 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Runs the app tutorial for the current activity.
+     * @param item The help button
+     */
     public void onClickHelpButton(MenuItem item) {
         String tutorialKey = getString(R.string.filter_settings_tutorial_key);
         getPreferences(MODE_PRIVATE).edit().putBoolean(tutorialKey, true).apply();
@@ -632,6 +656,13 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                 .replace(R.id.settings_activity_button_container,
                         ButtonsFragment.newInstance(R.layout.filter_settings_buttons_fragment))
                 .commit();
+    }
+
+    @Override
+    public void loadPreset()
+    {
+        Log.d(TAG, "loadPreset: entering");
+        mFilteringParametersFragment.applyPreset(mPreset);
     }
 }
 

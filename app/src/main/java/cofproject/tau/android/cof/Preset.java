@@ -35,7 +35,7 @@ public class Preset
     //private int mNumberOfIterationFB;
 
 
-    Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, int imageSize, boolean relative, int quantization)
+    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, int imageSize, boolean relative, int quantization)
     {
         this.setRelativeWindowSize(statWindowSize, imageSize);
         this.setSigma(statSigma);
@@ -46,7 +46,7 @@ public class Preset
         mRelative = relative;
     }
 
-    Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, boolean relative, int quantization)
+    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, boolean relative, int quantization)
     {
         mName = name;
         mRelative = relative;
@@ -70,7 +70,7 @@ public class Preset
 //        mNumberOfIterationFB = numberOfIterationFB;
 //    }
 
-    Preset(String name, Map<String, String> map)
+    public Preset(String name, Map<String, String> map)
     {
         mName = name;
         mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
