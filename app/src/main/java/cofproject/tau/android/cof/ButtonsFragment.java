@@ -133,7 +133,7 @@ public class ButtonsFragment extends Fragment {
     }
 
     /**
-     * A factory creating a new instance of the buttoms fragment, according to a given layout ID.
+     * A factory creating a new instance of the buttons fragment, according to a given layout ID.
      * @param layoutId The layout ID for the wanted buttons fragment.
      * @return A new buttons fragment instance of the given layout.
      */
