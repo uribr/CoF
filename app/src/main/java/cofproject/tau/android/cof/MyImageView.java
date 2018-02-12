@@ -79,6 +79,10 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
         mScribbleState = scribbleState;
     }
 
+    public boolean isScribbleOn() {
+        return mScribbleState;
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {

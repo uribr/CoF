@@ -24,7 +24,7 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private MyImageView mImageView;
     private Bitmap mBitmap;
     private boolean mFirstLoading;
-    private boolean mScribbleOn;
+    //private boolean mScribbleOn;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -94,8 +94,6 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
             });
 
         }
-
-
     }
 
     /**
@@ -103,39 +101,36 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
      * @return true iff the image is in scribble mode.
      */
     public boolean isScribbleOn() {
-        return mScribbleOn;
+        //return mScribbleOn;
+        return mImageView.isScribbleOn();
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.image_view_fragment, container, false);
-        mScribbleOn = false;
+        //mScribbleOn = false;
         mImageView = view.findViewById(R.id.image_view);
         mImageView.setImageBitmap(mBitmap);
+        mImageView.setScribbleState(false);
         return view;
     }
 
     /**
-     * A setter for the mScribbleOn field.
+     * A setter for the image view's scribble state
      * @param state The new scribble state of the image.
      */
-    public void setScribbleOn(boolean state)
+    public void setScribbleState(boolean state)
     {
-        mScribbleOn = state;
         mImageView.setScribbleState(state);
     }
 
+
     /**
-     * Removes all the scribbled drawings from the image
-     * @param newScribbleState a boolean representing the new scribble state of the image. If it's true,
-     *                         the user can re-draw on the image.
+     * Removes all the scribbles off the image
      */
-    public void clearScribble(boolean newScribbleState)
-    {
-        mScribbleOn = newScribbleState;
+    public void clearScribble() {
         mImageView.clearScribble();
-        mImageView.setScribbleState(newScribbleState);
     }
 
     /**

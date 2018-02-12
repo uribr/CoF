@@ -53,6 +53,9 @@ import static cofproject.tau.android.cof.Utilities.mapSeekbarToSigma;
 import static cofproject.tau.android.cof.Utilities.mapSigmaToProgress;
 import static cofproject.tau.android.cof.Utilities.updatePreset;
 
+/**
+ * In this activity the user can set the different settings of the CoF and FB-CoF.
+ */
 public class FilterSettingsActivity extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
 
