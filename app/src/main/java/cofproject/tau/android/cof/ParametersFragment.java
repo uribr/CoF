@@ -26,24 +26,14 @@ public class ParametersFragment extends Fragment
     // CoF
     private TextView mCurrentStatWindowSize;
     private TextView mCurrentStatSigma;
-    //private TextView mCurrentFiltWindowSize;
-    //private TextView mCurrentFiltSigma;
+    private TextView mCurrentFiltWindowSize;
+    private TextView mCurrentFiltSigma;
     private TextView mIterationCount;
     // FB-CoF
-    //private TextView mCurrentFiltWindowSizeFB;
-    //private TextView mIterationCountFB;
-
-
-    //private List<Integer> mLayoutIds;
-
-
-//    private void updateSpinnerMenu()
-//    {
-//        ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, mPresets);
-//        mPresetSpinner.setAdapter(adapter);
-//    }
-
-
+    private TextView mCurrentFiltWindowSizeFB;
+    private TextView mIterationCountFB;
+    // Scribble Cosmetics
+//    private TextView mCurre
 
     @Override
     public void onAttach(Context context)
@@ -58,21 +48,19 @@ public class ParametersFragment extends Fragment
         }
     }
 
-    public void applyPreset(Preset preset)
+    public void applyPreset(Preset preset, int imgSize)
     {
-        applyPreset(preset.getName(), preset.getQuantization(), preset.getStatWindowSize(),
-                preset.getStatSigma(), preset.getNumberOfIteration(), preset.getQuantization());
-    }
-
-    public void applyPreset(String name, int quantLvl, int windowSize, double sigma, int iterations,
-                            int quantization)
-    {
-        setPresetName(name);
-        setQuantizationLevel(quantLvl);
-        setWindowSize(windowSize);
-        setSigma(sigma);
-        setIterationCount(iterations);
-        setQuantizationLevel(quantization);
+        setPresetName(preset.getName());
+        setQuantizationLevel(preset.getQuantization());
+        setStatWindowSize(preset.getStatWindowSize(imgSize));
+        setStatSigma(preset.getStatSigma());
+        setFiltWindowSize(preset.getFiltWindowSize(imgSize));
+        setFiltSigma(preset.getFiltSigma());
+        setIterationCount(preset.getNumberOfIteration());
+        setFiltWindowSizeFB(preset.getFiltWindowSizeFB(imgSize));
+        setIterationCountFB(preset.getNumberOfIterationFB());
+//        setScribbleWidth(preset.getScribbleWidth());
+//        setScribbleColor(preset.getScribbleColor());
     }
 
     @Override
@@ -87,12 +75,12 @@ public class ParametersFragment extends Fragment
         //CoF
         mCurrentStatWindowSize = view.findViewById(R.id.current_stat_window_size);
         mCurrentStatSigma = view.findViewById(R.id.current_stat_deviation_value);
-        //mCurrentFiltWindowSize = view.findViewById(R.id.current_filt_window_size);
-        //mCurrentFiltSigma = view.findViewById(R.id.current_filt_deviation_value);
+        mCurrentFiltWindowSize = view.findViewById(R.id.current_filt_window_size);
+        mCurrentFiltSigma = view.findViewById(R.id.current_filt_deviation_value);
         mIterationCount = view.findViewById(R.id.current_iteration_value);
         //FB-CoF
-        //mCurrentFiltWindowSizeFB = view.findViewById(R.id.current_fb_filt_window_size);
-        //mIterationCountFB = view.findViewById(R.id.current_fb_iteration_value);
+        mCurrentFiltWindowSizeFB = view.findViewById(R.id.current_fb_filt_window_size);
+        mIterationCountFB = view.findViewById(R.id.current_fb_iteration_value);
 
         mListener.loadPreset();
         return view;
@@ -100,26 +88,58 @@ public class ParametersFragment extends Fragment
 
     public String getPresetName() { return mCurrentPresetName.getText().toString(); }
 
-    public float getSigma()
+    public float getStatSigma()
     {
         Log.d(TAG, "getStatSigma: " + mCurrentStatSigma.getText().toString());
         Log.d(TAG, String.format("getStatSigma; %f", Float.parseFloat(mCurrentStatSigma.getText().toString())) );
         return Float.parseFloat(mCurrentStatSigma.getText().toString());
     }
 
-    public void setSigma(Double sigma)
+    public float getFiltSigma()
+    {
+        Log.d(TAG, "getFiltSigma: " + mCurrentStatSigma.getText().toString());
+        Log.d(TAG, String.format("getFiltSigma; %f", Float.parseFloat(mCurrentFiltSigma.getText().toString())) );
+        return Float.parseFloat(mCurrentFiltSigma.getText().toString());
+    }
+
+    public void setStatSigma(Double sigma)
     {
         mCurrentStatSigma.setText(String.format(Locale.ENGLISH, "%.02f", sigma));
     }
 
-    public int getWindowSize()
+    public void setFiltSigma(Double sigma)
+    {
+        mCurrentFiltSigma.setText(String.format(Locale.ENGLISH, "%.02f", sigma));
+    }
+
+    public int getStatWindowSize()
     {
         return Integer.parseInt(mCurrentStatWindowSize.getText().toString());
     }
 
-    public void setWindowSize(int windowSize)
+    public int getWindowSize()
+    {
+        return Integer.parseInt(mCurrentFiltWindowSize.getText().toString());
+    }
+
+    public int getWindowSizeFB()
+    {
+        return Integer.parseInt(mCurrentFiltWindowSizeFB.getText().toString());
+    }
+
+    public void setStatWindowSize(int windowSize)
     {
         mCurrentStatWindowSize.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+    }
+
+    public void setFiltWindowSize(int windowSize)
+    {
+        mCurrentFiltWindowSize.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+    }
+
+    public void setFiltWindowSizeFB(int windowSize)
+    {
+        mCurrentFiltWindowSizeFB.setText(String.format(Locale.ENGLISH, "%d", windowSize));
     }
 
     public int getIter()
@@ -127,9 +147,19 @@ public class ParametersFragment extends Fragment
         return Integer.parseInt(mIterationCount.getText().toString());
     }
 
+    public int getIterFB()
+    {
+        return Integer.parseInt(mIterationCountFB.getText().toString());
+    }
+
     public void setIterationCount(int iter)
     {
         mIterationCount.setText(String.format(Locale.ENGLISH, "%d", iter));
+    }
+
+    public void setIterationCountFB(int iter)
+    {
+        mIterationCountFB.setText(String.format(Locale.ENGLISH, "%d", iter));
     }
 
     public int getQuantizationLevel()
@@ -137,13 +167,22 @@ public class ParametersFragment extends Fragment
         return Integer.parseInt(mCurrentQuantizationLevels.getText().toString());
     }
 
+//    public void setScribbleWidth(int scribbleWidth)
+//    {
+//        mScribbleWidth.setText(String.format(Locale.ENGLISH, "%d", scribbleWidth))
+//    }
+//
+//    public void setScribbleColor(Object scribbleColor)
+//    {
+//        mScribbleColor.setColor(scribbleColor);
+//    }
+
     public void setPresetName(String presetName)
     {
         this.mCurrentPresetName.setText(presetName);
     }
 
     public void setQuantizationLevel(int quantizationLevel) { mCurrentQuantizationLevels.setText(String.format(Locale.ENGLISH, "%d", quantizationLevel)); }
-
 
     public interface OnFinishedCreateView
     {

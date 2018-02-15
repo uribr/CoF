@@ -3,106 +3,99 @@ package cofproject.tau.android.cof;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IS_RELATIVE;
 import static cofproject.tau.android.cof.Utilities.ITERATIONS;
+import static cofproject.tau.android.cof.Utilities.ITERATIONS_FB;
 import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
-import static cofproject.tau.android.cof.Utilities.RELATIVE_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE_FB;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_STAT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.STAT_SIGMA;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
 
 public class Preset
 {
-    static final String DEFAULT_PRESET_NAME = "Default";
     private static final String TAG = "Preset";
 
     private String mName;
-    private double mRelativeWindowSize;
+    private double mRelativeStatWindowSize;
     private boolean mRelative;
     // general
     private int mQuantizationLevels;
     //CoF
+    private double mRelativeFiltWindowSize;
     private int mStatWindowSize;
     private double mStatSigma;
-    //private int mFiltWindowSize;
-    //private double mFiltSigma;
-
+    private int mFiltWindowSize;
+    private double mFiltSigma;
     private int mNumberOfIteration;
+
     //FB-CoF
-    //private int mFiltWindowSizeFB;
-    //private int mNumberOfIterationFB;
+    private int mFiltWindowSizeFB;
+    private double mRelativeFiltWindowSizeFB;
+    private int mNumberOfIterationFB;
 
+    //Scribble cosmetics
+//    private Integer mScribbleWidth;
+//    private Object mScribbleColor;
 
-    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, int imageSize, boolean relative, int quantization)
-    {
-        this.setRelativeWindowSize(statWindowSize, imageSize);
-        this.setSigma(statSigma);
-        this.setNumberOfIteration(numberOfIteration);
-        this.setQuantizationLevel(quantization);
-        this.setWindowSize(statWindowSize, imageSize);
-        mName = name;
-        mRelative = relative;
-    }
-
-    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize, boolean relative, int quantization)
-    {
-        mName = name;
-        mRelative = relative;
-        mQuantizationLevels = quantization;
-        mStatWindowSize = statWindowSize;
-        mStatSigma = statSigma;
-        mNumberOfIteration = numberOfIteration;
-    }
-
-    //todo = uncomment
-//    public Preset(String name, boolean relative, int quantizationLevels, int statWindowSize, double statSigma, int filtWindowSize, double filtSigma, int numberOfIteration, int filtWindowSizeFB, int numberOfIterationFB) {
+//    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize,
+//                  boolean relative, int quantization)
+//    {
 //        mName = name;
 //        mRelative = relative;
-//        mQuantizationLevels = quantizationLevels;
+//        mQuantizationLevels = quantization;
 //        mStatWindowSize = statWindowSize;
 //        mStatSigma = statSigma;
-//        mFiltWindowSize = filtWindowSize;
-//        mFiltSigma = filtSigma;
 //        mNumberOfIteration = numberOfIteration;
-//        mFiltWindowSizeFB = filtWindowSizeFB;
-//        mNumberOfIterationFB = numberOfIterationFB;
 //    }
+
+    public Preset(String name, boolean relative, int imgSize, int quantizationLevels,
+                  int statWindowSize, double statSigma, int filtWindowSize, double filtSigma,
+                  int numberOfIteration, int filtWindowSizeFB, int numberOfIterationFB/*, int scribbleWidth, Object scribbleColor*/)
+    {
+        mName = name;
+        mRelative = relative;
+        setRelativeWindowSize(statWindowSize, filtWindowSize, filtWindowSizeFB, imgSize);
+        setSigma(statSigma, filtSigma);
+        setQuantizationLevel(quantizationLevels);
+        setWindowSize(statWindowSize, filtWindowSizeFB, filtWindowSize, imgSize);
+        mNumberOfIteration = numberOfIteration;
+        mNumberOfIterationFB = numberOfIterationFB;
+    }
 
     public Preset(String name, Map<String, String> map)
     {
+        // General Parameters
         mName = name;
         mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
-        mRelativeWindowSize = Double.parseDouble(map.get(RELATIVE_WINDOW_SIZE));
-
         mQuantizationLevels = Integer.parseInt(map.get(QUANTIZATION));
+
+        // CoF Parameters
         mStatWindowSize = Integer.parseInt(map.get(STAT_WINDOW_SIZE));
+        mRelativeStatWindowSize = Double.parseDouble(map.get(RELATIVE_STAT_WINDOW_SIZE));
         mStatSigma = Double.parseDouble(map.get(STAT_SIGMA));
+
+        mFiltWindowSize = Integer.parseInt(map.get(FILT_WINDOW_SIZE));
+        mRelativeFiltWindowSize = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE));
+        mFiltSigma = Double.parseDouble(map.get(FILT_SIGMA));
         mNumberOfIteration = Integer.parseInt(map.get(ITERATIONS));
 
+        // FB-CoF Parameters
+        mFiltWindowSizeFB = Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB));
+        mRelativeFiltWindowSizeFB = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE_FB));
+        mNumberOfIterationFB = Integer.parseInt(map.get(ITERATIONS_FB));
 
-
+        // Scribble costmetics parameters
+//        mScribbleWidth = Integer.parseInt(map.get(SCRIBBLE_WIDTH));
+//        mScribbleColor = map.get(SCRIBBLE_COLOR);
     }
-
-//    Preset(String name, String params)
-//    {
-//        String[] paramsArr = params.split(DELIMITER, PARAMETER_LIMIT);
-//        mRelativeWindowSize = Double.parseDouble(paramsArr[0]);
-//        mStatWindowSize = Integer.parseInt(paramsArr[1]);
-//        mStatSigma = Double.parseDouble(paramsArr[2]);
-//        mNumberOfIteration = Integer.parseInt(paramsArr[3]);
-//        mQuantizationLevels = Integer.parseInt(paramsArr[4]);
-//        mRelative = Boolean.parseBoolean(paramsArr[5]);
-//        mName = name;
-//    }
-
-//    static Preset createPreset(int imgSize)
-//    {
-//        Log.d(TAG, "createPresetFromUserSettings: hardcoded default preset");
-//        return new Preset(DEFAULT_PRESET_NAME, DEFAULT_SIGMA, DEFAULT_NUMBER_OF_ITERATIONS,
-//                DEFAULT_WINDOW_SIZE, imgSize, false, DEFAULT_QUNTIZATION_LEVEL);
-//    }
 
     public boolean validate()
     {
@@ -110,11 +103,8 @@ public class Preset
                 mStatSigma == 0 ||
                 mNumberOfIteration == 0 ||
                 mName.isEmpty() ||
-                (mRelativeWindowSize == 0.0 && mRelative));
-
+                (mRelativeStatWindowSize == 0.0 && mRelative));
     }
-
-
 
     public String getName()
     {
@@ -129,24 +119,42 @@ public class Preset
         }
     }
 
-    private void setRelativeWindowSize(int windowSize, int imageSize)
+    private void setRelativeWindowSize(int statWindowSize, int filtWindowSize, int filtWindowSizeFB, int imageSize)
     {
-        if (windowSize <= imageSize && windowSize > 0)
+        if (statWindowSize <= imageSize && statWindowSize > 0)
         {
-            this.mRelativeWindowSize = (double) (windowSize) / (double) (imageSize);
+            this.mRelativeStatWindowSize = (double) (statWindowSize) / (double) (imageSize);
+        }
+        if (filtWindowSize <= imageSize && filtWindowSize > 0)
+        {
+            this.mRelativeFiltWindowSize = (double) (filtWindowSize) / (double) (imageSize);
+        }
+        if (filtWindowSizeFB <= imageSize && filtWindowSizeFB > 0)
+        {
+            this.mRelativeFiltWindowSizeFB = (double) (filtWindowSizeFB) / (double) (imageSize);
         }
     }
 
-    private Double getRelativeWindowSize()
+    private Double getRelativeStatWindowSize()
     {
-        return mRelativeWindowSize;
+        return mRelativeStatWindowSize;
     }
 
-    public Integer getWindowSize(int size)
+    private Double getRelativeFiltWindowSize()
+    {
+        return mRelativeFiltWindowSize;
+    }
+
+    private Double getRelativeFiltWindowSizeFB()
+    {
+        return mRelativeFiltWindowSizeFB;
+    }
+
+    public Integer getStatWindowSize(int size)
     {
         if (mRelative || mStatWindowSize > size)
         {
-            int res = (int) (mRelativeWindowSize * (double) (size));
+            int res = (int) (mRelativeStatWindowSize * (double) (size));
             if (res == 0)
             {
                 return ++res;
@@ -163,16 +171,76 @@ public class Preset
         }
     }
 
-    public Integer getStatWindowSize()
+    public Integer getFiltWindowSize(int size)
+    {
+        if (mRelative || mFiltWindowSize > size)
+        {
+            int res = (int) (mRelativeFiltWindowSize * (double) (size));
+            if (res == 0)
+            {
+                return ++res;
+            }
+            else if (res > size)
+            {
+                return --res;
+            }
+            return res;
+        }
+        else
+        {
+            return mFiltWindowSize;
+        }
+    }
+
+    public Integer getFiltWindowSizeFB(int size)
+    {
+        if (mRelative || mFiltWindowSizeFB > size)
+        {
+            int res = (int) (mRelativeFiltWindowSizeFB * (double) (size));
+            if (res == 0)
+            {
+                return ++res;
+            }
+            else if (res > size)
+            {
+                return --res;
+            }
+            return res;
+        }
+        else
+        {
+            return mFiltWindowSizeFB;
+        }
+    }
+
+    private Integer getStatWindowSize()
     {
         return mStatWindowSize;
     }
 
-    private void setWindowSize(int windowSize, int imgSize)
+    private Integer getFiltWindowSize()
     {
-        if (windowSize <= imgSize && windowSize > 0)
+        return mFiltWindowSize;
+    }
+
+    private Integer getFiltWindowSizeFB()
+    {
+        return mFiltWindowSizeFB;
+    }
+
+    private void setWindowSize(int statWindowSize, int filtWindowSizeFB, int filtWindowSize, int imgSize)
+    {
+        if (statWindowSize <= imgSize && statWindowSize > 0)
         {
-            mStatWindowSize = windowSize;
+            mStatWindowSize = statWindowSize;
+        }
+        if (filtWindowSize <= imgSize && filtWindowSize > 0)
+        {
+            mFiltWindowSize = filtWindowSize;
+        }
+        if (filtWindowSizeFB <= imgSize && filtWindowSizeFB > 0)
+        {
+            mFiltWindowSizeFB = filtWindowSizeFB;
         }
     }
 
@@ -181,29 +249,31 @@ public class Preset
         return mStatSigma;
     }
 
-//    public Integer getIntergerPartSigma()
-//    {
-//        return (int) Math.floor(mStatSigma);
-//    }
-//
-//    public Integer getFractionalPartSigma()
-//    {
-//        return (int) ((mStatSigma - Math.floor(mStatSigma)) * 100);
-//    }
-
-    private boolean setSigma(double sigma)
+    public Double getFiltSigma()
     {
-        if (sigma <= MAX_SIGMA && sigma > 0)
+        return mFiltSigma;
+    }
+
+    private void setSigma(double statSigma, double filtSigma)
+    {
+        if (statSigma <= MAX_SIGMA && statSigma > 0)
         {
-            this.mStatSigma = sigma;
-            return true;
+            this.mStatSigma = statSigma;
         }
-        return false;
+        if (filtSigma <= MAX_SIGMA && filtSigma > 0)
+        {
+            this.mFiltSigma = filtSigma;
+        }
     }
 
     public Integer getNumberOfIteration()
     {
         return mNumberOfIteration;
+    }
+
+    public Integer getNumberOfIterationFB()
+    {
+        return mNumberOfIterationFB;
     }
 
     private boolean setNumberOfIteration(int numberOfIteration)
@@ -241,33 +311,34 @@ public class Preset
         mRelative = relative;
     }
 
-    @Override
-    public String toString()
-    {
-
-        return String.valueOf(mRelativeWindowSize) +
-                ',' +
-                mStatWindowSize +
-                ',' +
-                mStatSigma +
-                ',' +
-                mNumberOfIteration +
-                ',' +
-                mQuantizationLevels +
-                ',' +
-                mRelative;
-    }
+//    public Integer getScribbleWidth()
+//    {
+//        return mScribbleWidth;
+//    }
+//
+//    public Object getScribbleColor()
+//    {
+//        return mScribbleColor;
+//    }
 
 
     public Map<String, String> presetToMap()
     {
         Map<String, String> map = new HashMap<>();
         map.put(STAT_WINDOW_SIZE, getStatWindowSize().toString());
+        map.put(RELATIVE_STAT_WINDOW_SIZE, getRelativeStatWindowSize().toString());
         map.put(STAT_SIGMA, getStatSigma().toString());
+        map.put(FILT_WINDOW_SIZE, getFiltWindowSize().toString());
+        map.put(RELATIVE_FILT_WINDOW_SIZE, getRelativeFiltWindowSize().toString());
+        map.put(FILT_SIGMA, getFiltSigma().toString());
         map.put(ITERATIONS, getNumberOfIteration().toString());
+        map.put(FILT_WINDOW_SIZE_FB, getFiltWindowSizeFB().toString());
+        map.put(RELATIVE_FILT_WINDOW_SIZE_FB, getRelativeFiltWindowSizeFB().toString());
+        map.put(ITERATIONS_FB, getNumberOfIterationFB().toString());
         map.put(QUANTIZATION, getQuantization().toString());
-        map.put(RELATIVE_WINDOW_SIZE, getRelativeWindowSize().toString());
         map.put(IS_RELATIVE, isRelative().toString());
+//        map.put(SCRIBBLE_WIDTH, getScribbleWidth());
+//        map.put(SCRIBBLE_COLOR, getScribbleColor());
         return map;
     }
 

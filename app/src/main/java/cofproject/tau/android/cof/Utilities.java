@@ -5,10 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -36,19 +33,17 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
-import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
-
 /**
  * This class holds variety of utilities used in the application.
  */
-class Utilities {
+class Utilities
+{
     private static final int MAX_PRESET_NAME_LENGTH = 21;
-
+    static final String DEFAULT_PRESET_NAME = "Default";
     static final int SIGMA_SEEKBAR_LENGTH = 100;
     static final float MAX_SIGMA = 100;
     static final float ZERO_SIGMA = ((float) 0.001);
     static final int MAX_ITERATIONS = 10;
-    static final String RELATIVE_WINDOW_SIZE = "relative window size";
     static final int MAX_QUANTIZATION_LEVEL = 256;
     static final int MIN_QUANTIZATION_LEVEL = 2;
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
@@ -58,22 +53,25 @@ class Utilities {
     static final float DEFAULT_SIGMA = 2 * (float) Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
     static final String UNSAVED_PRESET_NAME = "Unsaved Preset";
     static final int FILTER_SETTINGS_REQUEST_CODE = 2;
-    static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
-    static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
-    static final String HAS_PRESET = "has preset";
+    static final String PRESET_NAME = "preset name";
 
-    private static final String PRESET_NAME = "preset name";
     // general
     static final String QUANTIZATION = "quantization";
     //CoF
     static final String STAT_WINDOW_SIZE = "stat_window_size";
+    static final String RELATIVE_STAT_WINDOW_SIZE = "relative_stat_window_size";
     static final String STAT_SIGMA = "stat_sigma";
-    //static final String FILT_WINDOW_SIZE = "filt_window_size";
-    //static final String FILT_SIGMA = "filt_sigma";
+    static final String FILT_WINDOW_SIZE = "filt_window_size";
+    static final String RELATIVE_FILT_WINDOW_SIZE = "relative_filt_window_size";
+    static final String FILT_SIGMA = "filt_sigma";
     static final String ITERATIONS = "iterations";
     //FB-CoF
-    //static final String FILT_WINDOW_SIZE_FB = "filt_window_size_fb";
-    //static final String ITERATIONS_FB = "iterations_fb";
+    static final String FILT_WINDOW_SIZE_FB = "filt_window_size_fb";
+    static final String RELATIVE_FILT_WINDOW_SIZE_FB = "relative_filt_window_size_fb";
+    static final String ITERATIONS_FB = "iterations_fb";
+    //Scribble Cosmetics
+    static final String SCRIBBLE_WIDTH = "scribble_width";
+    static final String SCRIBBLE_COLOR = "scribble_color";
 
     static final String LANDSCAPE = "landscape";
     static final String IS_RELATIVE = "is relative";
@@ -96,116 +94,104 @@ class Utilities {
      * @param str The given preset name
      * @return true iff the given preset name is valid
      */
-    static boolean isNameValid(String str, boolean canBeDefault) {
+    static boolean isNameValid(String str, boolean canBeDefault)
+    {
         boolean atLeastOneChar = false;
         CharacterIterator cI = new StringCharacterIterator(str);
-        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next()) {
-            if (Character.isAlphabetic(c) || Character.isSpaceChar(c)) {
+        for (char c = cI.first(); c != CharacterIterator.DONE; c = cI.next())
+        {
+            if (Character.isAlphabetic(c) || Character.isSpaceChar(c))
+            {
                 atLeastOneChar = true;
-            } else if (!Character.isDigit(c)) {
+            }
+            else if (!Character.isDigit(c))
+            {
                 return false;
             }
         }
-        return atLeastOneChar && (canBeDefault || !str.equals(Preset.DEFAULT_PRESET_NAME)) && str.length() <= MAX_PRESET_NAME_LENGTH;
+        return atLeastOneChar && (canBeDefault || !str.equals(DEFAULT_PRESET_NAME)) && str.length() <= MAX_PRESET_NAME_LENGTH;
     }
 
     static boolean isNameValid(String str) {
         return isNameValid(str, false);
     }
 
-
-    @SuppressLint("ApplySharedPref")
-    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PRESET_NAME, preset.getName());
-        editor.putFloat(STAT_SIGMA, preset.getStatSigma().floatValue());
-        editor.putInt(STAT_WINDOW_SIZE, preset.getWindowSize(imgSize));
-        editor.putInt(ITERATIONS, preset.getNumberOfIteration());
-        editor.putInt(QUANTIZATION, preset.getQuantization());
-        editor.putBoolean(IS_RELATIVE, preset.isRelative());
-        editor.commit();
+    static Map<String, String> getHardcodedDefaultParameters()
+    {
+        Map<String, String> map = new HashMap<>();
+        map.put(PRESET_NAME, DEFAULT_PRESET_NAME);
+        map.put(STAT_WINDOW_SIZE, String.valueOf(DEFAULT_WINDOW_SIZE));
+        map.put(RELATIVE_STAT_WINDOW_SIZE, "0");
+        map.put(STAT_SIGMA, String.valueOf(DEFAULT_SIGMA));
+        map.put(FILT_WINDOW_SIZE, String.valueOf(DEFAULT_WINDOW_SIZE));
+        map.put(RELATIVE_FILT_WINDOW_SIZE, "0");
+        map.put(FILT_SIGMA, String.valueOf(DEFAULT_SIGMA));
+        map.put(ITERATIONS, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
+        map.put(FILT_WINDOW_SIZE_FB, String.valueOf(DEFAULT_WINDOW_SIZE));
+        map.put(RELATIVE_FILT_WINDOW_SIZE_FB, "0");
+        map.put(ITERATIONS_FB, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
+        map.put(QUANTIZATION, String.valueOf(DEFAULT_QUNTIZATION_LEVEL));
+        map.put(IS_RELATIVE, String.valueOf(false));
+        return map;
     }
 
-    static void updateCurrentPreset(Preset curPreset, int imgSize) {
+
+    @SuppressLint("ApplySharedPref")
+    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize)
+    {
+        SharedPreferences.Editor editor = prefs.edit();
+        // Put the string representation of the JSON object holding the mapping of
+        // the preset parameters.
+        editor.putString(PRESET_NAME, preset.getName());
+        editor.putString(preset.getName(), new JSONObject(preset.presetToMap()).toString());
+        editor.commit();
+//        SharedPreferences.Editor editor = prefs.edit();
+//        editor.putString(PRESET_NAME, preset.getName());
+//        editor.putFloat(STAT_SIGMA, preset.getStatSigma().floatValue());
+//        editor.putInt(STAT_WINDOW_SIZE, preset.getStatWindowSize(imgSize));
+//        editor.putInt(ITERATIONS, preset.getNumberOfIteration());
+//        editor.putInt(QUANTIZATION, preset.getQuantization());
+//        editor.putBoolean(IS_RELATIVE, preset.isRelative());
+//        editor.commit();
+    }
+
+    static void updateCurrentPreset(Preset curPreset, int imgSize)
+    {
         updatePreset(curPreset, currentPresetFile, imgSize);
     }
 
-
     @NonNull
-    private static Preset loadPreset(SharedPreferences prefs) {
-        return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
-                prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
-                prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
-                prefs.getInt(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
-                prefs.getBoolean(IS_RELATIVE, false),
-                prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+    private static Preset loadPreset(SharedPreferences prefs)
+    {
+        String presetName = prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME);
+        Map<String, String> map = convertJSONString2Map(prefs.getString(presetName, new JSONObject().toString()));
+        if (map == null || map.isEmpty())
+        {
+            throw new NullPointerException("Preference file is empty or uninitialized");
+        }
+        return new Preset(presetName, map);
+
+//        return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
+//                prefs.getBoolean(IS_RELATIVE, false),
+//
+//                prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
+//                prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
+//                prefs.getInt(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
+//                prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
     }
 
     @NonNull
-    static Preset loadCurrentPreset() {
+    static Preset loadCurrentPreset()
+    {
         return loadPreset(currentPresetFile);
     }
 
 
     @NonNull
-    static Preset loadDefaultPreset(int imgSize) {
+    static Preset loadDefaultPreset()
+    {
         return loadPreset(defaultPresetFile);
-//
-//        if(map != null && map.isEmpty())
-//        {
-//            return new Preset(DEFAULT_PRESET_NAME, map);
-//        }
-//
-//        String jsonString = defaultPresetFile.getString(new JSONObject().toString());
-//        JSONObject jsonObject = new JSONObject(jsonString);
-//
-//        Iterator<String> keysItr = jsonObject.keys();
-//        while(keysItr.hasNext())
-//        {
-//            String key = keysItr.next();
-//            String value = (String) jsonObject.get(key);
-//            map.put(key, value);
-//        }
-//
-//        if (map.isEmpty())
-//        {
-//            // No default preset found, generating an hardcoded default preset
-//            mPreset = Preset.createPreset(mImgSize);
-//            storePreset(mPreset);
-//            if (mImgSize < mPreset.getStatWindowSize())
-//            {
-//                mPreset = Preset.createPreset(mImgSize);
-//                Toast.makeText(getApplicationContext(), "Default window size is too large for the selected image.\n Factory default preset is being loaded instead.", Toast.LENGTH_LONG).show();
-//            }
-//            else
-//            {
-//                Toast.makeText(getApplicationContext(), "Default preset created.", Toast.LENGTH_SHORT).show();
-//            }
-//        } else
-//        {
-//            Log.d(TAG, "loadPreset: loading the default preset");
-//            mPreset = new Preset(DEFAULT_PRESET_NAME, map);
-//        }
     }
-
-
-//    static Intent insertPresetToDataInent(Preset preset, Intent intent, int imgSize)
-//    {
-//        intent.putExtra(PRESET_NAME, preset.getName());
-//        intent.putExtra(HAS_PRESET ,new JSONObject(preset.presetToMap()).toString());
-////        intent.putExtra(STAT_SIGMA, preset.getStatSigma());
-////        if (preset.isRelative())
-////        {
-////            intent.putExtra(STAT_WINDOW_SIZE, preset.getStatWindowSize(imgSize));
-////        }
-////        else
-////        {
-////            intent.putExtra(STAT_WINDOW_SIZE, preset.getStatWindowSize());
-////        }
-////        intent.putExtra(ITERATIONS, preset.getNumberOfIteration());
-////        intent.putExtra(QUANTIZATION, preset.getQuantization());
-//        return intent;
-//    }
 
 
     @Nullable
@@ -228,37 +214,6 @@ class Utilities {
         return null;
     }
 
-//    static Preset extractPresetFromDataIntent(Intent intent)
-//    {
-//        String jsonString = intent.getStringExtra(HAS_PRESET);
-//        JSONObject jsonObject;
-//        Map<String, String> map = new HashMap<>();
-//        try
-//        {
-//            if (jsonString == null) { return null; }
-//
-//            jsonObject = new JSONObject(jsonString);
-//
-//            Iterator<String> keysItr = jsonObject.keys();
-//            while(keysItr.hasNext())
-//            {
-//                String key = keysItr.next();
-//                String value = (String) jsonObject.get(key);
-//                map.put(key, value);
-//            }
-//        }
-//
-//        catch (JSONException e)
-//        {
-//            e.printStackTrace();
-//        }
-//        return new Preset(intent.getStringExtra(PRESET_NAME), map);
-////                Preset(intent.getStringExtra(PRESET_NAME),
-////                intent.getDoubleExtra(STAT_SIGMA, DEFAULT_SIGMA), intent.getIntExtra(ITERATIONS,
-////                DEFAULT_NUMBER_OF_ITERATIONS), intent.getIntExtra(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
-////                intent.getIntExtra(IMG_SIZE, 0), intent.getBooleanExtra(IS_RELATIVE,
-////                false), intent.getIntExtra(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
-//    }
 
 
     /**
@@ -321,51 +276,19 @@ class Utilities {
     }
 
 
-//    public static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-//        int width = image.getWidth();
-//        int height = image.getHeight();
-//        float bitmapRatio = (float) width / (float) height;
-//        if (bitmapRatio > 1) {
-//            width = maxSize;
-//            height = (int) (width / bitmapRatio);
-//        } else {
-//            height = maxSize;
-//            width = (int) (height * bitmapRatio);
-//        }
-//        return Bitmap.createScaledBitmap(image, width, height, true);
-//    }
-
-//    /**
-//     * A static method for verifying if there is an activity that accepts the intent provided
-//     * within the context of ctx
-//     *
-//     * @param ctx
-//     * @param intent
-//     * @return
-//     */
-//    public static boolean isIntentAvailable(Context ctx, Intent intent) {
-//        final PackageManager mgr = ctx.getPackageManager();
-//        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-//        return list.size() > 0;
-//    }
 
     @NonNull
-    static Double mapSeekbarToSigma(int progress) {
+    static Double mapSeekbarToSigma(int progress)
+    {
         //Log.d(TAG, "mapSeekbarToSigma: entering");
         return ((double) (progress)) * (1 / MAX_SIGMA);
     }
 
-    static Integer mapSigmaToProgress(double sigma) {
+    static Integer mapSigmaToProgress(double sigma)
+    {
         //Log.d(TAG, "mapSigmaToProgress: entering");
         return ((int) (sigma * MAX_SIGMA));
     }
-
-//    static AlertDialog.Builder generateBasicAlertDialog(Context context, String title, String msg) {
-//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-//        alertDialog.setTitle(title);
-//        alertDialog.setMessage(msg);
-//        return alertDialog;
-//    }
 
     /**
      * Generates a basic alert dialog with a "WARNING" title and with a message according to the given message ID.
@@ -374,7 +297,8 @@ class Utilities {
      * @return an AlertDialog.Builder object with the given message. It is possible to add positive and negative buttons
      * to it.
      */
-    static AlertDialog.Builder generateBasicAlertDialog(Context context, int msgID) {
+    static AlertDialog.Builder generateBasicAlertDialog(Context context, int msgID)
+    {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
         alertDialog.setTitle(R.string.alert_dialog_warning);
         alertDialog.setMessage(msgID);
@@ -387,8 +311,10 @@ class Utilities {
      * @param matLsts List of lists of matrices
      */
     @SafeVarargs
-    static void releaseMats(List<Mat>... matLsts) {
-        for (List<Mat> lst : matLsts) {
+    static void releaseMats(List<Mat>... matLsts)
+    {
+        for (List<Mat> lst : matLsts)
+        {
             releaseMats(lst);
         }
     }
@@ -397,9 +323,12 @@ class Utilities {
      * Releases all the matrices in the given list
      * @param lst A list of matrices
      */
-    private static void releaseMats(List<Mat> lst) {
-        for (Mat m : lst) {
-            if (m != null) {
+    private static void releaseMats(List<Mat> lst)
+    {
+        for (Mat m : lst)
+        {
+            if (m != null)
+            {
                 m.release();
             }
         }
@@ -409,9 +338,12 @@ class Utilities {
      * Releases all the matrices in the given list
      * @param lst A list of matrices
      */
-    static void releaseMats(Mat... lst) {
-        for (Mat m : lst) {
-            if (m != null) {
+    static void releaseMats(Mat... lst)
+    {
+        for (Mat m : lst)
+        {
+            if (m != null)
+            {
                 m.release();
             }
         }
@@ -420,11 +352,13 @@ class Utilities {
     /**
      * A class holding the ShowcaseView parameters (view ID and text ID)
      */
-    static class ShowcaseViewParams {
+    static class ShowcaseViewParams
+    {
         int viewId;
         int textId;
 
-        ShowcaseViewParams(int viewId, int textId) {
+        ShowcaseViewParams(int viewId, int textId)
+        {
             this.viewId = viewId;
             this.textId = textId;
         }
@@ -438,7 +372,8 @@ class Utilities {
      * @param numOfViews Number of tutrial messages
      * @param showcaseViewParams The different ShowcaseViews parameters objects
      */
-    static void showTutorial(Activity activity, int titleId, int numOfViews, List<ShowcaseViewParams> showcaseViewParams) {
+    static void showTutorial(Activity activity, int titleId, int numOfViews, List<ShowcaseViewParams> showcaseViewParams)
+    {
         ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(100); // half second between each showcase view
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(activity);
@@ -449,17 +384,21 @@ class Utilities {
         String dismissText = "Next";
         ShowcaseViewParams currParams;
 
-        for(int i = 0; i < numOfViews; i++) {
+        for(int i = 0; i < numOfViews; i++)
+        {
             currParams = showcaseViewParams.get(i);
             view = activity.findViewById(currParams.viewId);
-            if (view == null){
+            if (view == null)
+            {
                 view = new View(activity);
             }
             content = activity.getString(currParams.textId);
-            if (i == 1) { // remove the title in the second showcase
+            if (i == 1)
+            { // remove the title in the second showcase
                 title = "";
             }
-            if (i == numOfViews - 1) {
+            if (i == numOfViews - 1)
+            {
                 dismissText = "Got It!";
             }
             MaterialShowcaseView.Builder msv = new MaterialShowcaseView.Builder(activity)
@@ -469,7 +408,8 @@ class Utilities {
                                         .setContentText(content)
                                         .setDismissOnTouch(true);
 
-            if (currParams.viewId == R.id.post_filtering_buttons_layout){
+            if (currParams.viewId == R.id.post_filtering_buttons_layout)
+            {
                 msv.withRectangleShape();
             }
             sequence.addSequenceItem(msv.build());
