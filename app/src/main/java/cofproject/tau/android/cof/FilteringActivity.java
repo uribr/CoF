@@ -495,14 +495,16 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         private Stopwatch stopwatch;
         private int iterCnt;
         private int nBins;
-        private int winSize;
-        private double sigma;
-
-        //todo - to be wired
+        private int winSizeStat;
+        private double sigmaStat;
         private int winSizeFilt;
         private double sigmaFilt;
-        private int winSizeFB;
+        private int winSizeFiltFB;
         private int iterCntFB;
+        //to be added:
+        //private int winSizeStatFB;
+        //private double sigmaStatFB;
+
 
 
         @Override
@@ -549,7 +551,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             stopwatch.reset();
             stopwatch.start();
             // collecting with the default all-ones mask
-            CoF.collectPab(mImToCollect, pab, nBins, winSize, sigma);
+            CoF.collectPab(mImToCollect, pab, nBins, winSizeStat, sigmaStat);
             stopwatch.stop();
             Log.d(TAG, "regularFiltering: collectPab time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             CoF.pabToPmi(pab, pmi);
@@ -562,7 +564,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             for (int i = 0; i < iterCnt; i++) {
                 Log.d(TAG, "regularFiltering: cofilter iteration No. " + (i + 1) + "/" + iterCnt);
                 publishProgress(getString(R.string.filtering_phase_iter_count) + (i + 1) + "/" + iterCnt);
-                CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSize, sigma);
+                CoF.coFilter(imToFilterCopy, mImToCollect, mFilteredImage, pmi, winSizeFilt, sigmaFilt);
                 mFilteredImage.copyTo(imToFilterCopy);
                 System.gc();
             }
@@ -578,20 +580,21 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         }
 
         private void fgBgFiltering() {
+            //todo - add stat window and sigma for FB
             Mat fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
             Mat bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
 
             publishProgress(getString(R.string.filtering_phase_collect_fg_Pab));
             stopwatch.reset();
             stopwatch.start();
-            CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSize, sigma);
+            CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSizeFiltFB, 2 * Math.sqrt(winSizeFiltFB) + 1);
             stopwatch.stop();
             Log.d(TAG, "fgBgFiltering: collectPab (foreground) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
 
             publishProgress(getString(R.string.filtering_phase_collect_bg_Pab));
             stopwatch.reset();
             stopwatch.start();
-            CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSize, sigma);
+            CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSizeFiltFB, 2 * Math.sqrt(winSizeFiltFB) + 1);
             stopwatch.stop();
             Log.d(TAG, "fgBgFiltering: collectPab (background) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
@@ -600,10 +603,10 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
 
             stopwatch.reset();
             stopwatch.start();
-            for (int i = 0; i < 3; i++) { //todo - change hard coded values!
-                Log.d(TAG, "fgBgFiltering: FBCofilter iteration No. " + (i + 1) + "/" + 3);
-                publishProgress(getString(R.string.filtering_phase_iter_count) + (i + 1) + "/" + 3);
-                CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, 15);
+            for (int i = 0; i < iterCntFB; i++) {
+                Log.d(TAG, "fgBgFiltering: FBCofilter iteration No. " + (i + 1) + "/" + iterCntFB);
+                publishProgress(getString(R.string.filtering_phase_iter_count) + (i + 1) + "/" + iterCntFB);
+                CoF.FBCoFilter(imToFilterCopy, mImToCollect, mFilteredImage, fgPab, bgPab, winSizeFiltFB);
                 mFilteredImage.copyTo(imToFilterCopy);
                 System.gc();
             }
@@ -613,15 +616,19 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         }
 
         private void initParams() {
-            //todo - split parameters extraction according to filtering mode
             // extract parmeters from preset
             iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
-            sigma = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
+            sigmaStat = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
             nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUNTIZATION_LEVEL;
-            winSize = mPreset != null ? mPreset.getStatWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
-            if (winSize % 2 == 0) {
-                winSize--;
+            winSizeStat = mPreset != null ? mPreset.getStatWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            if (winSizeStat % 2 == 0) {
+                winSizeStat--;
             }
+            winSizeFilt = mPreset != null ? mPreset.getFiltWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            sigmaFilt = mPreset != null ? mPreset.getFiltSigma() : Utilities.DEFAULT_SIGMA;
+            winSizeFiltFB = mPreset != null ? mPreset.getFiltWindowSizeFB(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            iterCntFB = mPreset != null ? mPreset.getNumberOfIterationFB() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
+
         }
 
 

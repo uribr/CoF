@@ -22,7 +22,6 @@ public class CircleView extends View {
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
-        //invalidate();
     }
 
     private void init(Context context, AttributeSet attrs) {
