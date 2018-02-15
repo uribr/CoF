@@ -37,9 +37,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import static cofproject.tau.android.cof.Preset.DEFAULT_PRESET_NAME;
+import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
+import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
 import static cofproject.tau.android.cof.Utilities.ITERATIONS;
+import static cofproject.tau.android.cof.Utilities.ITERATIONS_FB;
 import static cofproject.tau.android.cof.Utilities.MAX_ITERATIONS;
 import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
@@ -82,6 +85,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "onRemovedPreset: ");
         mPresets.remove(name);
     }
+    @SuppressLint("ApplySharedPref")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -120,6 +124,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         Log.d(TAG, "onCreate: loading shared preference file for presests");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
+
     }
 
     @Override
@@ -192,14 +197,19 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         }
         return false;
     }
-    
+
     private void createPresetFromUserSettings(String name, boolean relative, boolean newDefault)
     {
         Log.d(TAG, "createPresetFromUserSettings: creating preset");
-        mPreset = new Preset(newDefault ? DEFAULT_PRESET_NAME : name, mFilteringParametersFragment.getSigma(),
-                mFilteringParametersFragment.getIter(), mFilteringParametersFragment.getWindowSize()
-                , mImgSize, relative,
-                mFilteringParametersFragment.getQuantizationLevel());
+        mPreset = new Preset(newDefault ? DEFAULT_PRESET_NAME : name, relative, mImgSize,
+                mFilteringParametersFragment.getQuantizationLevel(),
+                mFilteringParametersFragment.getStatWindowSize(),
+                mFilteringParametersFragment.getStatSigma(),
+                mFilteringParametersFragment.getWindowSize(),
+                mFilteringParametersFragment.getFiltSigma(),
+                mFilteringParametersFragment.getIter(),
+                mFilteringParametersFragment.getWindowSizeFB(),
+                mFilteringParametersFragment.getIterFB());
     }
 
     private void loadPreset(String name)
@@ -207,7 +217,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "loadPreset: entering");
         if (name.equals(DEFAULT_PRESET_NAME))
         {
-            mPreset = loadDefaultPreset(mImgSize);
+            mPreset = loadDefaultPreset();
         }
         else
         {
@@ -218,7 +228,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                 Log.i(TAG, "loadPreset: Preset loaded successfully");
             }
         }
-        mFilteringParametersFragment.applyPreset(mPreset);
+        mFilteringParametersFragment.applyPreset(mPreset, mImgSize);
     }
 
 
@@ -298,7 +308,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                         return;
                     }
                     updateCurrentPreset();
-                    mFilteringParametersFragment.applyPreset(mPreset);
+                    mFilteringParametersFragment.applyPreset(mPreset, mImgSize);
                     Toast.makeText(getApplicationContext(), "Preset saved", Toast.LENGTH_SHORT).show();
 
                 }
@@ -388,28 +398,55 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                     Log.d(TAG, "onSettingClick: preset layout");
                     showPresetSpinnerDialog();
                     break;
-                case R.id.iteration_layout:
-                    Log.d(TAG, "onSettingClick: iteration layout");
-                    showNumberPickerDialog("Choose number of iterations:", MAX_ITERATIONS,
-                            mFilteringParametersFragment.getIter(), ITERATIONS);
-                    break;
-                case R.id.stat_deviation_layout:
-                    Log.d(TAG, "onSettingClick: deviation layout");
-                    showSeekbarDialog();
-                    break;
+
                 case R.id.quantization_layout:
                     Log.d(TAG, "onSettingClick: quantization layout");
                     showNumberPickerDialog("Choose quantization level:", MAX_QUANTIZATION_LEVEL,
                             MIN_QUANTIZATION_LEVEL, mFilteringParametersFragment.getQuantizationLevel(),
                             QUANTIZATION);
                     break;
-                case R.id.stat_window_size_layout:
-                    Log.d(TAG, "onSettingClick: window size layout");
-                    showNumberPickerDialog("Choose window size", mImgSize,
-                            mFilteringParametersFragment.getWindowSize(), STAT_WINDOW_SIZE);
+
+                case R.id.stat_deviation_layout:
+                    Log.d(TAG, "onSettingClick: statistical deviation layout");
+                    showSeekbarDialog(R.id.stat_deviation_layout, mFilteringParametersFragment.getStatSigma());
                     break;
+
+                case R.id.stat_window_size_layout:
+                    Log.d(TAG, "onSettingClick: statistical window size layout");
+                    showNumberPickerDialog("Choose window size", mImgSize,
+                            mFilteringParametersFragment.getStatWindowSize(), STAT_WINDOW_SIZE);
+                    break;
+
+                case R.id.filt_window_size_layout:
+                    showNumberPickerDialog("Choose window size", mImgSize,
+                            mFilteringParametersFragment.getWindowSize(), FILT_WINDOW_SIZE);
+                    break;
+
+                case R.id.filt_deviation_layout:
+                    Log.d(TAG, "onSettingClick: filtering deviation layout");
+                    showSeekbarDialog(R.id.filt_deviation_layout, mFilteringParametersFragment.getFiltSigma());
+                    break;
+
+                case R.id.iteration_layout:
+                    Log.d(TAG, "onSettingClick: iteration layout");
+                    showNumberPickerDialog("Choose number of iterations:", MAX_ITERATIONS,
+                            mFilteringParametersFragment.getIter(), ITERATIONS);
+                    break;
+
+                case R.id.window_size_layout_fb:
+                    showNumberPickerDialog("Choose window size", mImgSize,
+                            mFilteringParametersFragment.getWindowSizeFB(), FILT_WINDOW_SIZE_FB);
+                    break;
+
+                case R.id.iteration_layout_fb:
+                    Log.d(TAG, "onSettingClick: iteration layout");
+                    showNumberPickerDialog("Choose number of iterations:", MAX_ITERATIONS,
+                            mFilteringParametersFragment.getIterFB(), ITERATIONS_FB);
+                    break;
+
                 default:
                     Log.d(TAG, "onSettingClick: no button chosen");
+                    mIsADialogOpen = false;
                     break;
             }
         }
@@ -464,8 +501,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "showPresetSpinnerDialog: show dialog");
         AlertDialog dialog = builder.create();
         dialog.show();
-
-
     }
 
     private void updateCurrentPreset()
@@ -517,8 +552,21 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             mFilteringParametersFragment.setIterationCount(newVal);
                             break;
                         case STAT_WINDOW_SIZE:
-                            mFilteringParametersFragment.setWindowSize(newVal);
-                            mFilteringParametersFragment.setSigma(2 * Math.sqrt(newVal) + 1);
+                            mFilteringParametersFragment.setStatWindowSize(newVal);
+                            mFilteringParametersFragment.setStatSigma(2 * Math.sqrt(newVal) + 1);
+                            break;
+
+                        case FILT_WINDOW_SIZE:
+                            mFilteringParametersFragment.setFiltWindowSize(newVal);
+                            mFilteringParametersFragment.setFiltSigma(2 * Math.sqrt(newVal) + 1);
+                            break;
+
+                        case FILT_WINDOW_SIZE_FB:
+                            mFilteringParametersFragment.setFiltWindowSizeFB(newVal);
+                            break;
+
+                        case ITERATIONS_FB:
+                            mFilteringParametersFragment.setIterationCountFB(newVal);
                             break;
                     }
                     // Once the values loaded from the preset have been changed, we display
@@ -550,7 +598,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         dialog.show();
     }
 
-    private void showSeekbarDialog()
+    private void showSeekbarDialog(final int editTextId, double cur_val)
     {
         Log.d(TAG, "showSeekbarDialog: entering");
 
@@ -566,11 +614,11 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         final SeekBar seekBar = promptsView.findViewById(R.id.seekbar);
         seekBar.setMax(((int) Math.floor(MAX_SIGMA * SIGMA_SEEKBAR_LENGTH)));
-        seekBar.setProgress(mapSigmaToProgress(mFilteringParametersFragment.getSigma()));
+        seekBar.setProgress(mapSigmaToProgress(cur_val));
 
         final EditText editText = promptsView.findViewById(R.id.progress);
         editText.setText(String.format(Locale.ENGLISH,"%.02f",
-                mFilteringParametersFragment.getSigma()));
+                mFilteringParametersFragment.getStatSigma()));
         editText.addTextChangedListener(new SigmaValueWatcher(editText, seekBar));
 
         Log.d(TAG, "showSeekbarDialog: adding seekbar listener");
@@ -604,15 +652,27 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                 if (seekBar.getProgress() >= 0)
                 {
                     double newSigmaValue =  mapSeekbarToSigma(seekBar.getProgress());
-                    if (mFilteringParametersFragment.getSigma() != newSigmaValue
+                    if (mFilteringParametersFragment.getStatSigma() != newSigmaValue
                             && newSigmaValue > 0.00 && editText.getError() == null)
                     {
                         // Once the values loaded from the preset have been changed, we display
                         // the string "Unsaved Preset" in the current value of the preseet
                         // in the settings activity.
                         mFilteringParametersFragment.setPresetName(UNSAVED_PRESET_NAME);
-                        mFilteringParametersFragment.setSigma(
-                                mapSeekbarToSigma(seekBar.getProgress()));
+                        Double mappedSigma = mapSeekbarToSigma(seekBar.getProgress());
+                        switch (editTextId)
+                        {
+                            case R.id.filt_deviation_layout:
+                                mFilteringParametersFragment.setFiltSigma(mappedSigma);
+                                break;
+
+                            case R.id.stat_deviation_layout:
+                                mFilteringParametersFragment.setStatSigma(mappedSigma);
+                                break;
+
+                            default:
+                        }
+
                     }
 
                 }
@@ -675,7 +735,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     public void loadPreset()
     {
         Log.d(TAG, "loadPreset: entering");
-        mFilteringParametersFragment.applyPreset(mPreset);
+        mFilteringParametersFragment.applyPreset(mPreset, mImgSize);
     }
 
     @Override

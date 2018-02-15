@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Bytes;
 
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -53,11 +55,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
 import static cofproject.tau.android.cof.Utilities.SCRIBBLE_COLOR_KEY;
 import static cofproject.tau.android.cof.Utilities.currentPresetFile;
 import static cofproject.tau.android.cof.Utilities.defaultPresetFile;
+import static cofproject.tau.android.cof.Utilities.getHardcodedDefaultParameters;
 import static cofproject.tau.android.cof.Utilities.loadCurrentPreset;
 import static cofproject.tau.android.cof.Utilities.loadDefaultPreset;
 import static cofproject.tau.android.cof.Utilities.updateCurrentPreset;
@@ -295,6 +299,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
 //        }
 //    }
 
+    @SuppressLint("ApplySharedPref")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -328,10 +333,20 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
                         }
                         initFragments();
                     }
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     e.printStackTrace();
-                } finally {
-                    mPreset = loadDefaultPreset(Math.min(mImgHeight, mImgWidth));
+                } finally
+                {
+                    if(!defaultPresetFile.contains(DEFAULT_PRESET_NAME))
+                    {
+                        SharedPreferences.Editor editor = defaultPresetFile.edit();
+                        // Put the string representation of the JSON object holding the mapping of
+                        // the preset parameters.
+                        editor.putString(DEFAULT_PRESET_NAME, new JSONObject(getHardcodedDefaultParameters()).toString());
+                        editor.commit();
+                    }
+                    mPreset = loadDefaultPreset();
                     // Set the default preset as the current preset
                     updateCurrentPreset(mPreset, Math.min(mImgHeight, mImgWidth));
                 }
@@ -603,7 +618,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
             sigma = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
             nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUNTIZATION_LEVEL;
-            winSize = mPreset != null ? mPreset.getStatWindowSize() : Utilities.DEFAULT_WINDOW_SIZE;
+            winSize = mPreset != null ? mPreset.getStatWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
             if (winSize % 2 == 0) {
                 winSize--;
             }

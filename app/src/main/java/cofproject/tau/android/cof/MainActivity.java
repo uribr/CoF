@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onGalleryButtonClick(View view) {
         Log.i(TAG, "onGalleryButtonClick: click event");
+
         // Check for permission.
         if (requestExternalStoragePermission()) {
             startFilteringTask(false);
