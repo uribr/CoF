@@ -503,7 +503,6 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         private int iterCntFB;
         //to be added:
         //private int winSizeStatFB;
-
         //private double sigmaStatFB;
 
 
