@@ -3,6 +3,7 @@ package cofproject.tau.android.cof;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -94,8 +95,17 @@ public class ParametersFragment extends Fragment
         //mCurrentFiltWindowSizeFB = view.findViewById(R.id.current_fb_filt_window_size);
         //mIterationCountFB = view.findViewById(R.id.current_fb_iteration_value);
 
-        mListener.loadPreset();
+//        mListener.loadPreset();
+//        mListener.setScribbleColor();
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mListener.loadPreset();
+        mListener.setScribbleColor();
+
     }
 
     public String getPresetName() { return mCurrentPresetName.getText().toString(); }
@@ -155,6 +165,7 @@ public class ParametersFragment extends Fragment
          * loaded instead.
          */
         void loadPreset();
+        void setScribbleColor();
 
     }
 }

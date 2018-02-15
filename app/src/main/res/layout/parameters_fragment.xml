@@ -506,5 +506,46 @@
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/color_picker"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSetScribbleColorClick"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="Scribble Color"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <cofproject.tau.android.cof.CircleView
+                android:id="@+id/circle_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"/>
+
+
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

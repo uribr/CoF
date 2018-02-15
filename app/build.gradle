@@ -31,7 +31,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.google.code.findbugs'
     })
-
+    compile 'com.pes.materialcolorpicker:library:1.2.0'
     compile 'com.google.guava:guava:23.6-android'
     compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
 

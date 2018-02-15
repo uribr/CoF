@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.net.Uri;
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 
 import static cofproject.tau.android.cof.Utilities.FILTER_SETTINGS_REQUEST_CODE;
 import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
+import static cofproject.tau.android.cof.Utilities.SCRIBBLE_COLOR_KEY;
 import static cofproject.tau.android.cof.Utilities.currentPresetFile;
 import static cofproject.tau.android.cof.Utilities.defaultPresetFile;
 import static cofproject.tau.android.cof.Utilities.loadCurrentPreset;
@@ -267,6 +269,31 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         }
     }
 
+//    private void testSave(Mat imToSave, String fileName) {
+//        String root = Environment.getExternalStorageDirectory().toString() + "/Scribble Stuff";
+//        File myDir = new File(root);
+//
+//        //noinspection ResultOfMethodCallIgnored
+//        myDir.mkdirs();
+//
+//        File file = new File(myDir, fileName);
+//        if (file.exists()) {
+//            //noinspection ResultOfMethodCallIgnored
+//            file.delete();
+//        }
+//        try {
+//            FileOutputStream out = new FileOutputStream(file);
+//            Bitmap bmp = Bitmap.createBitmap(imToSave.cols(), imToSave.rows(), Bitmap.Config.RGB_565);
+//            Utils.matToBitmap(imToSave, bmp, true);
+//            bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//            out.flush();
+//            out.close();
+//            addImageToGallery(file.getAbsolutePath(), this);
+//            Toast.makeText(getApplicationContext(), "Image saved: " + fileName, Toast.LENGTH_SHORT).show();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -315,6 +342,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
                 }
                 if (data != null) {
                     mPreset = loadCurrentPreset();
+                    mImageViewFragment.setPaintColor(data.getIntExtra(SCRIBBLE_COLOR_KEY, Color.BLUE));
                 }
                 break;
         }
@@ -332,6 +360,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         // Notify the activity if we're in landscape mode.
         //intent.putExtra(LANDSCAPE, mIsLandscape);
         intent.putExtra(IMG_SIZE, Math.min(mImgHeight, mImgWidth));
+        intent.putExtra(SCRIBBLE_COLOR_KEY, mImageViewFragment.getPaintColor());
         startActivityForResult(intent, FILTER_SETTINGS_REQUEST_CODE);
     }
 
@@ -424,6 +453,11 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_ERODE, new Size(seWinSize, seWinSize));
         Imgproc.erode(mBackgroundMask, mBackgroundMask, SE);
         SE.release();
+
+        //todo - remove this (for the paper only)
+//        testSave(mForegroundMask, "fg_mask.jpg");
+//        testSave(mBackgroundMask, "bg_mask.jpg");
+        //todo - until here
 
         // convert masks to 32-bit float, 1/0 matrix
         mForegroundMask.convertTo(mForegroundMask, CvType.CV_32FC1, 1.0 / 255.0);
@@ -623,6 +657,10 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             if (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) {
                 Utilities.releaseMats(mFilteredScribble);
                 mFilteredScribble = mFilteredImage.clone();
+                //todo - remove this (for the paper only)
+                //testSave(mFilteredScribble, "filtered_scribble.jpg");
+                //todo - until here
+
                 relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
                 strToBackStack = FROM_SCRIBBLE_TO_THRESHOLD;
                 mImageViewFragment.clearScribble();
@@ -699,10 +737,15 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         // resize the binary image to the original image size
         Imgproc.resize(scribbleMat, mScribbleImage, mImToFilter.size());
 
+        //todo - remove this (for the paper only)
+//        Mat cpy = mImToFilter.clone();
+//        cpy.setTo(new Scalar(255, 0, 0), mScribbleImage);
+//        testSave(cpy, "im_with_scribble.jpg");
+        //todo - until here
+
         // perform dilation in order to thicken the white scribble lines
         Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, Utilities.SCRIBBLE_DILATION_WINDOW_SIZE);
         Imgproc.dilate(mScribbleImage, mScribbleImage, SE, new Point(-1, -1), Utilities.SCRIBBLE_DILATION_ITERATIONS_DEFAULT);
-
         Utilities.releaseMats(scribbleMat, SE);
     }
 

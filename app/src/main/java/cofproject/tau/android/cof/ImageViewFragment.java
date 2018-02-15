@@ -24,7 +24,6 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
     private MyImageView mImageView;
     private Bitmap mBitmap;
     private boolean mFirstLoading;
-    //private boolean mScribbleOn;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -152,4 +151,13 @@ public class ImageViewFragment extends Fragment implements View.OnTouchListener
      * @return The image-view width.
      */
     public int getImageViewWidth() {return mImageView.getWidth();}
+
+
+    public int getPaintColor() {
+        return mImageView.getPaintColor();
+    }
+
+    public void setPaintColor(int paintColor) {
+        mImageView.setPaintColor(paintColor);
+    }
 }

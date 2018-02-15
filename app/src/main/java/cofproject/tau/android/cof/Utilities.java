@@ -78,6 +78,7 @@ class Utilities {
     static final String LANDSCAPE = "landscape";
     static final String IS_RELATIVE = "is relative";
     static final String IMG_SIZE = "image size";
+    static final String SCRIBBLE_COLOR_KEY = "SCRIBBLE_COLOR_KEY";
     static SharedPreferences currentPresetFile;
     static SharedPreferences defaultPresetFile;
 

@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,12 +19,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
+import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
 import org.json.JSONObject;
 
@@ -41,6 +45,7 @@ import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
+import static cofproject.tau.android.cof.Utilities.SCRIBBLE_COLOR_KEY;
 import static cofproject.tau.android.cof.Utilities.SIGMA_SEEKBAR_LENGTH;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.UNSAVED_PRESET_NAME;
@@ -66,6 +71,8 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     private ParametersFragment mFilteringParametersFragment;
     private boolean mIsADialogOpen;
     private int mImgSize;
+    private int mScribbleColor;
+    private CircleView mCircleView;
     private List<String> mPresets;
 
     //private boolean mIsLandscape;
@@ -86,6 +93,8 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Intent intent = this.getIntent();
         //mIsLandscape = intent.getBooleanExtra(LANDSCAPE, false);
         mImgSize = intent.getIntExtra(IMG_SIZE, 0);
+        mScribbleColor = intent.getIntExtra(SCRIBBLE_COLOR_KEY, Color.BLUE);
+
         if (mImgSize == 0)
         {
             setResult(Activity.RESULT_CANCELED);
@@ -141,6 +150,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         // Update current preset
         updateCurrentPreset();
 //        Utilities.insertPresetToDataInent(mPreset, intent, mImgSize);
+        intent.putExtra(SCRIBBLE_COLOR_KEY, mScribbleColor);
         setResult(Activity.RESULT_OK, intent);
         super.onBackPressed();
     }
@@ -666,6 +676,39 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     {
         Log.d(TAG, "loadPreset: entering");
         mFilteringParametersFragment.applyPreset(mPreset);
+    }
+
+    @Override
+    public void setScribbleColor() {
+
+        View view = mFilteringParametersFragment.getView();
+        if (view != null) {
+            mCircleView = view.findViewById(R.id.circle_view);
+            mCircleView.setColor(mScribbleColor);
+        }
+
+    }
+
+    public void onSetScribbleColorClick(View view) {
+
+        final ColorPicker cp = new ColorPicker(this, Color.red(mScribbleColor), Color.green(mScribbleColor), Color.blue(mScribbleColor));
+        /* Show color picker dialog */
+        cp.show();
+
+        /* On Click listener for the dialog, when the user select the color */
+        Button okColor = (Button)cp.findViewById(R.id.okColorButton);
+
+        okColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int selectedColor = cp.getColor();
+                mCircleView.setColor(selectedColor);
+                mScribbleColor = selectedColor;
+                cp.dismiss();
+            }
+        });
+
+
     }
 }
 

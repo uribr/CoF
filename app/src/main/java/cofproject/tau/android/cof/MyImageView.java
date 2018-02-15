@@ -31,7 +31,7 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
      */
     public MyImageView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        //init();
+
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.BLUE);
@@ -128,5 +128,14 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
 
     private void touchUp() {
         mPath.lineTo(mX, mY);
+    }
+
+    public int getPaintColor() {
+        return mPaint.getColor();
+    }
+
+    public void setPaintColor(int paintColor) {
+        mPaint.setColor(paintColor);
+        invalidate();
     }
 }
