@@ -83,7 +83,7 @@
     <string name="scribble_mask_threshold_tutorial_title">Mask Threshold</string>
     <string name="scribble_seekbar_tutorial">Use the seek-bar to set the threshold for the mask</string>
 
-    <string name="post_filtering_tutorial_title">Yay! The Image is Filtered!</string>
+    <string name="post_filtering_tutorial_title">Hurray! The Image is Filtered!</string>
     <string name="share_or_save_tutorial">You can save the filtered image on your device, or share it with whoever you want!</string>
 
     <string name="apply_filter_btn_text">Apply Filter</string>
