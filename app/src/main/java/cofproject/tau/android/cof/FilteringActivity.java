@@ -469,11 +469,6 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         Imgproc.erode(mBackgroundMask, mBackgroundMask, SE);
         SE.release();
 
-        //todo - remove this (for the paper only)
-//        testSave(mForegroundMask, "fg_mask.jpg");
-//        testSave(mBackgroundMask, "bg_mask.jpg");
-        //todo - until here
-
         // convert masks to 32-bit float, 1/0 matrix
         mForegroundMask.convertTo(mForegroundMask, CvType.CV_32FC1, 1.0 / 255.0);
         mBackgroundMask.convertTo(mBackgroundMask, CvType.CV_32FC1, 1.0 / 255.0);
@@ -679,9 +674,6 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             if (mFilteringMode == FilteringMode.SCRIBBLE_INITIALIZATION) {
                 Utilities.releaseMats(mFilteredScribble);
                 mFilteredScribble = mFilteredImage.clone();
-                //todo - remove this (for the paper only)
-                //testSave(mFilteredScribble, "filtered_scribble.jpg");
-                //todo - until here
 
                 relevantLayoutId = R.layout.scribble_mask_threshold_fragment;
                 strToBackStack = FROM_SCRIBBLE_TO_THRESHOLD;
@@ -758,12 +750,6 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         mScribbleImage = new Mat();
         // resize the binary image to the original image size
         Imgproc.resize(scribbleMat, mScribbleImage, mImToFilter.size());
-
-        //todo - remove this (for the paper only)
-//        Mat cpy = mImToFilter.clone();
-//        cpy.setTo(new Scalar(255, 0, 0), mScribbleImage);
-//        testSave(cpy, "im_with_scribble.jpg");
-        //todo - until here
 
         // perform dilation in order to thicken the white scribble lines
         Mat SE = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, Utilities.SCRIBBLE_DILATION_WINDOW_SIZE);
