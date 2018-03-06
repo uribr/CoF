@@ -17,7 +17,6 @@
             android:id="@+id/preset_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -45,8 +44,7 @@
                 android:gravity="center"
                 android:text="@string/default_preset_name"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/preference_text_size"
-                android:theme="@android:style/Theme.Material"/>
+                android:textSize="@dimen/preference_text_size"/>
 
         </LinearLayout>
 
@@ -60,7 +58,6 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:focusable="true"
             android:gravity="center"
@@ -95,7 +92,6 @@
             android:id="@+id/quantization_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -137,7 +133,6 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:focusable="true"
             android:gravity="center"
@@ -171,7 +166,6 @@
             android:id="@+id/stat_window_size_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -217,7 +211,6 @@
             android:id="@+id/stat_deviation_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -260,7 +253,6 @@
             android:id="@+id/filt_window_size_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -306,7 +298,6 @@
             android:id="@+id/filt_deviation_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -351,7 +342,6 @@
             android:id="@+id/iteration_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -393,7 +383,6 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:focusable="true"
             android:gravity="center"
@@ -402,8 +391,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_margin="@dimen/preference_header_margin"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/params_fb_cof_settings_title"
                 android:textColor="@color/colorAccent"
@@ -425,10 +414,96 @@
 
 
         <LinearLayout
+            android:id="@+id/stat_window_size_layout_fb"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:showDividers="beginning|middle"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/stats_window_size"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_stat_window_size_fb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_16"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
+            android:id="@+id/stat_deviation_layout_fb"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/statistics_collection_sigma"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_stat_deviation_value_fb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
             android:id="@+id/window_size_layout_fb"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -470,11 +545,53 @@
 
 
         <LinearLayout
+            android:id="@+id/filt_deviation_layout_fb"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preference_height"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onSettingClick"
+            android:orientation="horizontal"
+            android:textColor="@color/colorAccent">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/filtering_sigma"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/preference_text_size"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/current_filt_deviation_value_fb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="@string/_1"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="@dimen/preference_text_size"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:clickable="false"/>
+
+        <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/iteration_layout_fb"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -496,8 +613,8 @@
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/current_fb_iteration_value"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
                 android:text="@string/_1"
@@ -517,7 +634,6 @@
             android:id="@+id/color_picker"
             android:layout_width="match_parent"
             android:layout_height="@dimen/preference_height"
-            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -531,7 +647,7 @@
                 android:layout_weight="1"
                 android:clickable="false"
                 android:gravity="center"
-                android:text="Scribble Color"
+                android:text="@string/scribble_color"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/preference_text_size"
                 android:textStyle="bold"/>

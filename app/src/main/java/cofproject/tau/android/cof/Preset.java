@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.FILT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IS_RELATIVE;
@@ -12,12 +13,16 @@ import static cofproject.tau.android.cof.Utilities.ITERATIONS_FB;
 import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
 import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.RELATIVE_STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_STAT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.STAT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.STAT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE_FB;
 
 public class Preset
 {
@@ -39,6 +44,10 @@ public class Preset
     //FB-CoF
     private int mFiltWindowSizeFB;
     private double mRelativeFiltWindowSizeFB;
+    private double mStatSigmaFB;
+    private double mFiltSigmaFB;
+    private int mStatWindowSizeFB;
+    private double mRelativeStatWindowSizeFB;
     private int mNumberOfIterationFB;
 
     //Scribble cosmetics
@@ -55,42 +64,65 @@ public class Preset
 //        mStatSigma = statSigma;
 //        mNumberOfIteration = numberOfIteration;
 //    }
+//
+//    public Preset(String name, boolean relative, int imgSize, int quantizationLevels,
+//                  int statWindowSize, double statSigma, int filtWindowSize, double filtSigma,
+//                  int numberOfIteration, int filtWindowSizeFB, double filtSigmaFB, int statWindowSizeFB, double statSigmaFB, int numberOfIterationFB/*, int scribbleWidth, Object scribbleColor*/)
+//    {
+//        mName = name;
+//        mRelative = relative;
+//        setRelativeWindowSize(statWindowSize, filtWindowSize, filtWindowSizeFB, imgSize, statWindowSizeFB);
+//        setSigma(statSigma, filtSigma, statSigmaFB, filtSigmaFB);
+//        setQuantizationLevel(quantizationLevels);
+//        setWindowSize(statWindowSize, filtWindowSizeFB, filtWindowSize, , imgSize);
+//        mNumberOfIteration = numberOfIteration;
+//        mNumberOfIterationFB = numberOfIterationFB;
+//    }
 
-    public Preset(String name, boolean relative, int imgSize, int quantizationLevels,
-                  int statWindowSize, double statSigma, int filtWindowSize, double filtSigma,
-                  int numberOfIteration, int filtWindowSizeFB, int numberOfIterationFB/*, int scribbleWidth, Object scribbleColor*/)
-    {
-        mName = name;
-        mRelative = relative;
-        setRelativeWindowSize(statWindowSize, filtWindowSize, filtWindowSizeFB, imgSize);
-        setSigma(statSigma, filtSigma);
-        setQuantizationLevel(quantizationLevels);
-        setWindowSize(statWindowSize, filtWindowSizeFB, filtWindowSize, imgSize);
-        mNumberOfIteration = numberOfIteration;
-        mNumberOfIterationFB = numberOfIterationFB;
-    }
 
-    public Preset(String name, Map<String, String> map)
+    public Preset(String name, Map<String, String> map, Integer imgSize)
     {
-        // General Parameters
-        mName = name;
+        mName = map.containsKey(PRESET_NAME) ? map.get(PRESET_NAME) : name;
         mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
-        mQuantizationLevels = Integer.parseInt(map.get(QUANTIZATION));
+        setQuantizationLevel(Integer.parseInt(map.get(QUANTIZATION)));
 
-        // CoF Parameters
-        mStatWindowSize = Integer.parseInt(map.get(STAT_WINDOW_SIZE));
-        mRelativeStatWindowSize = Double.parseDouble(map.get(RELATIVE_STAT_WINDOW_SIZE));
-        mStatSigma = Double.parseDouble(map.get(STAT_SIGMA));
-
-        mFiltWindowSize = Integer.parseInt(map.get(FILT_WINDOW_SIZE));
-        mRelativeFiltWindowSize = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE));
-        mFiltSigma = Double.parseDouble(map.get(FILT_SIGMA));
         mNumberOfIteration = Integer.parseInt(map.get(ITERATIONS));
-
-        // FB-CoF Parameters
-        mFiltWindowSizeFB = Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB));
-        mRelativeFiltWindowSizeFB = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE_FB));
         mNumberOfIterationFB = Integer.parseInt(map.get(ITERATIONS_FB));
+
+        this.setSigma(Double.parseDouble(map.get(STAT_SIGMA)), Double.parseDouble(map.get(FILT_SIGMA)),
+                Double.parseDouble(map.get(STAT_SIGMA_FB)),
+                Double.parseDouble(map.get(FILT_SIGMA_FB)));
+        if (imgSize != null)
+        {
+            setWindowSize(Integer.parseInt(map.get(STAT_WINDOW_SIZE)), Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB)), Integer.parseInt(map.get(FILT_WINDOW_SIZE)), Integer.parseInt(map.get(STAT_WINDOW_SIZE_FB)), imgSize);
+
+            if (map.containsKey(IS_RELATIVE))
+            {
+                if(map.containsKey(RELATIVE_FILT_WINDOW_SIZE_FB) &&
+                        map.containsKey(RELATIVE_FILT_WINDOW_SIZE) &&
+                        map.containsKey(RELATIVE_STAT_WINDOW_SIZE_FB) &&
+                        map.containsKey(RELATIVE_STAT_WINDOW_SIZE))
+                {
+                    mRelativeStatWindowSize = Double.parseDouble(map.get(RELATIVE_STAT_WINDOW_SIZE));
+                    mRelativeFiltWindowSize = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE));
+                    mRelativeFiltWindowSizeFB = Double.parseDouble(map.get(RELATIVE_FILT_WINDOW_SIZE_FB));
+                    mRelativeStatWindowSizeFB = Double.parseDouble(map.get(RELATIVE_STAT_WINDOW_SIZE_FB));
+                }
+                else
+                {
+                    setRelativeWindowSize(mStatWindowSize, mFiltWindowSize, mFiltWindowSizeFB, imgSize, mStatWindowSizeFB);
+                }
+            }
+        }
+
+        else
+        {
+            mStatWindowSize = Integer.parseInt(map.get(STAT_WINDOW_SIZE));
+            mFiltWindowSize = Integer.parseInt(map.get(FILT_WINDOW_SIZE));
+            mFiltWindowSizeFB = Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB));
+            mStatWindowSizeFB = Integer.parseInt(map.get(STAT_WINDOW_SIZE_FB));
+        }
+
 
         // Scribble costmetics parameters
 //        mScribbleWidth = Integer.parseInt(map.get(SCRIBBLE_WIDTH));
@@ -119,7 +151,7 @@ public class Preset
         }
     }
 
-    private void setRelativeWindowSize(int statWindowSize, int filtWindowSize, int filtWindowSizeFB, int imageSize)
+    private void setRelativeWindowSize(int statWindowSize, int filtWindowSize, int filtWindowSizeFB, int imageSize, int statWindowSizeFB)
     {
         if (statWindowSize <= imageSize && statWindowSize > 0)
         {
@@ -132,6 +164,10 @@ public class Preset
         if (filtWindowSizeFB <= imageSize && filtWindowSizeFB > 0)
         {
             this.mRelativeFiltWindowSizeFB = (double) (filtWindowSizeFB) / (double) (imageSize);
+        }
+        if (statWindowSizeFB <= imageSize && statWindowSizeFB > 0)
+        {
+            this.mRelativeStatWindowSizeFB = (double) (statWindowSizeFB) / (double) (imageSize);
         }
     }
 
@@ -152,51 +188,30 @@ public class Preset
 
     public Integer getStatWindowSize(int size)
     {
-        if (mRelative || mStatWindowSize > size)
-        {
-            int res = (int) (mRelativeStatWindowSize * (double) (size));
-            if (res == 0)
-            {
-                return ++res;
-            }
-            else if (res > size)
-            {
-                return --res;
-            }
-            return res;
-        }
-        else
-        {
-            return mStatWindowSize;
-        }
+        return computeWinwowSize(size, mStatWindowSize, mRelativeStatWindowSize);
     }
 
     public Integer getFiltWindowSize(int size)
     {
-        if (mRelative || mFiltWindowSize > size)
-        {
-            int res = (int) (mRelativeFiltWindowSize * (double) (size));
-            if (res == 0)
-            {
-                return ++res;
-            }
-            else if (res > size)
-            {
-                return --res;
-            }
-            return res;
-        }
-        else
-        {
-            return mFiltWindowSize;
-        }
+        return computeWinwowSize(size, mFiltWindowSize, mRelativeFiltWindowSize);
     }
 
     public Integer getFiltWindowSizeFB(int size)
     {
-        if (mRelative || mFiltWindowSizeFB > size)
+        return computeWinwowSize(size, mFiltWindowSizeFB, mRelativeFiltWindowSizeFB);
+    }
+
+    public Integer getStatWindowSizeFB(int size)
+    {
+        return computeWinwowSize(size, mStatWindowSizeFB, mRelativeStatWindowSizeFB);
+    }
+
+    private Integer computeWinwowSize(int size, int windowSize, double relativeSize)
+    {
+        if (mRelative || windowSize > size)
         {
-            int res = (int) (mRelativeFiltWindowSizeFB * (double) (size));
+            double tmp = relativeSize * size;
+            int res = (int) (tmp);
             if (res == 0)
             {
                 return ++res;
@@ -209,7 +224,7 @@ public class Preset
         }
         else
         {
-            return mFiltWindowSizeFB;
+            return windowSize;
         }
     }
 
@@ -228,7 +243,7 @@ public class Preset
         return mFiltWindowSizeFB;
     }
 
-    private void setWindowSize(int statWindowSize, int filtWindowSizeFB, int filtWindowSize, int imgSize)
+    private void setWindowSize(int statWindowSize, int filtWindowSizeFB, int filtWindowSize, int statWindowSizeFB, int imgSize)
     {
         if (statWindowSize <= imgSize && statWindowSize > 0)
         {
@@ -242,6 +257,10 @@ public class Preset
         {
             mFiltWindowSizeFB = filtWindowSizeFB;
         }
+        if (statWindowSizeFB <= imgSize && statWindowSizeFB > 0)
+        {
+            mStatWindowSizeFB = statWindowSizeFB;
+        }
     }
 
     public Double getStatSigma()
@@ -254,15 +273,23 @@ public class Preset
         return mFiltSigma;
     }
 
-    private void setSigma(double statSigma, double filtSigma)
+    private void setSigma(double statSigma, double filtSigma, double statSigmaFB, double filtSigmaFB)
     {
         if (statSigma <= MAX_SIGMA && statSigma > 0)
         {
-            this.mStatSigma = statSigma;
+            mStatSigma = statSigma;
         }
         if (filtSigma <= MAX_SIGMA && filtSigma > 0)
         {
-            this.mFiltSigma = filtSigma;
+            mFiltSigma = filtSigma;
+        }
+        if(statSigmaFB <= MAX_SIGMA && statSigmaFB >0)
+        {
+            mStatSigmaFB = statSigmaFB;
+        }
+        if(filtSigmaFB <= MAX_SIGMA && filtSigmaFB >0)
+        {
+            mFiltSigmaFB = filtSigmaFB;
         }
     }
 
@@ -334,6 +361,10 @@ public class Preset
         map.put(ITERATIONS, getNumberOfIteration().toString());
         map.put(FILT_WINDOW_SIZE_FB, getFiltWindowSizeFB().toString());
         map.put(RELATIVE_FILT_WINDOW_SIZE_FB, getRelativeFiltWindowSizeFB().toString());
+        map.put(FILT_SIGMA_FB, getFiltSigmaFB().toString());
+        map.put(STAT_WINDOW_SIZE_FB, getStatWindowSizeFB().toString());
+        map.put(RELATIVE_STAT_WINDOW_SIZE_FB, getRelativeStatWindowSizeFB().toString());
+        map.put(STAT_SIGMA_FB, getStatSigmaFB().toString());
         map.put(ITERATIONS_FB, getNumberOfIterationFB().toString());
         map.put(QUANTIZATION, getQuantization().toString());
         map.put(IS_RELATIVE, isRelative().toString());
@@ -342,6 +373,24 @@ public class Preset
         return map;
     }
 
+    private Double getRelativeStatWindowSizeFB()
+    {
+        return mRelativeStatWindowSizeFB;
+    }
+
+    private Integer getStatWindowSizeFB()
+    {
+        return mStatWindowSizeFB;
+    }
 
 
+    public Double getFiltSigmaFB()
+    {
+        return mFiltSigmaFB;
+    }
+
+    public Double getStatSigmaFB()
+    {
+        return mStatSigmaFB;
+    }
 }

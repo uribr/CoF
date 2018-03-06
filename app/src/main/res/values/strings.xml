@@ -101,6 +101,7 @@
     <string name="filtering_phase_processing_scribble">Processing scribble info…</string>
 
     <string name="preset_delete_warning">Are you sure you want to delete the current preset?</string>
+    <string name="scribble_color">Scribble Color</string>
 
 
 </resources>

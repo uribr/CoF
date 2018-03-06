@@ -69,6 +69,11 @@ class Utilities
     static final String FILT_WINDOW_SIZE_FB = "filt_window_size_fb";
     static final String RELATIVE_FILT_WINDOW_SIZE_FB = "relative_filt_window_size_fb";
     static final String ITERATIONS_FB = "iterations_fb";
+    static final String STAT_WINDOW_SIZE_FB = "stat_window_size_fb";
+    static final String STAT_SIGMA_FB = "stat_sigma_fb";
+    static final String FILT_SIGMA_FB = "filt_sigma_fb";
+    static final String RELATIVE_STAT_WINDOW_SIZE_FB = "relative_stat_window_size_fb";
+
     //Scribble Cosmetics
     static final String SCRIBBLE_WIDTH = "scribble_width";
     static final String SCRIBBLE_COLOR = "scribble_color";
@@ -130,6 +135,10 @@ class Utilities
         map.put(ITERATIONS, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
         map.put(FILT_WINDOW_SIZE_FB, String.valueOf(DEFAULT_WINDOW_SIZE));
         map.put(RELATIVE_FILT_WINDOW_SIZE_FB, "0");
+        map.put(FILT_SIGMA_FB, String.valueOf(DEFAULT_SIGMA));
+        map.put(STAT_WINDOW_SIZE_FB, String.valueOf(DEFAULT_WINDOW_SIZE));
+        map.put(RELATIVE_STAT_WINDOW_SIZE_FB, "0");
+        map.put(STAT_SIGMA_FB, String.valueOf(DEFAULT_SIGMA));
         map.put(ITERATIONS_FB, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
         map.put(QUANTIZATION, String.valueOf(DEFAULT_QUNTIZATION_LEVEL));
         map.put(IS_RELATIVE, String.valueOf(false));
@@ -170,7 +179,7 @@ class Utilities
         {
             throw new NullPointerException("Preference file is empty or uninitialized");
         }
-        return new Preset(presetName, map);
+        return new Preset(presetName, map, null);
 
 //        return new Preset(prefs.getString(PRESET_NAME, DEFAULT_PRESET_NAME),
 //                prefs.getBoolean(IS_RELATIVE, false),

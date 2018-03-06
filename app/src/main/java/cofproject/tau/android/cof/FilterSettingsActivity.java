@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,25 +34,37 @@ import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
+import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.FILT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
+import static cofproject.tau.android.cof.Utilities.IS_RELATIVE;
 import static cofproject.tau.android.cof.Utilities.ITERATIONS;
 import static cofproject.tau.android.cof.Utilities.ITERATIONS_FB;
 import static cofproject.tau.android.cof.Utilities.MAX_ITERATIONS;
 import static cofproject.tau.android.cof.Utilities.MAX_QUANTIZATION_LEVEL;
 import static cofproject.tau.android.cof.Utilities.MAX_SIGMA;
 import static cofproject.tau.android.cof.Utilities.MIN_QUANTIZATION_LEVEL;
+import static cofproject.tau.android.cof.Utilities.PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.QUANTIZATION;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_FILT_WINDOW_SIZE_FB;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.RELATIVE_STAT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.SCRIBBLE_COLOR_KEY;
 import static cofproject.tau.android.cof.Utilities.SIGMA_SEEKBAR_LENGTH;
+import static cofproject.tau.android.cof.Utilities.STAT_SIGMA;
+import static cofproject.tau.android.cof.Utilities.STAT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
+import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.UNSAVED_PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.convertJSONString2Map;
 import static cofproject.tau.android.cof.Utilities.defaultPresetFile;
@@ -187,29 +201,59 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
     private boolean storePreset(Preset preset)
     {
-        if (preset.validate())
-        {
-            SharedPreferences.Editor editor = mPresetPref.edit();
-            // Put the string representation of the JSON object holding the mapping of
-            // the preset parameters.
-            editor.putString(preset.getName(), new JSONObject(preset.presetToMap()).toString());
-            return editor.commit();
-        }
-        return false;
+        SharedPreferences.Editor editor = mPresetPref.edit();
+        // Put the string representation of the JSON object holding the mapping of
+        // the preset parameters.
+        editor.putString(preset.getName(), new JSONObject(preset.presetToMap()).toString());
+        return editor.commit();
     }
 
-    private void createPresetFromUserSettings(String name, boolean relative, boolean newDefault)
+    private void createPresetFromUserSettings(String name, Boolean relative, Boolean newDefault)
     {
         Log.d(TAG, "createPresetFromUserSettings: creating preset");
-        mPreset = new Preset(newDefault ? DEFAULT_PRESET_NAME : name, relative, mImgSize,
-                mFilteringParametersFragment.getQuantizationLevel(),
-                mFilteringParametersFragment.getStatWindowSize(),
-                mFilteringParametersFragment.getStatSigma(),
-                mFilteringParametersFragment.getWindowSize(),
-                mFilteringParametersFragment.getFiltSigma(),
-                mFilteringParametersFragment.getIter(),
-                mFilteringParametersFragment.getWindowSizeFB(),
-                mFilteringParametersFragment.getIterFB());
+        Map<String, String> map = new HashMap<>();
+        map.put(PRESET_NAME, newDefault ? DEFAULT_PRESET_NAME : name);
+
+        Integer wSize = mFilteringParametersFragment.getStatWindowSize();
+        map.put(STAT_WINDOW_SIZE, wSize.toString());
+        map.put(RELATIVE_STAT_WINDOW_SIZE, String.valueOf(wSize / ((double) mImgSize)));
+
+        map.put(STAT_SIGMA, mFilteringParametersFragment.getStatSigma().toString());
+
+        wSize = mFilteringParametersFragment.getWindowSize();
+        map.put(FILT_WINDOW_SIZE, wSize.toString());
+        map.put(RELATIVE_FILT_WINDOW_SIZE, String.valueOf(wSize / ((double) mImgSize)));
+
+        map.put(FILT_SIGMA, mFilteringParametersFragment.getFiltSigma().toString());
+        map.put(ITERATIONS, mFilteringParametersFragment.getIter().toString());
+
+        wSize = mFilteringParametersFragment.getWindowSizeFB();
+        map.put(FILT_WINDOW_SIZE_FB, wSize.toString());
+        map.put(RELATIVE_FILT_WINDOW_SIZE_FB, String.valueOf(wSize / ((double) mImgSize)));
+
+        map.put(FILT_SIGMA_FB, mFilteringParametersFragment.getFiltSigmaFB().toString());
+
+        wSize = mFilteringParametersFragment.getStatWindowSizeFB();
+        map.put(STAT_WINDOW_SIZE_FB, wSize.toString());
+        map.put(RELATIVE_STAT_WINDOW_SIZE_FB, String.valueOf(wSize / ((double) mImgSize)));
+
+        map.put(STAT_SIGMA_FB, mFilteringParametersFragment.getStatSigmaFB().toString());
+        map.put(ITERATIONS_FB, mFilteringParametersFragment.getIterFB().toString());
+        map.put(QUANTIZATION, mFilteringParametersFragment.getQuantizationLevel().toString());
+        map.put(IS_RELATIVE, relative.toString());
+        mPreset = new Preset(name, map, mImgSize);
+//        mPreset = new Preset(, relative, mImgSize,
+//                ,
+//               ,
+//                ,
+//                mFilteringParametersFragment.getWindowSize(),
+//                mFilteringParametersFragment.getFiltSigma(),
+//                mFilteringParametersFragment.getIter(),
+//                mFilteringParametersFragment.getWindowSizeFB(),
+//                mFilteringParametersFragment.getFiltSigmaFB() ,
+//                mFilteringParametersFragment.getStatWindowSizeFB(),
+//                mFilteringParametersFragment.getFiltSigmaFB(),
+//                mFilteringParametersFragment.getIterFB());
     }
 
     private void loadPreset(String name)
@@ -224,7 +268,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
             Map<String, String> map = convertJSONString2Map(mPresetPref.getString(name, new JSONObject().toString()));
             if (map != null && !map.isEmpty())
             {
-                mPreset = new Preset(name, map);
+                mPreset = new Preset(name, map, mImgSize);
                 Log.i(TAG, "loadPreset: Preset loaded successfully");
             }
         }
@@ -433,9 +477,23 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             mFilteringParametersFragment.getIter(), ITERATIONS);
                     break;
 
+                case R.id.stat_window_size_layout_fb:
+                    showNumberPickerDialog("Choose window size", mImgSize,
+                            mFilteringParametersFragment.getStatWindowSizeFB(), STAT_WINDOW_SIZE_FB);
+                    break;
+
+                case R.id.stat_deviation_layout_fb:
+                    showSeekbarDialog(R.id.stat_deviation_layout_fb, mFilteringParametersFragment.getStatSigmaFB());
+                    break;
+
                 case R.id.window_size_layout_fb:
                     showNumberPickerDialog("Choose window size", mImgSize,
                             mFilteringParametersFragment.getWindowSizeFB(), FILT_WINDOW_SIZE_FB);
+                    break;
+
+                case R.id.filt_deviation_layout_fb:
+                    Log.d(TAG, "onSettingClick: filtering deviation layout");
+                    showSeekbarDialog(R.id.filt_deviation_layout_fb, mFilteringParametersFragment.getFiltSigmaFB());
                     break;
 
                 case R.id.iteration_layout_fb:
@@ -553,12 +611,14 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             break;
                         case STAT_WINDOW_SIZE:
                             mFilteringParametersFragment.setStatWindowSize(newVal);
-                            mFilteringParametersFragment.setStatSigma(2 * Math.sqrt(newVal) + 1);
                             break;
 
                         case FILT_WINDOW_SIZE:
                             mFilteringParametersFragment.setFiltWindowSize(newVal);
-                            mFilteringParametersFragment.setFiltSigma(2 * Math.sqrt(newVal) + 1);
+                            break;
+
+                        case STAT_WINDOW_SIZE_FB:
+                            mFilteringParametersFragment.setStatWindowSizeFB(newVal);
                             break;
 
                         case FILT_WINDOW_SIZE_FB:
@@ -598,6 +658,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         dialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void showSeekbarDialog(final int editTextId, double cur_val)
     {
         Log.d(TAG, "showSeekbarDialog: entering");
@@ -612,13 +673,14 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         builder.setTitle(R.string.select_spatial_u03c3_value);
 
+        //EditText editText2 = findViewById(editTextId);
         final SeekBar seekBar = promptsView.findViewById(R.id.seekbar);
         seekBar.setMax(((int) Math.floor(MAX_SIGMA * SIGMA_SEEKBAR_LENGTH)));
         seekBar.setProgress(mapSigmaToProgress(cur_val));
 
         final EditText editText = promptsView.findViewById(R.id.progress);
         editText.setText(String.format(Locale.ENGLISH,"%.02f",
-                mFilteringParametersFragment.getStatSigma()));
+                cur_val));
         editText.addTextChangedListener(new SigmaValueWatcher(editText, seekBar));
 
         Log.d(TAG, "showSeekbarDialog: adding seekbar listener");
@@ -649,7 +711,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
             public void onClick(DialogInterface dialog, int which)
             {
                 // Change the parameter value only if it positive.
-                if (seekBar.getProgress() >= 0)
+                if (seekBar.getProgress() > 0)
                 {
                     double newSigmaValue =  mapSeekbarToSigma(seekBar.getProgress());
                     if (mFilteringParametersFragment.getStatSigma() != newSigmaValue
@@ -670,11 +732,15 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                                 mFilteringParametersFragment.setStatSigma(mappedSigma);
                                 break;
 
+                            case R.id.stat_deviation_layout_fb:
+                                mFilteringParametersFragment.setStatSigmaFB(mappedSigma);
+                                break;
+
+                            case R.id.filt_deviation_layout_fb:
+                                mFilteringParametersFragment.setFiltSigmaFB(mappedSigma);
                             default:
                         }
-
                     }
-
                 }
             }
         });

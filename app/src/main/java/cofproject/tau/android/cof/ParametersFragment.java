@@ -32,6 +32,9 @@ public class ParametersFragment extends Fragment
     private TextView mIterationCount;
     // FB-CoF
     private TextView mCurrentFiltWindowSizeFB;
+    private TextView mCurrentFiltSigmaFB;
+    private TextView mCurrentStatWindowSizeFB;
+    private TextView mCurrentStatSigmaFB;
     private TextView mIterationCountFB;
     // Scribble Cosmetics
 //    private TextView mCurre
@@ -59,6 +62,9 @@ public class ParametersFragment extends Fragment
         setFiltSigma(preset.getFiltSigma());
         setIterationCount(preset.getNumberOfIteration());
         setFiltWindowSizeFB(preset.getFiltWindowSizeFB(imgSize));
+        setFiltSigmaFB(preset.getFiltSigmaFB());
+        setStatWindowSizeFB(preset.getStatWindowSizeFB(imgSize));
+        setStatSigmaFB(preset.getStatSigmaFB());
         setIterationCountFB(preset.getNumberOfIterationFB());
 //        setScribbleWidth(preset.getScribbleWidth());
 //        setScribbleColor(preset.getScribbleColor());
@@ -82,6 +88,9 @@ public class ParametersFragment extends Fragment
         //FB-CoF
         mCurrentFiltWindowSizeFB = view.findViewById(R.id.current_fb_filt_window_size);
         mIterationCountFB = view.findViewById(R.id.current_fb_iteration_value);
+        mCurrentFiltSigmaFB = view.findViewById(R.id.current_filt_deviation_value_fb);
+        mCurrentStatWindowSizeFB = view.findViewById(R.id.current_stat_window_size_fb);
+        mCurrentStatSigmaFB = view.findViewById(R.id.current_stat_deviation_value_fb);
 
 //        mListener.loadPreset();
 //        mListener.setScribbleColor();
@@ -98,14 +107,14 @@ public class ParametersFragment extends Fragment
 
     public String getPresetName() { return mCurrentPresetName.getText().toString(); }
 
-    public float getStatSigma()
+    public Float getStatSigma()
     {
         Log.d(TAG, "getStatSigma: " + mCurrentStatSigma.getText().toString());
         Log.d(TAG, String.format("getStatSigma; %f", Float.parseFloat(mCurrentStatSigma.getText().toString())) );
         return Float.parseFloat(mCurrentStatSigma.getText().toString());
     }
 
-    public float getFiltSigma()
+    public Float getFiltSigma()
     {
         Log.d(TAG, "getFiltSigma: " + mCurrentStatSigma.getText().toString());
         Log.d(TAG, String.format("getFiltSigma; %f", Float.parseFloat(mCurrentFiltSigma.getText().toString())) );
@@ -122,17 +131,17 @@ public class ParametersFragment extends Fragment
         mCurrentFiltSigma.setText(String.format(Locale.ENGLISH, "%.02f", sigma));
     }
 
-    public int getStatWindowSize()
+    public Integer getStatWindowSize()
     {
         return Integer.parseInt(mCurrentStatWindowSize.getText().toString());
     }
 
-    public int getWindowSize()
+    public Integer getWindowSize()
     {
         return Integer.parseInt(mCurrentFiltWindowSize.getText().toString());
     }
 
-    public int getWindowSizeFB()
+    public Integer getWindowSizeFB()
     {
         return Integer.parseInt(mCurrentFiltWindowSizeFB.getText().toString());
     }
@@ -140,24 +149,27 @@ public class ParametersFragment extends Fragment
     public void setStatWindowSize(int windowSize)
     {
         mCurrentStatWindowSize.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+        mCurrentStatSigma.setText(String.format(Locale.ENGLISH, "%.02f", 2 * Math.sqrt(windowSize) + 1));
     }
 
     public void setFiltWindowSize(int windowSize)
     {
         mCurrentFiltWindowSize.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+        mCurrentFiltSigma.setText(String.format(Locale.ENGLISH, "%.02f", 2 * Math.sqrt(windowSize) + 1));
     }
 
     public void setFiltWindowSizeFB(int windowSize)
     {
         mCurrentFiltWindowSizeFB.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+        mCurrentFiltSigmaFB.setText(String.format(Locale.ENGLISH, "%.02f", 2 * Math.sqrt(windowSize) + 1));
     }
 
-    public int getIter()
+    public Integer getIter()
     {
         return Integer.parseInt(mIterationCount.getText().toString());
     }
 
-    public int getIterFB()
+    public Integer getIterFB()
     {
         return Integer.parseInt(mIterationCountFB.getText().toString());
     }
@@ -172,7 +184,7 @@ public class ParametersFragment extends Fragment
         mIterationCountFB.setText(String.format(Locale.ENGLISH, "%d", iter));
     }
 
-    public int getQuantizationLevel()
+    public Integer getQuantizationLevel()
     {
         return Integer.parseInt(mCurrentQuantizationLevels.getText().toString());
     }
@@ -193,6 +205,37 @@ public class ParametersFragment extends Fragment
     }
 
     public void setQuantizationLevel(int quantizationLevel) { mCurrentQuantizationLevels.setText(String.format(Locale.ENGLISH, "%d", quantizationLevel)); }
+
+    public Float getStatSigmaFB()
+    {
+        return Float.parseFloat(mCurrentStatSigmaFB.getText().toString());
+    }
+
+    public Float getFiltSigmaFB()
+    {
+        return Float.parseFloat(mCurrentFiltSigmaFB.getText().toString());
+    }
+
+    public Integer getStatWindowSizeFB()
+    {
+        return Integer.parseInt(mCurrentStatWindowSizeFB.getText().toString());
+    }
+
+    public void setStatWindowSizeFB(int windowSize)
+    {
+        mCurrentStatWindowSizeFB.setText(String.format(Locale.ENGLISH, "%d", windowSize));
+        mCurrentStatSigmaFB.setText(String.format(Locale.ENGLISH, "%.02f", 2 * Math.sqrt(windowSize) + 1));
+    }
+
+    public void setStatSigmaFB(double sigma)
+    {
+        mCurrentStatSigmaFB.setText(String.format(Locale.ENGLISH, "%.02f", sigma));
+    }
+
+    public void setFiltSigmaFB(double sigma)
+    {
+        mCurrentFiltSigmaFB.setText(String.format(Locale.ENGLISH, "%.02f", sigma));
+    }
 
     public interface OnFinishedCreateView
     {
