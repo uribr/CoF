@@ -42,7 +42,6 @@ import java.util.Vector;
 
 import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
-import static cofproject.tau.android.cof.Utilities.FILT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IMG_SIZE;
@@ -230,8 +229,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         wSize = mFilteringParametersFragment.getWindowSizeFB();
         map.put(FILT_WINDOW_SIZE_FB, wSize.toString());
         map.put(RELATIVE_FILT_WINDOW_SIZE_FB, String.valueOf(wSize / ((double) mImgSize)));
-
-        map.put(FILT_SIGMA_FB, mFilteringParametersFragment.getFiltSigmaFB().toString());
 
         wSize = mFilteringParametersFragment.getStatWindowSizeFB();
         map.put(STAT_WINDOW_SIZE_FB, wSize.toString());
@@ -491,11 +488,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             mFilteringParametersFragment.getWindowSizeFB(), FILT_WINDOW_SIZE_FB);
                     break;
 
-                case R.id.filt_deviation_layout_fb:
-                    Log.d(TAG, "onSettingClick: filtering deviation layout");
-                    showSeekbarDialog(R.id.filt_deviation_layout_fb, mFilteringParametersFragment.getFiltSigmaFB());
-                    break;
-
                 case R.id.iteration_layout_fb:
                     Log.d(TAG, "onSettingClick: iteration layout");
                     showNumberPickerDialog("Choose number of iterations:", MAX_ITERATIONS,
@@ -736,8 +728,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                                 mFilteringParametersFragment.setStatSigmaFB(mappedSigma);
                                 break;
 
-                            case R.id.filt_deviation_layout_fb:
-                                mFilteringParametersFragment.setFiltSigmaFB(mappedSigma);
                             default:
                         }
                     }

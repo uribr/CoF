@@ -544,42 +544,6 @@
             android:clickable="false"/>
 
 
-        <LinearLayout
-            android:id="@+id/filt_deviation_layout_fb"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/preference_height"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="onSettingClick"
-            android:orientation="horizontal"
-            android:textColor="@color/colorAccent">
-
-            <android.support.v7.widget.AppCompatTextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="false"
-                android:gravity="center"
-                android:text="@string/filtering_sigma"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/preference_text_size"
-                android:textStyle="bold"/>
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/current_filt_deviation_value_fb"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="false"
-                android:gravity="center"
-                android:text="@string/_1"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/preference_text_size"/>
-
-        </LinearLayout>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
