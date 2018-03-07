@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
-import static cofproject.tau.android.cof.Utilities.FILT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.FILT_WINDOW_SIZE_FB;
 import static cofproject.tau.android.cof.Utilities.IS_RELATIVE;
@@ -45,7 +44,6 @@ public class Preset
     private int mFiltWindowSizeFB;
     private double mRelativeFiltWindowSizeFB;
     private double mStatSigmaFB;
-    private double mFiltSigmaFB;
     private int mStatWindowSizeFB;
     private double mRelativeStatWindowSizeFB;
     private int mNumberOfIterationFB;
@@ -90,8 +88,7 @@ public class Preset
         mNumberOfIterationFB = Integer.parseInt(map.get(ITERATIONS_FB));
 
         this.setSigma(Double.parseDouble(map.get(STAT_SIGMA)), Double.parseDouble(map.get(FILT_SIGMA)),
-                Double.parseDouble(map.get(STAT_SIGMA_FB)),
-                Double.parseDouble(map.get(FILT_SIGMA_FB)));
+                Double.parseDouble(map.get(STAT_SIGMA_FB)));
         if (imgSize != null)
         {
             setWindowSize(Integer.parseInt(map.get(STAT_WINDOW_SIZE)), Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB)), Integer.parseInt(map.get(FILT_WINDOW_SIZE)), Integer.parseInt(map.get(STAT_WINDOW_SIZE_FB)), imgSize);
@@ -273,7 +270,7 @@ public class Preset
         return mFiltSigma;
     }
 
-    private void setSigma(double statSigma, double filtSigma, double statSigmaFB, double filtSigmaFB)
+    private void setSigma(double statSigma, double filtSigma, double statSigmaFB)
     {
         if (statSigma <= MAX_SIGMA && statSigma > 0)
         {
@@ -286,10 +283,6 @@ public class Preset
         if(statSigmaFB <= MAX_SIGMA && statSigmaFB >0)
         {
             mStatSigmaFB = statSigmaFB;
-        }
-        if(filtSigmaFB <= MAX_SIGMA && filtSigmaFB >0)
-        {
-            mFiltSigmaFB = filtSigmaFB;
         }
     }
 
@@ -361,7 +354,6 @@ public class Preset
         map.put(ITERATIONS, getNumberOfIteration().toString());
         map.put(FILT_WINDOW_SIZE_FB, getFiltWindowSizeFB().toString());
         map.put(RELATIVE_FILT_WINDOW_SIZE_FB, getRelativeFiltWindowSizeFB().toString());
-        map.put(FILT_SIGMA_FB, getFiltSigmaFB().toString());
         map.put(STAT_WINDOW_SIZE_FB, getStatWindowSizeFB().toString());
         map.put(RELATIVE_STAT_WINDOW_SIZE_FB, getRelativeStatWindowSizeFB().toString());
         map.put(STAT_SIGMA_FB, getStatSigmaFB().toString());
@@ -381,12 +373,6 @@ public class Preset
     private Integer getStatWindowSizeFB()
     {
         return mStatWindowSizeFB;
-    }
-
-
-    public Double getFiltSigmaFB()
-    {
-        return mFiltSigmaFB;
     }
 
     public Double getStatSigmaFB()
