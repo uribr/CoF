@@ -1,5 +1,6 @@
 # CoF
 CoF Application
-A temporary repository until I get around to merging the two (trying to simply push the files from Android Studio just made a mess).
-I found this: https://stackoverflow.com/questions/1425892/how-do-you-merge-two-git-repositories
-Because it is not very needed right now to have a single repository I will take care of it at a different time.
+An Android application that implements the Co-Occurrence Filter using the OpenCV library.
+The Co-Occurrence Filter (or CoF for short) is a boundary-preserving, textures smoothing, image filter that is based on the bilateral filter.Boundaries are edges that delimits a texture. A texture is a recurring pattern of neighboring pixels in an image.
+
+For more information about the application and the creators please visit http://bit.do/cofilter.
