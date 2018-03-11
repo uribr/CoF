@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Vector;
 
 import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
@@ -136,6 +137,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         Log.d(TAG, "onCreate: loading shared preference file for presests");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
+        mPresets = loadPresetsNameList();
 
     }
 
@@ -183,18 +185,18 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         return super.onOptionsItemSelected(item);
     }
 
-//    private List<String> loadPresetsNameList()
-//    {
-//        Log.d(TAG, "loadPresetsNameList: entering");
-//        Vector<String> list = new Vector<>();
-//        Map<String, ?> map = mPresetPref.getAll();
-//        list.add(getString(R.string.DefaultPresetName));
-//        for (Map.Entry<String, ?> entry : map.entrySet())
-//        {
-//            list.add(entry.getKey());
-//        }
-//        return list;
-//    }
+    private List<String> loadPresetsNameList()
+    {
+        Log.d(TAG, "loadPresetsNameList: entering");
+        Vector<String> list = new Vector<>();
+        Map<String, ?> map = mPresetPref.getAll();
+        list.add(getString(R.string.DefaultPresetName));
+        for (Map.Entry<String, ?> entry : map.entrySet())
+        {
+            list.add(entry.getKey());
+        }
+        return list;
+    }
 
 
     private boolean storePreset(Preset preset)
