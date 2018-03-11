@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Vector;
 
 import static cofproject.tau.android.cof.Utilities.DEFAULT_PRESET_NAME;
 import static cofproject.tau.android.cof.Utilities.FILT_SIGMA;
@@ -184,18 +183,18 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         return super.onOptionsItemSelected(item);
     }
 
-    private List<String> loadPresetsNameList()
-    {
-        Log.d(TAG, "loadPresetsNameList: entering");
-        Vector<String> list = new Vector<>();
-        Map<String, ?> map = mPresetPref.getAll();
-        list.add(getString(R.string.DefaultPresetName));
-        for (Map.Entry<String, ?> entry : map.entrySet())
-        {
-            list.add(entry.getKey());
-        }
-        return list;
-    }
+//    private List<String> loadPresetsNameList()
+//    {
+//        Log.d(TAG, "loadPresetsNameList: entering");
+//        Vector<String> list = new Vector<>();
+//        Map<String, ?> map = mPresetPref.getAll();
+//        list.add(getString(R.string.DefaultPresetName));
+//        for (Map.Entry<String, ?> entry : map.entrySet())
+//        {
+//            list.add(entry.getKey());
+//        }
+//        return list;
+//    }
 
 
     private boolean storePreset(Preset preset)
@@ -517,8 +516,8 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         final SpinnerReselect spinnerReselect = promptsView.findViewById(R.id.presetSpinner);
 
         Log.d(TAG, "showPresetSpinnerDialog: populating the spinner");
-        List<String> array = new ArrayList<>(loadPresetsNameList());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, array);
+        //List<String> array = new ArrayList<>(loadPresetsNameList());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, mPresets);
         spinnerReselect.setAdapter(adapter);
 
         Log.d(TAG, "showPresetSpinnerDialog: adding buttons");
