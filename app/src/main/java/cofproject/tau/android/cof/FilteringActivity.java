@@ -488,17 +488,18 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
 
         private ProgressDialog progressDialog;
         private Stopwatch stopwatch;
+        //CoF parameters
         private int iterCnt;
         private int nBins;
         private int winSizeStat;
         private double sigmaStat;
         private int winSizeFilt;
         private double sigmaFilt;
+        //FB-CoF parameters
         private int winSizeFiltFB;
+        private int winSizeStatFB;
+        private double sigmaStatFB;
         private int iterCntFB;
-        //to be added:
-        //private int winSizeStatFB;
-        //private double sigmaStatFB;
 
 
 
@@ -575,21 +576,20 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         }
 
         private void fgBgFiltering() {
-            //todo - add stat window and sigma for FB
             Mat fgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
             Mat bgPab = Mat.zeros(new Size(nBins, nBins), CvType.CV_32FC1);
 
             publishProgress(getString(R.string.filtering_phase_collect_fg_Pab));
             stopwatch.reset();
             stopwatch.start();
-            CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSizeFiltFB, 2 * Math.sqrt(winSizeFiltFB) + 1);
+            CoF.collectPab(mImToCollect, mForegroundMask, fgPab, nBins, winSizeStatFB, sigmaStatFB);
             stopwatch.stop();
             Log.d(TAG, "fgBgFiltering: collectPab (foreground) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
 
             publishProgress(getString(R.string.filtering_phase_collect_bg_Pab));
             stopwatch.reset();
             stopwatch.start();
-            CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSizeFiltFB, 2 * Math.sqrt(winSizeFiltFB) + 1);
+            CoF.collectPab(mImToCollect, mBackgroundMask, bgPab, nBins, winSizeStatFB, sigmaStatFB);
             stopwatch.stop();
             Log.d(TAG, "fgBgFiltering: collectPab (background) time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             Core.add(bgPab, new Scalar(Math.pow(10, -10)), bgPab);
@@ -610,19 +610,31 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             Utilities.releaseMats(fgPab, bgPab, imToFilterCopy);
         }
 
+        private int updateWinSize(int winSize) {
+            if (winSize % 2 == 0) {
+                winSize--;
+            }
+            return winSize;
+        }
+
         private void initParams() {
             // extract parmeters from preset
             iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
             sigmaStat = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
             nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUNTIZATION_LEVEL;
             winSizeStat = mPreset != null ? mPreset.getStatWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
-            if (winSizeStat % 2 == 0) {
-                winSizeStat--;
-            }
+            winSizeStat = updateWinSize(winSizeStat);
+
             winSizeFilt = mPreset != null ? mPreset.getFiltWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            winSizeFilt = updateWinSize(winSizeFilt);
             sigmaFilt = mPreset != null ? mPreset.getFiltSigma() : Utilities.DEFAULT_SIGMA;
+
             winSizeFiltFB = mPreset != null ? mPreset.getFiltWindowSizeFB(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            winSizeFiltFB = updateWinSize(winSizeFiltFB);
             iterCntFB = mPreset != null ? mPreset.getNumberOfIterationFB() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
+            winSizeStatFB = mPreset != null ? mPreset.getStatWindowSizeFB(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
+            winSizeStatFB = updateWinSize(winSizeStatFB);
+            sigmaStatFB = mPreset != null ? mPreset.getStatSigmaFB() : Utilities.DEFAULT_SIGMA;
 
         }
 
