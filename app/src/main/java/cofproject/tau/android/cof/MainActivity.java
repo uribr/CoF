@@ -3,7 +3,9 @@ package cofproject.tau.android.cof;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cofproject.tau.android.cof.Utilities.*;
-import static cofproject.tau.android.cof.Utilities.showTutorial;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
         }, 300);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    }
+
     private void tryShowTutorial() {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         String tutorialKey = getString(R.string.main_activity_tutorial_key);
@@ -85,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     // public members and methods
-    public static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
-    public static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int APP_PERMISSIONS_REQUEST_CAMERA = 0;
+    private static final int APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 1;
 
     /**
      * Callback method for permission requests. Expects an {@link #APP_PERMISSIONS_REQUEST_CAMERA}
@@ -122,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return whether the current context has permission to access the camera.
      */
-    public boolean requestCameraPermission() {
+    private boolean requestCameraPermission() {
         // Check if we have permission.
         boolean cameraPermissionCheck = (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.CAMERA) ==
@@ -157,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return whether the current context has permission to access the external storage.
      */
-    public boolean requestExternalStoragePermission() {
+    private boolean requestExternalStoragePermission() {
         // Check if we have permission.
         boolean readExternalStoragePermissionCheck = (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) ==
@@ -232,6 +239,13 @@ public class MainActivity extends AppCompatActivity {
      * Otherwise, we load an image from gallery.
      */
     private void startFilteringTask(boolean fromCamera) {
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
+        else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        }
         startActivity(genBasicImageProcIntent(fromCamera));
     }
 

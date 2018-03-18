@@ -1,5 +1,7 @@
 package cofproject.tau.android.cof;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import static cofproject.tau.android.cof.Utilities.STAT_SIGMA_FB;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE;
 import static cofproject.tau.android.cof.Utilities.STAT_WINDOW_SIZE_FB;
 
+@SuppressWarnings("WeakerAccess")
 public class Preset
 {
     private static final String TAG = "Preset";
@@ -48,38 +51,10 @@ public class Preset
     private double mRelativeStatWindowSizeFB;
     private int mNumberOfIterationFB;
 
-    //Scribble cosmetics
-//    private Integer mScribbleWidth;
-//    private Object mScribbleColor;
-
-//    public Preset(String name, float statSigma, int numberOfIteration, int statWindowSize,
-//                  boolean relative, int quantization)
-//    {
-//        mName = name;
-//        mRelative = relative;
-//        mQuantizationLevels = quantization;
-//        mStatWindowSize = statWindowSize;
-//        mStatSigma = statSigma;
-//        mNumberOfIteration = numberOfIteration;
-//    }
-//
-//    public Preset(String name, boolean relative, int imgSize, int quantizationLevels,
-//                  int statWindowSize, double statSigma, int filtWindowSize, double filtSigma,
-//                  int numberOfIteration, int filtWindowSizeFB, double filtSigmaFB, int statWindowSizeFB, double statSigmaFB, int numberOfIterationFB/*, int scribbleWidth, Object scribbleColor*/)
-//    {
-//        mName = name;
-//        mRelative = relative;
-//        setRelativeWindowSize(statWindowSize, filtWindowSize, filtWindowSizeFB, imgSize, statWindowSizeFB);
-//        setSigma(statSigma, filtSigma, statSigmaFB, filtSigmaFB);
-//        setQuantizationLevel(quantizationLevels);
-//        setWindowSize(statWindowSize, filtWindowSizeFB, filtWindowSize, , imgSize);
-//        mNumberOfIteration = numberOfIteration;
-//        mNumberOfIterationFB = numberOfIterationFB;
-//    }
-
 
     public Preset(String name, Map<String, String> map, Integer imgSize)
     {
+        Log.i(TAG, "Preset: Initializing preset");
         mName = map.containsKey(PRESET_NAME) ? map.get(PRESET_NAME) : name;
         mRelative = Boolean.parseBoolean(map.get(IS_RELATIVE));
         setQuantizationLevel(Integer.parseInt(map.get(QUANTIZATION)));
@@ -119,11 +94,6 @@ public class Preset
             mFiltWindowSizeFB = Integer.parseInt(map.get(FILT_WINDOW_SIZE_FB));
             mStatWindowSizeFB = Integer.parseInt(map.get(STAT_WINDOW_SIZE_FB));
         }
-
-
-        // Scribble costmetics parameters
-//        mScribbleWidth = Integer.parseInt(map.get(SCRIBBLE_WIDTH));
-//        mScribbleColor = map.get(SCRIBBLE_COLOR);
     }
 
     public boolean validate()
@@ -311,17 +281,15 @@ public class Preset
         return mQuantizationLevels;
     }
 
-    private boolean setQuantizationLevel(int quantizationLevel)
+    private void setQuantizationLevel(int quantizationLevel)
     {
         if (quantizationLevel >= MIN_QUANTIZATION_LEVEL && quantizationLevel <= MAX_QUANTIZATION_LEVEL)
         {
             mQuantizationLevels = quantizationLevel;
-            return true;
         }
-        return false;
     }
 
-    public Boolean isRelative()
+    private Boolean isRelative()
     {
         return mRelative;
     }

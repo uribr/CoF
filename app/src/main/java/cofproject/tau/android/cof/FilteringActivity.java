@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -74,7 +76,6 @@ import static cofproject.tau.android.cof.Utilities.updateCurrentPreset;
  */
 public class FilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
     private static final String TAG = "FilteringActivity";
-    private static final String FROM_ORIGINAL_TO_FILTERING = "from original image to filtering";
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
     private static final String FROM_SCRIBBLE_TO_THRESHOLD = "from scribble to threshold";
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 0;
@@ -307,6 +308,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             finish();
             return;
         }
+
         switch (requestCode) {
             case GALLERY_REQUEST_CODE:
                 mURI = data.getData();
@@ -361,6 +363,18 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
                 }
                 break;
         }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int currentOrientation = getResources().getConfiguration().orientation;
+                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                }
+                else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                }
+            }
+        }, 300);
     }
 
 
@@ -621,7 +635,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             // extract parmeters from preset
             iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
             sigmaStat = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
-            nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUNTIZATION_LEVEL;
+            nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUANTIZATION_LEVEL;
             winSizeStat = mPreset != null ? mPreset.getStatWindowSize(Math.max(mImgHeight, mImgWidth)) : Utilities.DEFAULT_WINDOW_SIZE;
             winSizeStat = updateWinSize(winSizeStat);
 

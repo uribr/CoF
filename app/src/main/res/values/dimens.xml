@@ -14,7 +14,7 @@
     <!--activity_info-->
     <dimen name="activity_info_text_size">18sp</dimen>
 
-    <!--post_filtering_buttons_fragmentment-->
+    <!--post_filtering_buttons_fragment-->
     <dimen name="post_filtering_buttons_fragment_height">50dp</dimen>
 
     <!--scribble_mask_threshold_fragment-->

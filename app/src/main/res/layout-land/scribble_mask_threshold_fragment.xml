@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="@dimen/pre_filtering_buttons_height"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+              android:baselineAligned="false">
 
 
 
@@ -16,7 +18,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Scribble mask threshold"
+                android:text="@string/scribble_mask_threshold_str"
                 android:textAlignment="center"
                 android:textSize="16sp"/>
 
@@ -43,7 +45,8 @@
                 android:gravity="center"
                 android:textAllCaps="false"
                 android:textSize="@dimen/pre_filtering_text_size"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
 
         </LinearLayout>
 
@@ -58,7 +61,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:gravity="center"
                 android:textAllCaps="false"
                 android:textSize="@dimen/pre_filtering_text_size"

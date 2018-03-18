@@ -102,6 +102,7 @@
 
     <string name="preset_delete_warning">Are you sure you want to delete the current preset?</string>
     <string name="scribble_color">Scribble Color</string>
+    <string name="scribble_mask_threshold_str">Scribble mask threshold</string>
 
 
 </resources>

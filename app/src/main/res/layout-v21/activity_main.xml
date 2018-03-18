@@ -28,6 +28,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="@android:drawable/btn_default"
+            android:backgroundTintMode="src_in"
             android:onClick="onCameraButtonClick"
             android:orientation="vertical"
             android:layout_weight="0.5"

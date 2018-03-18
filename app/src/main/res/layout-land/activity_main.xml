@@ -29,7 +29,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="@android:drawable/btn_default"
-            android:backgroundTintMode="src_in"
             android:onClick="onCameraButtonClick"
             android:orientation="vertical"
             android:layout_weight="0.5"
@@ -44,8 +43,8 @@
                 android:background="@null"
                 android:clickable="false"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_camera">
-            </ImageButton>
+                android:src="@drawable/ic_menu_camera"
+                tools:ignore="ContentDescription"/>
 
             <TextView
                 android:id="@+id/capture_photo_tv"
@@ -82,8 +81,8 @@
                 android:background="@null"
                 android:clickable="false"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_menu_gallery">
-            </ImageButton>
+                android:src="@drawable/ic_menu_gallery"
+                tools:ignore="ContentDescription"/>
 
             <TextView
                 android:id="@+id/browse_gallery_tv"
@@ -118,7 +117,8 @@
             android:layout_width="@dimen/activity_main_icon_size"
             android:layout_height="@dimen/activity_main_icon_size"
             android:src="@android:drawable/ic_menu_info_details"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:layout_width="match_parent"

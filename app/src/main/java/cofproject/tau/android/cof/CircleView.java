@@ -16,15 +16,15 @@ public class CircleView extends View {
 
     public CircleView(Context context) {
         super(context);
-        init(context, null);
+        init();
     }
 
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init();
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init() {
         mPaint = new Paint();
         mColor = DEFAULT_CIRCLE_COLOR;
         mPaint.setAntiAlias(true);
@@ -33,10 +33,6 @@ public class CircleView extends View {
     public void setColor(int color) {
         this.mColor = color;
         invalidate();
-    }
-
-    public int getColor() {
-        return mColor;
     }
 
     protected void onDraw(Canvas canvas) {

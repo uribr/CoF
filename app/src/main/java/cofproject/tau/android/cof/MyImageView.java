@@ -26,8 +26,8 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
 
     /**
      * A constructor for the class, initialing the Paint and Path objects.
-     * @param context
-     * @param attrs
+     * @param context context
+     * @param attrs attrs
      */
     public MyImageView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);

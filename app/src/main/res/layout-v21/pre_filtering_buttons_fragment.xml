@@ -14,6 +14,7 @@
         android:layout_weight="1"
         android:switchMinWidth="@dimen/pre_filtering_switch_min_width"
         android:onClick="onScribbleSwitch"
+        android:splitTrack="false"
         android:text="@string/scribble_switch_text"
         android:textIsSelectable="false"
         android:textSize="@dimen/pre_filtering_text_size"

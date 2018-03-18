@@ -9,10 +9,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -123,15 +125,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         Log.d(TAG, "onCreate: adding fragments");
 
-//        if (mIsLandscape)
-//        {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-//            mFilteringParametersFragment = new ParametersFragment();
-//        }
-//        else
-//        {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//        }
         setContentView(R.layout.activity_filter_settings);
         initFragments();
 
@@ -239,18 +232,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         map.put(QUANTIZATION, mFilteringParametersFragment.getQuantizationLevel().toString());
         map.put(IS_RELATIVE, relative.toString());
         mPreset = new Preset(name, map, mImgSize);
-//        mPreset = new Preset(, relative, mImgSize,
-//                ,
-//               ,
-//                ,
-//                mFilteringParametersFragment.getWindowSize(),
-//                mFilteringParametersFragment.getFiltSigma(),
-//                mFilteringParametersFragment.getIter(),
-//                mFilteringParametersFragment.getWindowSizeFB(),
-//                mFilteringParametersFragment.getFiltSigmaFB() ,
-//                mFilteringParametersFragment.getStatWindowSizeFB(),
-//                mFilteringParametersFragment.getFiltSigmaFB(),
-//                mFilteringParametersFragment.getIterFB());
     }
 
     private void loadPreset(String name)
@@ -291,7 +272,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         Log.d(TAG, "onSavePresetClick: creating widgets");
         // Add a listener to the user input to check if the name is valid
         // and display an error to the user if it isn't valid.
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.savePresetPromptUserInput);
+        final EditText userInput = promptsView.findViewById(R.id.savePresetPromptUserInput);
         final CheckBox relativeCheckBox = promptsView.findViewById(R.id.relativePresetCheckBox);
         final CheckBox setAsDefaultCheckBox = promptsView.findViewById(R.id.SetAsDefaultCheckBox);
         final StringNameWatcher presetNameWatcher = new StringNameWatcher(userInput, setAsDefaultCheckBox);
@@ -377,7 +358,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
     private void updateDefaultPreset()
     {
-        updatePreset(mPreset, defaultPresetFile, mImgSize);
+        updatePreset(mPreset, defaultPresetFile);
     }
 
 
@@ -764,6 +745,19 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         transaction.add(R.id.settings_activity_button_container, buttonsFragment);
         transaction.add(R.id.main_settings_view_container, mFilteringParametersFragment);
         transaction.commit();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int currentOrientation = getResources().getConfiguration().orientation;
+                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                }
+                else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                }
+            }
+        }, 300);
     }
 
     @Override
@@ -812,7 +806,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         cp.show();
 
         /* On Click listener for the dialog, when the user select the color */
-        Button okColor = (Button)cp.findViewById(R.id.okColorButton);
+        Button okColor = cp.findViewById(R.id.okColorButton);
 
         okColor.setOnClickListener(new View.OnClickListener() {
             @Override

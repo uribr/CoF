@@ -13,6 +13,7 @@ import static cofproject.tau.android.cof.Utilities.ZERO_SIGMA;
 import static cofproject.tau.android.cof.Utilities.mapSigmaToProgress;
 
 
+@SuppressWarnings("WeakerAccess")
 public class SigmaValueWatcher implements TextWatcher
 {
     private Float currentVal;

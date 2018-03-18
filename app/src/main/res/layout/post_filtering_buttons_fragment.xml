@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_filtering_buttons_layout"
     android:layout_width="match_parent"
     android:layout_height="@dimen/post_filtering_buttons_fragment_height"
@@ -19,7 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_save"/>
+            android:src="@android:drawable/ic_menu_save"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
     <LinearLayout
@@ -34,7 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_share"/>
+            android:src="@android:drawable/ic_menu_share"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
     <!--<ImageButton-->

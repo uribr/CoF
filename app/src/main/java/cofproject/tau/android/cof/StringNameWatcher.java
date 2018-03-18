@@ -9,6 +9,7 @@ import android.widget.EditText;
  * Created by Uri on 29/11/2017.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class StringNameWatcher implements TextWatcher
 {
     private EditText mTarget;

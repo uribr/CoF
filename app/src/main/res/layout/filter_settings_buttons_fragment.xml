@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="@dimen/filter_settings_buttons_height"
               android:orientation="horizontal"
@@ -16,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_save"/>
+            android:src="@android:drawable/ic_menu_save"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
     <LinearLayout
@@ -30,7 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_delete"/>
+            android:src="@android:drawable/ic_menu_delete"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
 

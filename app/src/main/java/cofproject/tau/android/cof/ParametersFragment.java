@@ -19,7 +19,7 @@ import java.util.Locale;
 public class ParametersFragment extends Fragment
 {
 
-    public static final String TAG = "ParameterFragment";
+    private static final String TAG = "ParameterFragment";
     private OnFinishedCreateView mListener;
     private TextView mCurrentPresetName;
     // general

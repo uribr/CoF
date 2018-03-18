@@ -161,7 +161,7 @@ public class CoF {
      */
     public static void quantize(Mat imToFilter, Mat quantizedIm) {
 
-        quantize(imToFilter, quantizedIm, Utilities.DEFAULT_QUNTIZATION_LEVEL);
+        quantize(imToFilter, quantizedIm, Utilities.DEFAULT_QUANTIZATION_LEVEL);
     }
 
     /**
@@ -250,9 +250,9 @@ public class CoF {
             masked.setTo(Utilities.ZERO_SCALAR);
         }
 
-        float[] flatened = Floats.concat(pabArr);
+        float[] flattened = Floats.concat(pabArr);
 
-        pab.put(0, 0, flatened);
+        pab.put(0, 0, flattened);
 
         Mat pabt = pab.t();
         Core.add(pab, pabt, pab);
@@ -294,7 +294,7 @@ public class CoF {
 
     /**
      * Performs conversion of co-occurrence matrix (P(a,b) - the output of {@link #collectPab(Mat, Mat, int, int, double)}
-     * to M(a,b) (PMI - Pointwise Mutual Information - normalized CO matrix).
+     * to M(a,b) (PMI - Point-wise Mutual Information - normalized CO matrix).
      * @param pab input matrix - P(a,b)
      * @param pmi output matrix - PMI
      */
@@ -592,7 +592,6 @@ public class CoF {
         Mat wbg = new Mat();
         // our LUT is the iLevel-th row of the current channel pab matrix
         float[] LUT = new float[nBins];
-        Point anchor = new Point(-1, -1);
 
         // smooth per channel
         for (int iChannel = 0; iChannel < channelsCnt; iChannel++) {
@@ -683,23 +682,6 @@ public class CoF {
             outputData.setTo(new Scalar(LUT[i]), cmpMat);
         }
         cmpMat.release();
-    }
-
-    private static void applyLUTonData(byte[] inputData, float[] LUT, float[] outputData) {
-
-        if (inputData.length != outputData.length) {
-            Log.e(TAG, "applyLUTonData: inputData.length != outputData.length", new IllegalArgumentException("inputData.length != outputData.length"));
-        }
-
-        byte[] tmp = inputData.clone();
-        Arrays.sort(tmp);
-        if (tmp[0] < 0 || tmp[tmp.length - 1] > LUT.length) {
-            Log.e(TAG, "applyLUTonData: Invalid values in inputData", new IllegalArgumentException("Invalid values in inputData"));
-        }
-
-        for (int i = 0; i < inputData.length; i++) {
-            outputData[i] = LUT[inputData[i]];
-        }
     }
 }
 

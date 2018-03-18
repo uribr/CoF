@@ -47,7 +47,7 @@ class Utilities
     static final int MAX_QUANTIZATION_LEVEL = 256;
     static final int MIN_QUANTIZATION_LEVEL = 2;
     static final int DEFAULT_NUMBER_OF_ITERATIONS = 1;
-    static final byte DEFAULT_QUNTIZATION_LEVEL = 32;
+    static final byte DEFAULT_QUANTIZATION_LEVEL = 32;
     static final int DEFAULT_WINDOW_SIZE = 15;
     static final double DEFAULT_ALPHA = 0.5; // for FB-CoF
     static final float DEFAULT_SIGMA = 2 * (float) Math.sqrt(DEFAULT_WINDOW_SIZE) + 1;
@@ -71,14 +71,8 @@ class Utilities
     static final String ITERATIONS_FB = "iterations_fb";
     static final String STAT_WINDOW_SIZE_FB = "stat_window_size_fb";
     static final String STAT_SIGMA_FB = "stat_sigma_fb";
-    static final String FILT_SIGMA_FB = "filt_sigma_fb";
     static final String RELATIVE_STAT_WINDOW_SIZE_FB = "relative_stat_window_size_fb";
 
-    //Scribble Cosmetics
-    static final String SCRIBBLE_WIDTH = "scribble_width";
-    static final String SCRIBBLE_COLOR = "scribble_color";
-
-    static final String LANDSCAPE = "landscape";
     static final String IS_RELATIVE = "is relative";
     static final String IMG_SIZE = "image size";
     static final String SCRIBBLE_COLOR_KEY = "SCRIBBLE_COLOR_KEY";
@@ -118,10 +112,6 @@ class Utilities
         return atLeastOneChar && (canBeDefault || !str.equals(DEFAULT_PRESET_NAME)) && str.length() <= MAX_PRESET_NAME_LENGTH;
     }
 
-    static boolean isNameValid(String str) {
-        return isNameValid(str, false);
-    }
-
     static Map<String, String> getHardcodedDefaultParameters()
     {
         Map<String, String> map = new HashMap<>();
@@ -135,19 +125,18 @@ class Utilities
         map.put(ITERATIONS, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
         map.put(FILT_WINDOW_SIZE_FB, String.valueOf(DEFAULT_WINDOW_SIZE));
         map.put(RELATIVE_FILT_WINDOW_SIZE_FB, "0");
-        map.put(FILT_SIGMA_FB, String.valueOf(DEFAULT_SIGMA));
         map.put(STAT_WINDOW_SIZE_FB, String.valueOf(DEFAULT_WINDOW_SIZE));
         map.put(RELATIVE_STAT_WINDOW_SIZE_FB, "0");
         map.put(STAT_SIGMA_FB, String.valueOf(DEFAULT_SIGMA));
         map.put(ITERATIONS_FB, String.valueOf(DEFAULT_NUMBER_OF_ITERATIONS));
-        map.put(QUANTIZATION, String.valueOf(DEFAULT_QUNTIZATION_LEVEL));
+        map.put(QUANTIZATION, String.valueOf(DEFAULT_QUANTIZATION_LEVEL));
         map.put(IS_RELATIVE, String.valueOf(false));
         return map;
     }
 
 
     @SuppressLint("ApplySharedPref")
-    static void updatePreset(Preset preset, SharedPreferences prefs, int imgSize)
+    static void updatePreset(Preset preset, SharedPreferences prefs)
     {
         SharedPreferences.Editor editor = prefs.edit();
         // Put the string representation of the JSON object holding the mapping of
@@ -155,19 +144,11 @@ class Utilities
         editor.putString(PRESET_NAME, preset.getName());
         editor.putString(preset.getName(), new JSONObject(preset.presetToMap()).toString());
         editor.commit();
-//        SharedPreferences.Editor editor = prefs.edit();
-//        editor.putString(PRESET_NAME, preset.getName());
-//        editor.putFloat(STAT_SIGMA, preset.getStatSigma().floatValue());
-//        editor.putInt(STAT_WINDOW_SIZE, preset.getStatWindowSize(imgSize));
-//        editor.putInt(ITERATIONS, preset.getNumberOfIteration());
-//        editor.putInt(QUANTIZATION, preset.getQuantization());
-//        editor.putBoolean(IS_RELATIVE, preset.isRelative());
-//        editor.commit();
     }
 
     static void updateCurrentPreset(Preset curPreset, int imgSize)
     {
-        updatePreset(curPreset, currentPresetFile, imgSize);
+        updatePreset(curPreset, currentPresetFile);
     }
 
     @NonNull
@@ -187,7 +168,7 @@ class Utilities
 //                prefs.getFloat(STAT_SIGMA, DEFAULT_SIGMA),
 //                prefs.getInt(ITERATIONS, DEFAULT_NUMBER_OF_ITERATIONS),
 //                prefs.getInt(STAT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE),
-//                prefs.getInt(QUANTIZATION, DEFAULT_QUNTIZATION_LEVEL));
+//                prefs.getInt(QUANTIZATION, DEFAULT_QUANTIZATION_LEVEL));
     }
 
     @NonNull
