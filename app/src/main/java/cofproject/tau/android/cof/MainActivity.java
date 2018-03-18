@@ -25,6 +25,7 @@ import java.util.List;
 
 import static cofproject.tau.android.cof.Utilities.*;
 
+@SuppressWarnings("unused")
 public class MainActivity extends AppCompatActivity {
 
     // Protected members and methods
@@ -32,11 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate: started");
         super.onCreate(savedInstanceState);
-//        if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE)
-//        {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-//        }
-//        else { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); }
         setContentView(R.layout.activity_main);
         setTitle(R.string.main_activity_label);
 
@@ -141,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!cameraPermissionCheck) {
             String[] requests;
-            if (!readExternalStoragePermissionCheck) // ask for bith permissions
+            if (!readExternalStoragePermissionCheck) // ask for both permissions
             {
                 requests = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 

@@ -12,8 +12,8 @@ import android.widget.EditText;
 @SuppressWarnings("WeakerAccess")
 public class StringNameWatcher implements TextWatcher
 {
-    private EditText mTarget;
-    private CheckBox mCheckBox;
+    private final EditText mTarget;
+    private final CheckBox mCheckBox;
 
     public StringNameWatcher(EditText target, CheckBox checkBox)
     {

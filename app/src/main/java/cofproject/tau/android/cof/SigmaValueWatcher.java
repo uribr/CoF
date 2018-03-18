@@ -17,8 +17,8 @@ import static cofproject.tau.android.cof.Utilities.mapSigmaToProgress;
 public class SigmaValueWatcher implements TextWatcher
 {
     private Float currentVal;
-    private SeekBar mSigmaSeekBar;
-    private EditText mTarget;
+    private final SeekBar mSigmaSeekBar;
+    private final EditText mTarget;
 
     SigmaValueWatcher (EditText target, SeekBar sigmaSeekBar)
     {

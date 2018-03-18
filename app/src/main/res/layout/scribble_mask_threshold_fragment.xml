@@ -22,33 +22,48 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/scribble_mask_threshold_fragment_btn_layout_height"
-        android:orientation="horizontal">
-        <!--android:gravity="center">-->
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
-        <Button
-            android:id="@+id/continue_scribble_btn"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Continue"
-            android:textAllCaps="false"
-            android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
-            android:visibility="visible"
             android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
             android:layout_margin="@dimen/scribble_mask_threshold_fragment_btn_layout_margin"
-            android:onClick="onContinueScribbleClick"
-            tools:ignore="HardcodedText"/>
+            android:onClick="onContinueScribbleClick">
 
-        <Button
-            android:id="@+id/cancel_scribble_btn"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Continue"
+                android:gravity="center"
+                android:textAllCaps="false"
+                android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/cancel"
-            android:textAllCaps="false"
-            android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
-            android:visibility="visible"
             android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
             android:layout_margin="@dimen/scribble_mask_threshold_fragment_btn_layout_margin"
-            android:onClick="onCancelClick"/>
+            android:onClick="onCancelClick">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/cancel"
+                android:gravity="center"
+                android:textAllCaps="false"
+                android:textSize="@dimen/scribble_mask_threshold_fragment_btn_text_size"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
 
 
     </LinearLayout>

@@ -146,7 +146,7 @@ class Utilities
         editor.commit();
     }
 
-    static void updateCurrentPreset(Preset curPreset, int imgSize)
+    static void updateCurrentPreset(Preset curPreset)
     {
         updatePreset(curPreset, currentPresetFile);
     }
@@ -211,7 +211,7 @@ class Utilities
      * Creates a compressed version of the chosen image, in order to save memory space.
      * @param context The current context (activity)
      * @param uri The Uri object holding the image data
-     * @return A compresed version of the loaded image
+     * @return A compressed version of the loaded image
      */
     @Nullable
     static Bitmap getBitmap(Context context, Uri uri) {
@@ -345,8 +345,8 @@ class Utilities
      */
     static class ShowcaseViewParams
     {
-        int viewId;
-        int textId;
+        final int viewId;
+        final int textId;
 
         ShowcaseViewParams(int viewId, int textId)
         {
@@ -357,10 +357,10 @@ class Utilities
 
 
     /**
-     * Runs a MaterialShowcaseViwe tutorial sequence in the current activity
+     * Runs a MaterialShowcaseView tutorial sequence in the current activity
      * @param activity The current activity
      * @param titleId Tutorial title ID
-     * @param numOfViews Number of tutrial messages
+     * @param numOfViews Number of tutorial messages
      * @param showcaseViewParams The different ShowcaseViews parameters objects
      */
     static void showTutorial(Activity activity, int titleId, int numOfViews, List<ShowcaseViewParams> showcaseViewParams)

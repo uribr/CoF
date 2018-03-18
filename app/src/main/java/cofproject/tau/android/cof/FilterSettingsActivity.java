@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -79,6 +80,7 @@ import static cofproject.tau.android.cof.Utilities.updatePreset;
 /**
  * In this activity the user can set the different settings of the CoF and FB-CoF.
  */
+@SuppressWarnings("unused")
 public class FilterSettingsActivity extends AppCompatActivity implements ParametersFragment.OnFinishedCreateView
 {
 
@@ -128,7 +130,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         setContentView(R.layout.activity_filter_settings);
         initFragments();
 
-        Log.d(TAG, "onCreate: loading shared preference file for presests");
+        Log.d(TAG, "onCreate: loading shared preference file for presets");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
         mPresets = loadPresetsNameList();
 
@@ -161,7 +163,6 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         // Update current preset
         updateCurrentPreset();
-//        Utilities.insertPresetToDataInent(mPreset, intent, mImgSize);
         intent.putExtra(SCRIBBLE_COLOR_KEY, mScribbleColor);
         setResult(Activity.RESULT_OK, intent);
         super.onBackPressed();
@@ -265,6 +266,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         // Based on code from: https://www.mkyong.com/android/android-prompt-user-input-dialog-example/
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
+        @SuppressLint("InflateParams")
         final View promptsView = li.inflate(R.layout.prompt, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
@@ -375,7 +377,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         {
             AlertDialog.Builder alertDialog = Utilities.generateBasicAlertDialog(this, R.string.preset_delete_warning);
             alertDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                String presetName = mPreset.getName();
+                final String presetName = mPreset.getName();
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     SharedPreferences.Editor editor = mPresetPref.edit();
@@ -405,7 +407,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
     }
 
     /**
-     * Opens the corresponding dialog according to the settings attribute pressd
+     * Opens the corresponding dialog according to the settings attribute pressed
      * @param view The pressed settings attribute
      */
     public void onSettingClick(View view)
@@ -492,6 +494,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         LayoutInflater li = LayoutInflater.from(this);
 
         Log.d(TAG, "showPresetSpinnerDialog: creating widgets");
+        @SuppressLint("InflateParams")
         final View promptsView = li.inflate(R.layout.spinner_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
@@ -537,7 +540,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
     private void updateCurrentPreset()
     {
-        Utilities.updateCurrentPreset(mPreset, mImgSize);
+        Utilities.updateCurrentPreset(mPreset);
     }
 
     private void showNumberPickerDialog(String msg, int maxValue, int currentValue, String tag)
@@ -554,6 +557,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         final String internalTag = tag;
         // setup the alert builder
         LayoutInflater li = LayoutInflater.from(this);
+        @SuppressLint("InflateParams")
         final View promptsView = li.inflate(R.layout.numberpicker_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);
@@ -604,7 +608,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
                             break;
                     }
                     // Once the values loaded from the preset have been changed, we display
-                    // the string "Unsaved Preset" in the current value of the preseet
+                    // the string "Unsaved Preset" in the current value of the preset
                     // in the settings activity.
                     mFilteringParametersFragment.setPresetName("Unsaved Preset");
                 }
@@ -641,6 +645,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         LayoutInflater li = LayoutInflater.from(this);
 
         Log.d(TAG, "showSeekbarDialog: creating widgets");
+        @SuppressLint("InflateParams")
         final View promptsView = li.inflate(R.layout.seekbar_dialog, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(promptsView);

@@ -35,8 +35,6 @@ public class ParametersFragment extends Fragment
     private TextView mCurrentStatWindowSizeFB;
     private TextView mCurrentStatSigmaFB;
     private TextView mIterationCountFB;
-    // Scribble Cosmetics
-//    private TextView mCurre
 
     @Override
     public void onAttach(Context context)

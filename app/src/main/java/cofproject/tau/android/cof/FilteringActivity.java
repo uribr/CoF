@@ -74,6 +74,7 @@ import static cofproject.tau.android.cof.Utilities.updateCurrentPreset;
  *
  * @see CoF
  */
+@SuppressWarnings("unused")
 public class FilteringActivity extends AppCompatActivity implements ButtonsFragment.ButtonsFragmentListener {
     private static final String TAG = "FilteringActivity";
     private static final String FROM_FILTERING_TO_RESULT = "from filtering to result";
@@ -126,7 +127,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         FOREGROUND_BACKGROUND
     }
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+    private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
@@ -143,14 +144,6 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE)
-//        {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-//            mIsLandscape = true;
-//        } else
-//        {
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//        }
         setContentView(R.layout.activity_filtering);
         mFilteringMode = FilteringMode.REGULAR_FILTERING;
 
@@ -254,8 +247,8 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
 
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat sdf = new SimpleDateFormat("HHmmss_ddMMyyyy");
-        String currentDateandTime = sdf.format(new Date());
-        String fileName = "CoF_" + currentDateandTime + ".jpg";
+        String currentDateAndTime = sdf.format(new Date());
+        String fileName = "CoF_" + currentDateAndTime + ".jpg";
         File file = new File(myDir, fileName);
         if (file.exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -350,7 +343,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
                     }
                     mPreset = loadDefaultPreset();
                     // Set the default preset as the current preset
-                    updateCurrentPreset(mPreset, Math.min(mImgHeight, mImgWidth));
+                    updateCurrentPreset(mPreset);
                 }
                 break;
             case FILTER_SETTINGS_REQUEST_CODE:
@@ -582,7 +575,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             Log.d(TAG, "regularFiltering: coFilter time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.0 + " seconds");
             Utilities.releaseMats(pab, pmi, imToFilterCopy);
 
-            // convert filterd image to uint8 type
+            // convert filtered image to uint8 type
             mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
             // save the filtered Mat into Bitmap
             mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
@@ -632,7 +625,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
         }
 
         private void initParams() {
-            // extract parmeters from preset
+            // extract parameters from preset
             iterCnt = mPreset != null ? mPreset.getNumberOfIteration() : Utilities.DEFAULT_NUMBER_OF_ITERATIONS;
             sigmaStat = mPreset != null ? mPreset.getStatSigma() : Utilities.DEFAULT_SIGMA;
             nBins = mPreset != null ? mPreset.getQuantization() : Utilities.DEFAULT_QUANTIZATION_LEVEL;
@@ -706,7 +699,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
                 mImageViewFragment.clearScribble();
             } else {
 
-                // convert filterd image to uint8 type
+                // convert filtered image to uint8 type
                 mFilteredImage.convertTo(mFilteredImage, CvType.CV_8UC(mFilteredImage.channels()));
                 // save the filtered Mat into Bitmap
                 mFilteredBitmap = Bitmap.createBitmap(mFilteredImage.cols(), mFilteredImage.rows(), Bitmap.Config.RGB_565);
@@ -872,7 +865,7 @@ public class FilteringActivity extends AppCompatActivity implements ButtonsFragm
             stream.close();
 
         } catch (IOException e) {
-            Log.e(TAG, "onShareClick: IOExceotion - " + e.getMessage(), e);
+            Log.e(TAG, "onShareClick: IOExecution - " + e.getMessage(), e);
             e.printStackTrace();
         }
 

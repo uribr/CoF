@@ -30,9 +30,9 @@ public class Preset
 {
     private static final String TAG = "Preset";
 
-    private String mName;
+    private final String mName;
     private double mRelativeStatWindowSize;
-    private boolean mRelative;
+    private final boolean mRelative;
     // general
     private int mQuantizationLevels;
     //CoF
@@ -41,7 +41,7 @@ public class Preset
     private double mStatSigma;
     private int mFiltWindowSize;
     private double mFiltSigma;
-    private int mNumberOfIteration;
+    private final int mNumberOfIteration;
 
     //FB-CoF
     private int mFiltWindowSizeFB;
@@ -49,7 +49,7 @@ public class Preset
     private double mStatSigmaFB;
     private int mStatWindowSizeFB;
     private double mRelativeStatWindowSizeFB;
-    private int mNumberOfIterationFB;
+    private final int mNumberOfIterationFB;
 
 
     public Preset(String name, Map<String, String> map, Integer imgSize)
@@ -96,26 +96,9 @@ public class Preset
         }
     }
 
-    public boolean validate()
-    {
-        return !(mStatWindowSize <= 0 ||
-                mStatSigma == 0 ||
-                mNumberOfIteration == 0 ||
-                mName.isEmpty() ||
-                (mRelativeStatWindowSize == 0.0 && mRelative));
-    }
-
     public String getName()
     {
         return mName;
-    }
-
-    public void setName(String name)
-    {
-        if (name != null)
-        {
-            this.mName = name;
-        }
     }
 
     private void setRelativeWindowSize(int statWindowSize, int filtWindowSize, int filtWindowSizeFB, int imageSize, int statWindowSizeFB)
@@ -155,25 +138,25 @@ public class Preset
 
     public Integer getStatWindowSize(int size)
     {
-        return computeWinwowSize(size, mStatWindowSize, mRelativeStatWindowSize);
+        return computeWindowSize(size, mStatWindowSize, mRelativeStatWindowSize);
     }
 
     public Integer getFiltWindowSize(int size)
     {
-        return computeWinwowSize(size, mFiltWindowSize, mRelativeFiltWindowSize);
+        return computeWindowSize(size, mFiltWindowSize, mRelativeFiltWindowSize);
     }
 
     public Integer getFiltWindowSizeFB(int size)
     {
-        return computeWinwowSize(size, mFiltWindowSizeFB, mRelativeFiltWindowSizeFB);
+        return computeWindowSize(size, mFiltWindowSizeFB, mRelativeFiltWindowSizeFB);
     }
 
     public Integer getStatWindowSizeFB(int size)
     {
-        return computeWinwowSize(size, mStatWindowSizeFB, mRelativeStatWindowSizeFB);
+        return computeWindowSize(size, mStatWindowSizeFB, mRelativeStatWindowSizeFB);
     }
 
-    private Integer computeWinwowSize(int size, int windowSize, double relativeSize)
+    private Integer computeWindowSize(int size, int windowSize, double relativeSize)
     {
         if (mRelative || windowSize > size)
         {
@@ -266,16 +249,6 @@ public class Preset
         return mNumberOfIterationFB;
     }
 
-    private boolean setNumberOfIteration(int numberOfIteration)
-    {
-        if (numberOfIteration <= 10 && numberOfIteration > 0)
-        {
-            this.mNumberOfIteration = numberOfIteration;
-            return true;
-        }
-        return false;
-    }
-
     public Integer getQuantization()
     {
         return mQuantizationLevels;
@@ -293,22 +266,6 @@ public class Preset
     {
         return mRelative;
     }
-
-    public void setRelative(boolean relative)
-    {
-        mRelative = relative;
-    }
-
-//    public Integer getScribbleWidth()
-//    {
-//        return mScribbleWidth;
-//    }
-//
-//    public Object getScribbleColor()
-//    {
-//        return mScribbleColor;
-//    }
-
 
     public Map<String, String> presetToMap()
     {

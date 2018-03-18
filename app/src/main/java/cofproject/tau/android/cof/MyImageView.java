@@ -14,12 +14,11 @@ import android.view.MotionEvent;
  * A class extending Android's AppCompatImageView, adding drawing abilities.
  */
 public class MyImageView extends android.support.v7.widget.AppCompatImageView {
-    private static final String TAG = "MyImageView";
     private static final int TOUCH_TOLERANCE = 4;
     private static final float PAINT_STROKE_WIDTH = 10f;
 
-    private Paint mPaint;
-    private Path mPath;
+    private final Paint mPaint;
+    private final Path mPath;
     private boolean mScribbleState;
     private float mX, mY;
 
@@ -31,7 +30,6 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
      */
     public MyImageView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.BLUE);
@@ -43,10 +41,6 @@ public class MyImageView extends android.support.v7.widget.AppCompatImageView {
         mScribbleState = false;
     }
 
-//    public void drawPath(Path path) {
-//        mPath = path;
-//        invalidate();
-//    }
 
 
     @Override
