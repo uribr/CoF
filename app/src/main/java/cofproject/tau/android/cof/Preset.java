@@ -285,8 +285,6 @@ public class Preset
         map.put(ITERATIONS_FB, getNumberOfIterationFB().toString());
         map.put(QUANTIZATION, getQuantization().toString());
         map.put(IS_RELATIVE, isRelative().toString());
-//        map.put(SCRIBBLE_WIDTH, getScribbleWidth());
-//        map.put(SCRIBBLE_COLOR, getScribbleColor());
         return map;
     }
 

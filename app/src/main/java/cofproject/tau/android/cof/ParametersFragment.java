@@ -12,10 +12,6 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-/**
- * Created by Uri on 16/11/2017.
- */
-
 public class ParametersFragment extends Fragment
 {
 
@@ -182,16 +178,6 @@ public class ParametersFragment extends Fragment
     {
         return Integer.parseInt(mCurrentQuantizationLevels.getText().toString());
     }
-
-//    public void setScribbleWidth(int scribbleWidth)
-//    {
-//        mScribbleWidth.setText(String.format(Locale.ENGLISH, "%d", scribbleWidth))
-//    }
-//
-//    public void setScribbleColor(Object scribbleColor)
-//    {
-//        mScribbleColor.setColor(scribbleColor);
-//    }
 
     public void setPresetName(String presetName)
     {
