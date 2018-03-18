@@ -7,7 +7,7 @@ Feel free to contact us via the contact page of this website.
 
 ### Important Notes
 * We used OpenCV4Android v3.30. Note that this module is not included in the project and you have to include it in order to keep developing. Otherwise - the project will not compile.
-* One must download the OpenCV manager Android app. Notice that as for March '18 the Google Play Store version is outated and you must download and install the dated version using the .apk file in the SDK.
+* One must download the OpenCV manager Android app. Notice that as for March 2018 the Google Play Store version is outdated and you must download and install the dated version using the .apk file in the OpenCV4Android SDK (get it on https://opencv.org/releases.html).
 
 ### License
 The application is coptrighted under the GNU General Public License v3.0.
