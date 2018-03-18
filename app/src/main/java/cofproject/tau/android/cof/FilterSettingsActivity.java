@@ -130,6 +130,7 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
 
         Log.d(TAG, "onCreate: loading shared preference file for presests");
         mPresetPref = this.getSharedPreferences(getString(R.string.PresetsConfigFileName), Context.MODE_PRIVATE);
+        mPresets = loadPresetsNameList();
 
     }
 
@@ -498,8 +499,8 @@ public class FilterSettingsActivity extends AppCompatActivity implements Paramet
         final SpinnerReselect spinnerReselect = promptsView.findViewById(R.id.presetSpinner);
 
         Log.d(TAG, "showPresetSpinnerDialog: populating the spinner");
-        List<String> array = new ArrayList<>(loadPresetsNameList());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, array);
+        //List<String> array = new ArrayList<>(loadPresetsNameList());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, mPresets);
         spinnerReselect.setAdapter(adapter);
 
         Log.d(TAG, "showPresetSpinnerDialog: adding buttons");
