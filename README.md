@@ -10,7 +10,7 @@ Feel free to contact us via the contact page of this website.
 * One must download the OpenCV manager Android app. Notice that as for March 2018 the Google Play Store version is outdated and you must download and install the dated version using the .apk file in the OpenCV4Android SDK (get it on https://opencv.org/releases.html).
 
 ### License
-The application is coptrighted under the GNU General Public License v3.0.
+The application is copyrighted under the GNU General Public License v3.0.
 Please read the full license terms under LICENSE.txt
 
 
